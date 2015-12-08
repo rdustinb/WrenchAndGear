@@ -263,10 +263,10 @@ au BufRead,BufNewFile *.do set filetype=tcl
 "------------------- UCF -------------------------
 au BufRead,BufNewFile *.ucf set filetype=ucf
 "------------------- SV -------------------------
-au BufRead,BufNewFile *.sv set filetype=systemverilog
-au BufRead,BufNewFile *.svh set filetype=systemverilog
-au BufRead,BufNewFile *.vh set filetype=systemverilog
-au BufRead,BufNewFile *.v set filetype=systemverilog
+au BufRead,BufNewFile *.sv set filetype=verilog_systemverilog
+au BufRead,BufNewFile *.svh set filetype=verilog_systemverilog
+au BufRead,BufNewFile *.vh set filetype=verilog_systemverilog
+au BufRead,BufNewFile *.v set filetype=verilog_systemverilog
 au BufRead,BufNewFile *.vhd set filetype=vhdl
 "------------------- Conky -----------------------
 au BufNewFile,BufRead *conkyrc set filetype=conkyrc
