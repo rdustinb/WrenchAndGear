@@ -83,40 +83,58 @@ set modelines=1
 " Configure gVim to look pretty good
 let hostname = substitute(system('hostname'), '\n', '', '')
 
+" vim-airline configuration
+set laststatus=2
+let g:airline#extensions#tabline#enabled=1
+let g:airline#extensions#hunks#enabled=0
+let g:airline#extensions#branch=0
+let g:airline#extensions#tabline#fnamemod = ':t'
+let g:airline_powerline_fonts=1
+let g:airline_theme='base16'
+let g:airline_section_b = '%{strftime("%A")}'
+let g:airline_section_c = '%{strftime("%H:%M")}'
+let g:airline_section_y = '%t'
+
 set bg=dark
 " VIM Font
-if has("gui_win32")                             " Windows Config
-    set guifont=Consolas:h12:cANSI
-    set backupdir=Z:\Documents\viBackup
-    set lines=40 columns=100
-    " Set the color scheme to something that I can read on a black background
-    colorscheme codeschool
-elseif (hostname == "se005358")
-    set guifont=Anonymous\ Pro\ for\ Powerline\ 8
-    set lines=40 columns=100
-    " Set the color scheme to something that I can read on a black background
-    colorscheme codeschool
-    " Turn on the leading white space macro
-    let g:indent_guides_enable_on_vim_startup = 1
-    let g:indent_guides_auto_colors = 0
-    autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=#273333 ctermbg=7
-else
-    set guifont=Monospace\ 18
-    set lines=40 columns=100
-    " Set the color scheme to something that I can read on a black background
-    colorscheme codeschool
-    " Turn on the leading white space macro
-    let g:indent_guides_enable_on_vim_startup = 1
-    let g:indent_guides_auto_colors = 0
-    autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=#273333 ctermbg=7
-endif
+"set guifont=Liberation\ Mono\ for\ Powerline\ 8.5
+set guifont=Source\ Code\ Pro\ for\ Powerline\ Medium\ 8.5
+set lines=40 columns=120
+" Set the color scheme to something that I can read on a black
+colorscheme codeschool
 
 " Map the NERDTree key
 map <F2> :NERDTreeToggle <CR>
+let NERDTreeShowBookmarks=1
+let g:NERDTreeWinPos="right"
+" NERDTree Open on Startup
+au VimEnter * NERDTree
+au VimEnter * wincmd p
+
+" Auto close NERDTree if the only buffer open
+autocmd WinEnter * call s:CloseIfOnlyNerdTreeLeft()
+function! s:CloseIfOnlyNerdTreeLeft()
+  if exists("t:NERDTreeBufName")
+    if bufwinnr(t:NERDTreeBufName) != -1
+      if winnr("$") == 1
+        q
+      endif
+    endif
+  endif
+endfunction
+
+" Easier buffer switching, works with airline
+nnoremap <C-Tab>    :bn <CR>
+nnoremap <C-S-Tab>  :bp <CR>
 
 " mapping a key to toggle the cursorline and cursorcolumn
 " " changed to not conflict with NERDComment
 :nnoremap <Leader>/c :set cursorline! cursorcolumn!<CR>
+
+" Turn on the leading white space macro
+let g:indent_guides_enable_on_vim_startup = 1
+let g:indent_guides_auto_colors = 0
+autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=#273333 ctermbg=7
 
 " Mapping // to search for the text under a visually-selected block
 :vnoremap // y/<C-R>"<CR>
@@ -155,36 +173,6 @@ nmap <silent> <C-N> :set hls!<CR>:set hls?<CR>
 
 " map <F7> to enable\disable 'highlight spelling errors
 nmap <silent> <F7> :set spell!<CR>:set nospell?<CR>
-
-" Map Ctrl + Tab and Ctrl + Shift + Tab to jump between buffers
-nnoremap <C-Tab> :bnext<CR>
-nnoremap <C-S-Tab> :bprevious<CR>
-
-"vim-airline Configuration (New Status Bar from default VIM)
-"let g:airline_section_a = airline#section#create(['mode',' ','branch'])
-"let g:airline_section_b = '%{getcwd()}'
-"let g:airline_section_c = '%t'
-"let g:airline_section_x = '%{strftime("%c")}'
-"let g:airline_section_b = '%{strftime("%c")}'
-"let g:airline_section_y = 'BN: %{bufnr("%s")}'
-"let g:airline_section_z = '%{strftime("%c")}'
-
-"let g:airline_section_b = '%{strftime("%c")}'
-"let g:airline_section_y = 'BN: %{bufnr("%s")}'
-
-"let g:airline#extensions#tabline#enabled = 1
-" These will remove the 'carrot' characters from the vim-airline
-" tabs and status bar dividers. To properly show these dividers
-" rather than just a colored < or > character, will require
-" the modified fonts to be installed from here:
-"     https://github.com/powerline/fonts
-"let g:airline#extensions#tabline#left_sep = ''
-"let g:airline#extensions#tabline#right_sep = ''
-"let g:airline_left_sep = ''
-"let g:airline_right_sep = ''
-set laststatus=2
-let g:airline_powerline_fonts=1
-:let g:airline_theme='base16'
 
 " Color the 80eth Column for proper code alignment
 highlight ColorColumn guibg=#3a2a3a
@@ -270,4 +258,3 @@ au BufRead,BufNewFile *.v set filetype=verilog_systemverilog
 au BufRead,BufNewFile *.vhd set filetype=vhdl
 "------------------- Conky -----------------------
 au BufNewFile,BufRead *conkyrc set filetype=conkyrc
-
