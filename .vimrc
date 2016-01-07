@@ -106,7 +106,7 @@ colorscheme codeschool
 " Map the NERDTree key
 map <F2> :NERDTreeToggle <CR>
 let NERDTreeShowBookmarks=1
-let g:NERDTreeWinPos="right"
+"let g:NERDTreeWinPos="right"
 " NERDTree Open on Startup
 au VimEnter * NERDTree
 au VimEnter * wincmd p
