@@ -97,8 +97,15 @@ let g:airline_section_y = '%t'
 
 set bg=dark
 " VIM Font
-"set guifont=Liberation\ Mono\ for\ Powerline\ 8.5
-set guifont=Source\ Code\ Pro\ for\ Powerline\ Medium\ 8.5
+if has('unix')
+  if system("uname") == "Darwin\n"
+    " MACVIM Has a different font rendering size
+    " and font callout than the linux side
+    set guifont=Source\ Code\ Pro\ for\ Powerline:h10
+  else
+    set guifont=Liberation\ Mono\ for\ Powerline\ Medium\ 8.5
+  endif
+endif
 set lines=40 columns=120
 " Set the color scheme to something that I can read on a black
 colorscheme codeschool
@@ -197,10 +204,8 @@ highlight FoldColumn guibg=#252c31
 " be pasted (p) by using the command:
 "   "<macro letter/number>p
 "-------------------------------------------------
-let @a='V:s:input :output:
-'
-let @b='V:s:output:input :
-'
+let @a='V:s:input :output:'
+let @b='V:s:output:input :'
 "let @c='dw?kuyw?kd?klpb??c??b'
 " This macro is a little more robust than the example above as
 " it works for visual mode to refactor a large group of lines
