@@ -251,11 +251,13 @@ autocmd FileType python set omnifunc=pythoncomplete#Complete
 " au BufRead,BufNewFile *.jzz set filetype=jazz
 " au! Syntax jazz source C:/Program\ Files/Vim/vim72/syntax/jazz.vim
 
-"------------------- UCF -------------------------
+"-------------------- Do -------------------------
 au BufRead,BufNewFile *.do set filetype=tcl
 "------------------- UCF -------------------------
 au BufRead,BufNewFile *.ucf set filetype=ucf
-"------------------- SV -------------------------
+"------------------- XDC -------------------------
+au BufRead,BufNewFile *.xdc set filetype=sdc
+"-------------------- SV -------------------------
 au BufRead,BufNewFile *.sv set filetype=verilog_systemverilog
 au BufRead,BufNewFile *.svh set filetype=verilog_systemverilog
 au BufRead,BufNewFile *.vh set filetype=verilog_systemverilog
