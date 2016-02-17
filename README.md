@@ -6,6 +6,7 @@ My configuration of VIM uses Pathogen for package installation.
 
 My configuration of VIM utilizes the following Pathogen-installed packages:
  * [ctrlp](https://github.com/ctrlpvim/ctrlp.vim)
+ * [gundo](https://github.com/vim-scripts/Gundo)
  * [nerdcommenter](https://github.com/scrooloose/nerdcommenter)
  * [nerdtree](https://github.com/scrooloose/nerdtree)
  * [tabular](https://github.com/godlygeek/tabular)
