@@ -110,11 +110,9 @@ set lines=40 columns=120
 " Set the color scheme to something that I can read on a black
 colorscheme codeschool
 
-" Map the NERDTree key
-map <F2> :NERDTreeToggle <CR>
+" NERDTree Open on Startup
 let NERDTreeShowBookmarks=1
 "let g:NERDTreeWinPos="right"
-" NERDTree Open on Startup
 au VimEnter * NERDTree
 au VimEnter * wincmd p
 
@@ -142,6 +140,10 @@ nnoremap <C-S-Tab>  :bp <CR>
 let g:indent_guides_enable_on_vim_startup = 1
 let g:indent_guides_auto_colors = 0
 autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=#273333 ctermbg=7
+
+" Highlight Search Terms with an olive green color
+:set hlsearch
+hi Searh guibg=#666644
 
 " Mapping // to search for the text under a visually-selected block
 :vnoremap // y/<C-R>"<CR>
@@ -178,9 +180,6 @@ augroup end
 " turns of search highlight
 nmap <silent> <C-N> :set hls!<CR>:set hls?<CR>
 
-" map <F7> to enable\disable 'highlight spelling errors
-nmap <silent> <F7> :set spell!<CR>:set nospell?<CR>
-
 " Color the 80eth Column for proper code alignment
 highlight ColorColumn guibg=#3a2a3a
 set cc=81,82
@@ -188,6 +187,15 @@ set cc=81,82
 " Color is specific for the colorscheme codeschool in dark mode, change if
 " colorscheme is altered.
 highlight FoldColumn guibg=#252c31
+
+" Tool F-Keys
+" Map the Spelling Errors key
+nmap <silent> <F1> :set spell!<CR>:set nospell?<CR>
+" Map the NERDTree key
+map <F2> :NERDTreeToggle <CR>
+" Map the GUndo key
+nnoremap <F3> :GundoToggle<CR>
+
 "-------------------------------------------------
 "                 MACROS!!!!!!!
 " Macros can be recorded with the following sequence:
@@ -228,8 +236,8 @@ let @c='wdwkuywkdklpbýcýb'
 " command and not part of the original autcommand
 " syntax.
 "-------------------------------------------------
-highlight VerilogInstances guibg=#223344
-au VimEnter,WinEnter,BufWinEnter * nested match VerilogInstances /\.\w\+ *(\p*),\{0,1}/
+"highlight VerilogInstances guibg=#223344
+"au VimEnter,WinEnter,BufWinEnter * nested match VerilogInstances /\.\w\+ *(\p*),\{0,1}/
 
 " Clear previous search
 nnoremap <esc> :noh<return><esc>
