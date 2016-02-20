@@ -141,9 +141,21 @@ let g:indent_guides_enable_on_vim_startup = 1
 let g:indent_guides_auto_colors = 0
 autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=#273333 ctermbg=7
 
+" Enable incremental searches. VIM begins highlighting matched characters in a
+" search string as the user is typing. Nice dynamic search capability
+set incsearch
 " Highlight Search Terms with an olive green color
-:set hlsearch
-hi Searh guibg=#666644
+set hlsearch
+" gui= Options, {attr-list} in help docs
+" bold
+" underline
+" undercurl
+" reverse
+" inverse
+" italic
+" standout
+" NONE
+:hi Search guibg=#848444 gui=bold
 
 " Mapping // to search for the text under a visually-selected block
 :vnoremap // y/<C-R>"<CR>
