@@ -12,6 +12,16 @@ TAG_RE = re.compile(r'<[^>]+>')
 def remove_tags(text):
     return TAG_RE.sub('', text)
 
+def convertTime(hour,minute,utcRef):
+  newHour = ((int(hour) - int(float(utcRef))) + 24)%24
+  if((int(minute) < int((float(utcRef)*60)%60)) and (float(utcRef) > 0)):
+    newHour = ((newHour - 1)+24)%24
+    newMinute = (int(minute) - int(float(utcRef)*60))%60
+  else:
+    newHour = newHour
+    newMinute = (int(minute) - int(float(utcRef)*60))%60
+  return (newHour,newMinute)
+
 def parseLaunchFields(launchFields):
   global launchesCount
   global listCount
@@ -38,7 +48,19 @@ def parseLaunchFields(launchFields):
     print(launchPayload)
     # Launch Time
     launchTime = remove_tags(launchFields[14].strip())
-    print(launchTime)
+    """
+      Need to Convert the time to UTC for ease of maintenance.
+    """
+    rawTime,amPm,timeZone,utcRef = launchTime.split()
+    utcRef = utcRef.strip("(UTC")
+    utcRef = utcRef.strip(")")
+    if(rawTime.count(":") == 2):
+      hour,minute,sec = rawTime.split(":")
+    elif(rawTime.count(":") == 1):
+      hour,minute = rawTime.split(":")
+    print("%s Time: %s %s"%(timeZone,rawTime,utcRef))
+    hour,minute = convertTime(hour,minute,utcRef)
+    print("UTC Time: %d:%02d"%(hour,minute))
     # Launch Date
     launchDate = remove_tags(launchFields[1].strip().strip("NET"))
     print(launchDate)
