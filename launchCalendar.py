@@ -1,9 +1,124 @@
 import urllib.request
 import urllib.error
 import re
+import datetime
+
+import httplib2
+import os
+
+from apiclient import discovery
+import oauth2client
+from oauth2client import client
+from oauth2client import tools
 
 launchesCount = 0
 listCount = 0
+
+"""
+  Google API Stuff
+"""
+try:
+    import argparse
+    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+except ImportError:
+    flags = None
+
+# If modifying these scopes, delete your previously saved credentials
+# at ~/.credentials/calendar-python-quickstart.json
+SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
+CLIENT_SECRET_FILE = 'client_secret.json'
+APPLICATION_NAME = 'LaunchScript'
+LAUNCHCALENDARID = '8prjuab6hlhna6fq79blg5697c@group.calendar.google.com'
+
+"""
+  The following functions are used to install credentials from a file called
+  'client_secret.json' and place them in a usual install directory. The 'main'
+  function then uses OAuth2 to simply check the next 10 events from whichever 
+  calendarId the user specifies through LAUNCHCALENDARID of the logged in user
+  who first ran the get_credentials() function.
+"""
+def get_credentials():
+  """Gets valid user credentials from storage.
+
+  If nothing has been stored, or if the stored credentials are invalid,
+  the OAuth2 flow is completed to obtain the new credentials.
+
+  Returns:
+      Credentials, the obtained credential.
+  """
+  home_dir = os.path.expanduser('~')
+  credential_dir = os.path.join(home_dir, '.credentials')
+  if not os.path.exists(credential_dir):
+    os.makedirs(credential_dir)
+  credential_path = os.path.join(credential_dir,
+                                 'launch-script.json')
+
+  store = oauth2client.file.Storage(credential_path)
+  credentials = store.get()
+  if not credentials or credentials.invalid:
+    flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+    flow.user_agent = APPLICATION_NAME
+    if flags:
+      credentials = tools.run_flow(flow, store, flags)
+    else: # Needed only for compatibility with Python 2.6
+      credentials = tools.run(flow, store)
+    print('Storing credentials to ' + credential_path)
+  return credentials
+
+def testReadEvents():
+  """Shows basic usage of the Google Calendar API.
+
+  Creates a Google Calendar API service object and outputs a list of the next
+  10 events on the user's calendar.
+  """
+  credentials = get_credentials()
+  http = credentials.authorize(httplib2.Http())
+  service = discovery.build('calendar', 'v3', http=http)
+
+  now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+  print('Getting the upcoming 10 events')
+  eventsResult = service.events().list(
+    calendarId=LAUNCHCALENDARID, timeMin=now, maxResults=10, singleEvents=True,
+    orderBy='startTime').execute()
+  events = eventsResult.get('items', [])
+
+  if not events:
+    print('No upcoming events found.')
+  for event in events:
+    start = event['start'].get('dateTime', event['start'].get('date'))
+    print(start, event['summary'])
+"""
+  ------------
+"""
+
+def writeEvent(titleText, locationText, descriptionText, startTime, endTime):
+  # Refer to the Python quickstart on how to setup the environment:
+  # https://developers.google.com/google-apps/calendar/quickstart/python
+  # Change the scope to 'https://www.googleapis.com/auth/calendar' and delete any
+  # stored credentials.
+  event = {
+    'summary': titleText,
+    'location': locationText,
+    'description': descriptionText,
+    'start': {
+      'dateTime': endTime,
+    },
+    'end': {
+      'dateTime': endTime,
+    },
+    'reminders': {
+      'useDefault': False,
+      'overrides': [
+        {'method': 'popup', 'minutes': 15},
+      ],
+    },
+  }
+
+  event = service.events().insert(
+    calendarId=LAUNCHCALENDARID,
+    body=event
+  ).execute()
+  print('Event created: %s'%(event.get('htmlLink')))
 
 """
   Remove any HTML Tags from a string
@@ -14,7 +129,7 @@ def remove_tags(text):
 
 def convertTime(hour,minute,utcRef):
   newHour = ((int(hour) - int(float(utcRef))) + 24)%24
-  if((int(minute) < int((float(utcRef)*60)%60)) and (float(utcRef) > 0)):
+  if(int(minute) < int((float(utcRef)*60)%60)):
     newHour = ((newHour - 1)+24)%24
     newMinute = (int(minute) - int(float(utcRef)*60))%60
   else:
@@ -121,6 +236,12 @@ def getAllLaunches():
     print("There was an error decoding the URL for the Space Flight Insider Launch Schedule. :::nodename not known :::")
     print("Check that your computer has access to the Internet.")
 
-getAllLaunches()
-print("Total scheduled launches: %d"%(launchesCount))
-print("Total launches listed: %d"%(listCount))
+if __name__ == '__main__':
+  # Install the credentials from the client_secret.json file located in this
+  # same directory. If you don't have permission to write to this calendar, you
+  # won't have this .json file.
+  get_credentials()
+  # testReadEvents()
+  getAllLaunches()
+  print("Total scheduled launches: %d"%(launchesCount))
+  print("Total launches listed: %d"%(listCount))
