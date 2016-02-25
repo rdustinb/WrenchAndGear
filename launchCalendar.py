@@ -2,6 +2,7 @@ import urllib.request
 import urllib.error
 import re
 import datetime
+import calendar
 
 import httplib2
 import os
@@ -25,7 +26,7 @@ except ImportError:
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/calendar-python-quickstart.json
-SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
+SCOPES = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'LaunchScript'
 LAUNCHCALENDARID = '8prjuab6hlhna6fq79blg5697c@group.calendar.google.com'
@@ -33,7 +34,7 @@ LAUNCHCALENDARID = '8prjuab6hlhna6fq79blg5697c@group.calendar.google.com'
 """
   The following functions are used to install credentials from a file called
   'client_secret.json' and place them in a usual install directory. The 'main'
-  function then uses OAuth2 to simply check the next 10 events from whichever 
+  function then uses OAuth2 to simply check the next 10 events from whichever
   calendarId the user specifies through LAUNCHCALENDARID of the logged in user
   who first ran the get_credentials() function.
 """
@@ -50,9 +51,7 @@ def get_credentials():
   credential_dir = os.path.join(home_dir, '.credentials')
   if not os.path.exists(credential_dir):
     os.makedirs(credential_dir)
-  credential_path = os.path.join(credential_dir,
-                                 'launch-script.json')
-
+  credential_path = os.path.join(credential_dir, 'launch-script.json')
   store = oauth2client.file.Storage(credential_path)
   credentials = store.get()
   if not credentials or credentials.invalid:
@@ -64,6 +63,24 @@ def get_credentials():
       credentials = tools.run(flow, store)
     print('Storing credentials to ' + credential_path)
   return credentials
+
+def clearCalendar():
+  """
+    Get OAuth2 Credentials to Write to the Calendar.
+  """
+  credentials = get_credentials()
+  http = credentials.authorize(httplib2.Http())
+  service = discovery.build('calendar', 'v3', http=http)
+  """
+    Insert the new Event in the Launch Calendar
+  """
+  # First parse through the entire calendar and pull out each event, grabbing
+  # the unique event ID field, then use that field to request an event delete
+  # from the API.
+  events = service.events().list(calendarId=LAUNCHCALENDARID).execute()
+  for event in events["items"]:
+    print("Deleting event ID %s"%(event["id"]))
+    service.events().delete(calendarId=LAUNCHCALENDARID, eventId=event["id"]).execute()
 
 def testReadEvents():
   """Shows basic usage of the Google Calendar API.
@@ -91,7 +108,7 @@ def testReadEvents():
   ------------
 """
 
-def writeEvent(titleText, locationText, descriptionText, startTime, endTime):
+def writeEvent(titleText, locationText, descriptionText, startTime, endTime, launchId):
   # Refer to the Python quickstart on how to setup the environment:
   # https://developers.google.com/google-apps/calendar/quickstart/python
   # Change the scope to 'https://www.googleapis.com/auth/calendar' and delete any
@@ -101,9 +118,15 @@ def writeEvent(titleText, locationText, descriptionText, startTime, endTime):
     'location': locationText,
     'description': descriptionText,
     'start': {
-      'dateTime': endTime,
+      # Must be of the format: 2016-02-22T15:00:00-07:00
+      # where the end date and time is Feb 22, 2016 3PM local time to UTC-7
+      # timezone.
+      'dateTime': startTime,
     },
     'end': {
+      # Must be of the format: 2016-02-22T15:00:00-07:00
+      # where the end date and time is Feb 22, 2016 3PM local time to UTC-7
+      # timezone.
       'dateTime': endTime,
     },
     'reminders': {
@@ -113,31 +136,82 @@ def writeEvent(titleText, locationText, descriptionText, startTime, endTime):
       ],
     },
   }
+  """
+    Get OAuth2 Credentials to Write to the Calendar.
+  """
+  credentials = get_credentials()
+  http = credentials.authorize(httplib2.Http())
+  service = discovery.build('calendar', 'v3', http=http)
+  """
+    Insert the new Event in the Launch Calendar
+  """
+  try:
+    event = service.events().insert(
+      calendarId=LAUNCHCALENDARID,
+      body=event
+    ).execute()
+    print('Event created: %s'%(event.get('htmlLink')))
+  except:
+    print("There was an error writing launch event %s to the Google Calendar"%(launchId))
+    print(event)
 
-  event = service.events().insert(
-    calendarId=LAUNCHCALENDARID,
-    body=event
-  ).execute()
-  print('Event created: %s'%(event.get('htmlLink')))
-
-"""
-  Remove any HTML Tags from a string
-"""
 TAG_RE = re.compile(r'<[^>]+>')
 def remove_tags(text):
-    return TAG_RE.sub('', text)
+  """
+    Remove any HTML Tags from a string
+  """
+  return TAG_RE.sub('', text)
 
-def convertTime(hour,minute,utcRef):
-  newHour = ((int(hour) - int(float(utcRef))) + 24)%24
-  if(int(minute) < int((float(utcRef)*60)%60)):
-    newHour = ((newHour - 1)+24)%24
-    newMinute = (int(minute) - int(float(utcRef)*60))%60
+def formatDateToGoogleAPI(year, date, time, ampm, utcRef):
+  """
+    Compliance with RFC3339
+    Needs to be formatted as: 
+    2015-05-28T09:00:00-07:00
+  """
+  # Convert Date to the correct format
+  date = date.split()
+  date[0] = {v: k for k,v in enumerate(calendar.month_abbr)}[date[0]]
+  sdate = "%s-%02d-%02d"%(year,int(date[0]),int(date[1]))
+  # Convert 12 hour Time to 24 hour
+  time = time.split(':')
+  if ampm == "PM":
+    time[0] = int(time[0]) + 12
+  stime = "%02d:%02d:00"%(int(time[0]),int(time[1]))
+  etime = ''
+  edate = ''
+  if int(time[0])+1 == 24:
+    etime = "%02d:%02d:00"%(0,int(time[1]))
+    edate = "%s-%02d-%02d"%(year,int(date[0]),int(date[1])+1)
   else:
-    newHour = newHour
-    newMinute = (int(minute) - int(float(utcRef)*60))%60
-  return (newHour,newMinute)
+    etime = "%02d:%02d:00"%(int(time[0])+1,int(time[1]))
+    edate = "%s-%02d-%02d"%(year,int(date[0]),int(date[1]))
+  # Convert UTC Reference to RFC3339 format: -7 becomes -07:00
+  if utcRef.find("-") > -1:
+    utcRef = utcRef.strip('-')
+    sign = "-"
+  else:
+    sign = "+"
+  if utcRef.find(".") > -1:
+    utcRefHr = int(float(utcRef))
+    utcRefMin = int(float(utcRef)*60)%60
+    utcRef = "%02d:%02d"%(utcRefHr,utcRefMin)
+  else:
+    utcRef = "%02d:00"%(int(float(utcRef)))
+  utcRef = sign+utcRef
+# Now put it all together
+  sdateTimeRfc3339 = sdate+"T"+stime+utcRef
+  edateTimeRfc3339 = edate+"T"+etime+utcRef
+  return sdateTimeRfc3339, edateTimeRfc3339
 
-def parseLaunchFields(launchFields):
+def parseLaunchFields(launchFields,launchId):
+  """
+    The purpose of this function is to take as input a single HTML Table
+    row which is seen in the Space Flight Insider's Launch Calendar website,
+    parse and format fields needed for writing to the Google Calendar API.
+
+    This function assumes all needed fields are present thus non-scheduled
+    launches are parsed out.
+  """
   global launchesCount
   global listCount
   listCount += 1
@@ -148,61 +222,53 @@ def parseLaunchFields(launchFields):
   elif "TBD" in launchFields[14]:
     return
   else:
-    print("---------------------------------")
-    print("New Launch Fields")
-    print("---------------------------------")
+    # print("---------------------------------")
+    # print("New Launch Fields")
+    # print("---------------------------------")
     # print("Raw:")
     # print(launchFields)
     # print("")
     launchesCount += 1
     # Launch Vehicle
     launchVehicle = remove_tags(launchFields[6].strip())
-    print(launchVehicle)
     # Launch Payload
     launchPayload = remove_tags(launchFields[2].strip())
-    print(launchPayload)
-    # Launch Time
+    # Launch Date/Time Convert to RFC3339 Format
     launchTime = remove_tags(launchFields[14].strip())
-    """
-      Need to Convert the time to UTC for ease of maintenance.
-    """
     rawTime,amPm,timeZone,utcRef = launchTime.split()
     utcRef = utcRef.strip("(UTC")
     utcRef = utcRef.strip(")")
-    if(rawTime.count(":") == 2):
-      hour,minute,sec = rawTime.split(":")
-    elif(rawTime.count(":") == 1):
-      hour,minute = rawTime.split(":")
-    print("%s Time: %s %s"%(timeZone,rawTime,utcRef))
-    hour,minute = convertTime(hour,minute,utcRef)
-    print("UTC Time: %d:%02d"%(hour,minute))
-    # Launch Date
     launchDate = remove_tags(launchFields[1].strip().strip("NET"))
-    print(launchDate)
+    year = '2016'
+    date,edate = formatDateToGoogleAPI(year, launchDate, rawTime, amPm, utcRef)
     # Launch Location
     launchLocation = remove_tags(launchFields[11].strip())
-    print(launchLocation)
     # Launch Description
     launchDescription = remove_tags(launchFields[20].strip())
-    print(launchDescription)
     # Launch Payload Manufacturer Logo
     if("img src" in launchFields[4]):
       *blah,launchPayloadLogoURL = launchFields[4].strip().split("http")
       launchPayloadLogoURL,*blah = launchPayloadLogoURL.split(".png")
       launchPayloadLogoURL = "http"+launchPayloadLogoURL+".png"
-      print(launchPayloadLogoURL)
     # Launch Vehicle Manufacturer Logo
     if("img src" in launchFields[5]):
       *blah,launchVehicleLogoURL = launchFields[5].strip().split("http")
       launchVehicleLogoURL,*blah = launchVehicleLogoURL.split(".png")
       launchVehicleLogoURL = "http"+launchVehicleLogoURL+".png"
-      print(launchVehicleLogoURL)
-    print("")
+    writeEvent(
+      launchVehicle+" Launch, Payload: "+launchPayload,
+      launchLocation,
+      launchDescription,
+      date,
+      edate,
+      launchId
+    )
 
 def getAllLaunches():
   launchEntry = 0
   tableDepth = 0
   launchFields = list()
+  launchId = ""
   try:
     with urllib.request.urlopen('http://www.spaceflightinsider.com/launch-schedule/') as urlfh:
       for line in urlfh:
@@ -210,11 +276,15 @@ def getAllLaunches():
         # Find start of a launch schedule entry
         if ("<table class=" in line) and ("launchcalendar" in line):
           launchEntry = 1
+          *blah,launchId = line.split("id=\"")
+          launchId,*blah = launchId.split("\">")
+          launchId = launchId.strip("-")
+          print(launchId)
           continue
         # Capture when at the end of a launch entry
         elif (launchEntry is 1) and ("</table" in line) and (tableDepth is 0):
           launchEntry = 0
-          parseLaunchFields(launchFields)
+          parseLaunchFields(launchFields,launchId)
           launchFields = []
           continue
           # break
@@ -242,6 +312,7 @@ if __name__ == '__main__':
   # won't have this .json file.
   get_credentials()
   # testReadEvents()
+  clearCalendar()
   getAllLaunches()
   print("Total scheduled launches: %d"%(launchesCount))
   print("Total launches listed: %d"%(listCount))
