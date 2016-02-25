@@ -82,7 +82,7 @@ def clearCalendar():
     print("Deleting event ID %s"%(event["id"]))
     service.events().delete(calendarId=LAUNCHCALENDARID, eventId=event["id"]).execute()
 
-def testReadEvents():
+def readAllEvents():
   """Shows basic usage of the Google Calendar API.
 
   Creates a Google Calendar API service object and outputs a list of the next
@@ -113,6 +113,7 @@ def writeEvent(titleText, locationText, descriptionText, startTime, endTime, lau
   # https://developers.google.com/google-apps/calendar/quickstart/python
   # Change the scope to 'https://www.googleapis.com/auth/calendar' and delete any
   # stored credentials.
+  print(descriptionText)
   event = {
     'summary': titleText,
     'location': locationText,
@@ -156,10 +157,16 @@ def writeEvent(titleText, locationText, descriptionText, startTime, endTime, lau
     print(event)
 
 TAG_RE = re.compile(r'<[^>]+>')
+AMP_RE = re.compile(r'&amp;')
+APO_RE = re.compile(r'&#039;')
 def remove_tags(text):
   """
     Remove any HTML Tags from a string
+    This also includes reformatting HTML special character escapes to regular 
+    text.
   """
+  text = AMP_RE.sub('&', text)
+  text = APO_RE.sub('\'', text)
   return TAG_RE.sub('', text)
 
 def formatDateToGoogleAPI(year, date, time, ampm, utcRef):
@@ -222,12 +229,11 @@ def parseLaunchFields(launchFields,launchId):
   elif "TBD" in launchFields[14]:
     return
   else:
-    # print("---------------------------------")
-    # print("New Launch Fields")
-    # print("---------------------------------")
-    # print("Raw:")
-    # print(launchFields)
-    # print("")
+    descriptionElement = 0
+    for element in launchFields:
+      descriptionElement += 1
+      if element.find("class=\"description\">") > -1:
+        break
     launchesCount += 1
     # Launch Vehicle
     launchVehicle = remove_tags(launchFields[6].strip())
@@ -244,7 +250,7 @@ def parseLaunchFields(launchFields,launchId):
     # Launch Location
     launchLocation = remove_tags(launchFields[11].strip())
     # Launch Description
-    launchDescription = remove_tags(launchFields[20].strip())
+    launchDescription = remove_tags(launchFields[descriptionElement].strip())
     # Launch Payload Manufacturer Logo
     if("img src" in launchFields[4]):
       *blah,launchPayloadLogoURL = launchFields[4].strip().split("http")
@@ -311,7 +317,7 @@ if __name__ == '__main__':
   # same directory. If you don't have permission to write to this calendar, you
   # won't have this .json file.
   get_credentials()
-  # testReadEvents()
+  # readAllEvents
   clearCalendar()
   getAllLaunches()
   print("Total scheduled launches: %d"%(launchesCount))
