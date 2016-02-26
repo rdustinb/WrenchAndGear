@@ -1,6 +1,13 @@
 # WrenchAndGear
 This repository will contain configuration settings for tools I use so that I may tweak them in one place and have those configurations available everywhere.
 
+## Launch Script
+This script is used to parse the SpaceFlight Insider [Launch Calendar](http://www.spaceflightinsider.com/launch-schedule/) and 
+properly format the event fields, writing them via the Google Calendar API
+to my Public Launch Calendar. Feel free to subscribe using the following link:
+
+[CalDav Link](https://calendar.google.com/calendar/ical/8prjuab6hlhna6fq79blg5697c%40group.calendar.google.com/public/basic.ics)
+
 ## .vimrc Configuration
 My configuration of VIM uses Pathogen for package installation.
 
