@@ -132,6 +132,12 @@ endfunction
 nnoremap <C-Tab>    :bn <CR>
 nnoremap <C-S-Tab>  :bp <CR>
 
+" Close current buffer, switch to previous
+nmap <leader>bq :bp <BAR> bd #<CR>
+
+" Show list of current buffers
+nmap <leader>bl :ls <CR>
+
 " mapping a key to toggle the cursorline and cursorcolumn
 " " changed to not conflict with NERDComment
 :nnoremap <Leader>/c :set cursorline! cursorcolumn!<CR>
