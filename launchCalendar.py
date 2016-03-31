@@ -14,6 +14,7 @@ from oauth2client import tools
 
 launchesCount = 0
 listCount = 0
+totalDeleted = 0
 
 """
   Google API Stuff
@@ -29,7 +30,7 @@ except ImportError:
 SCOPES = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'LaunchScript'
-LAUNCHCALENDARID = '8prjuab6hlhna6fq79blg5697c@group.calendar.google.com'
+LAUNCHCALENDARID = 'cnogq69s3e5p64ph1mmfusk64c@group.calendar.google.com'
 
 """
   The following functions are used to install credentials from a file called
@@ -71,16 +72,29 @@ def clearCalendar():
   credentials = get_credentials()
   http = credentials.authorize(httplib2.Http())
   service = discovery.build('calendar', 'v3', http=http)
+  global totalDeleted
   """
     Insert the new Event in the Launch Calendar
   """
   # First parse through the entire calendar and pull out each event, grabbing
   # the unique event ID field, then use that field to request an event delete
   # from the API.
-  events = service.events().list(calendarId=LAUNCHCALENDARID).execute()
+  events = service.events().list(
+    calendarId=LAUNCHCALENDARID,
+    maxResults=1000,
+    singleEvents=True,
+    orderBy='startTime'
+    ).execute()
+  # for event in events["items"]:
+    # print("Event in list, ID %s"%(event["id"]))
+    # print("  %s"%(event["summary"]))
+    # print("  %s"%(event["start"]['dateTime']))
   for event in events["items"]:
     print("Deleting event ID %s"%(event["id"]))
+    print("  %s"%(event["summary"]))
+    print("  %s"%(event["start"]['dateTime']))
     service.events().delete(calendarId=LAUNCHCALENDARID, eventId=event["id"]).execute()
+    totalDeleted += 1
 
 def readAllEvents():
   """Shows basic usage of the Google Calendar API.
@@ -134,6 +148,7 @@ def writeEvent(titleText, locationText, descriptionText, startTime, endTime, lau
       'useDefault': False,
       'overrides': [
         {'method': 'popup', 'minutes': 15},
+        {'method': 'popup', 'minutes': 60},
       ],
     },
   }
@@ -320,5 +335,6 @@ if __name__ == '__main__':
   # readAllEvents
   clearCalendar()
   getAllLaunches()
-  print("Total scheduled launches: %d"%(launchesCount))
   print("Total launches listed: %d"%(listCount))
+  print("Total scheduled launches: %d"%(launchesCount))
+  print("Total events deleted: %s"%(totalDeleted))
