@@ -116,6 +116,9 @@ let NERDTreeShowBookmarks=1
 au VimEnter * NERDTree
 au VimEnter * wincmd p
 
+" Ignore Certain files (we won't ever open these as they are binaries)
+let NERDTreeIgnore=['\.wlf$', '\.ucdb$']
+
 " Auto close NERDTree if the only buffer open
 autocmd WinEnter * call s:CloseIfOnlyNerdTreeLeft()
 function! s:CloseIfOnlyNerdTreeLeft()
