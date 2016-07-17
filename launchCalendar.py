@@ -127,7 +127,8 @@ def writeEvent(titleText, locationText, descriptionText, startTime, endTime, lau
   # https://developers.google.com/google-apps/calendar/quickstart/python
   # Change the scope to 'https://www.googleapis.com/auth/calendar' and delete any
   # stored credentials.
-  print(descriptionText)
+  print(titleText)
+  print(startTime)
   event = {
     'summary': titleText,
     'location': locationText,
@@ -198,6 +199,8 @@ def formatDateToGoogleAPI(year, date, time, ampm, utcRef):
   time = time.split(':')
   if ampm == "PM":
     time[0] = int(time[0]) + 12
+  elif ampm == "AM" and time[0] == "12":
+    time[0] = int(time[0]) - 12
   stime = "%02d:%02d:00"%(int(time[0]),int(time[1]))
   etime = ''
   edate = ''
