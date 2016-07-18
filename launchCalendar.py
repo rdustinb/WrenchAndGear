@@ -197,8 +197,10 @@ def formatDateToGoogleAPI(year, date, time, ampm, utcRef):
   sdate = "%s-%02d-%02d"%(year,int(date[0]),int(date[1]))
   # Convert 12 hour Time to 24 hour
   time = time.split(':')
-  if ampm == "PM":
+  # Increment afternoon time by 12, except for high noon
+  if ampm == "PM" and time[0] != "12":
     time[0] = int(time[0]) + 12
+  # Change 12 am to 0 o'clock in military time
   elif ampm == "AM" and time[0] == "12":
     time[0] = int(time[0]) - 12
   stime = "%02d:%02d:00"%(int(time[0]),int(time[1]))
