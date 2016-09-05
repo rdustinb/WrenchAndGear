@@ -284,10 +284,13 @@ autocmd FileType python set omnifunc=pythoncomplete#Complete
 au BufRead,BufNewFile *.plist set filetype=xml
 "-------------------- Do -------------------------
 au BufRead,BufNewFile *.do set filetype=tcl
-"------------------- UCF -------------------------
+"---------- Chipscope Probes File ----------------
+au BufRead,BufNewFile *.ltx set filetype=xml
+"------------- FPGA Constraints ------------------
 au BufRead,BufNewFile *.ucf set filetype=tcl
-"------------------- XDC -------------------------
 au BufRead,BufNewFile *.xdc set filetype=tcl
+au BufRead,BufNewFile *.sdc set filetype=tcl
+au BufRead,BufNewFile *.fdc set filetype=tcl
 "-------------------- SV -------------------------
 au BufRead,BufNewFile *.sv set filetype=verilog_systemverilog
 au BufRead,BufNewFile *.svh set filetype=verilog_systemverilog

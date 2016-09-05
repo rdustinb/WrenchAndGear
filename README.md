@@ -23,3 +23,4 @@ My configuration of VIM utilizes the following Pathogen-installed packages:
  * [vim-gitgutter](https://github.com/airblade/vim-gitgutter)
  * [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides)
  * [vim-surround](https://github.com/tpope/vim-surround)
+ * [vim-visual-increment] (https://github.com/vim-scripts/visual-increment)
