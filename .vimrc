@@ -38,8 +38,8 @@ hi Folded guibg=darkmagenta guifg=white
 hi Vertsplit guibg=white guifg=black
 
 " GVIM Code Folding
-"au BufWinLeave * mkview
-"au BufWinEnter * silent loadview
+au BufWinLeave * mkview
+au BufWinEnter * silent loadview
 
 " Fold and Create folds with F9
 inoremap <F9> <C-O>za
@@ -280,6 +280,8 @@ autocmd FileType python set omnifunc=pythoncomplete#Complete
 " au BufRead,BufNewFile *.jzz set filetype=jazz
 " au! Syntax jazz source C:/Program\ Files/Vim/vim72/syntax/jazz.vim
 
+"------------------- plist -----------------------
+au BufRead,BufNewFile *.plist set filetype=xml
 "-------------------- Do -------------------------
 au BufRead,BufNewFile *.do set filetype=tcl
 "------------------- UCF -------------------------
