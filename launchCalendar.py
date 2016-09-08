@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup as bs4
 import urllib.request
 import urllib.error
 import re
@@ -31,6 +32,10 @@ SCOPES = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'LaunchScript'
 LAUNCHCALENDARID = 'cnogq69s3e5p64ph1mmfusk64c@group.calendar.google.com'
+
+TAG_RE = re.compile(r'<[^>]+>')
+AMP_RE = re.compile(r'&amp;')
+APO_RE = re.compile(r'&#039;')
 
 """
   The following functions are used to install credentials from a file called
@@ -97,10 +102,11 @@ def clearCalendar():
     totalDeleted += 1
 
 def readAllEvents():
-  """Shows basic usage of the Google Calendar API.
+  """
+    Shows basic usage of the Google Calendar API.
 
-  Creates a Google Calendar API service object and outputs a list of the next
-  10 events on the user's calendar.
+    Creates a Google Calendar API service object and outputs a list of the next
+    10 events on the user's calendar.
   """
   credentials = get_credentials()
   http = credentials.authorize(httplib2.Http())
@@ -118,15 +124,18 @@ def readAllEvents():
   for event in events:
     start = event['start'].get('dateTime', event['start'].get('date'))
     print(start, event['summary'])
-"""
-  ------------
-"""
 
-def writeEvent(titleText, locationText, descriptionText, startTime, endTime, launchId):
+def writeEvent(fields):
   # Refer to the Python quickstart on how to setup the environment:
   # https://developers.google.com/google-apps/calendar/quickstart/python
   # Change the scope to 'https://www.googleapis.com/auth/calendar' and delete any
   # stored credentials.
+  titleText = fields[0]
+  locationText = fields[1]
+  descriptionText = fields[2]
+  startTime = fields[3]
+  endTime = fields[4]
+  launchId = fields[5]
   print(titleText)
   print(startTime)
   event = {
@@ -172,9 +181,6 @@ def writeEvent(titleText, locationText, descriptionText, startTime, endTime, lau
     print("There was an error writing launch event %s to the Google Calendar"%(launchId))
     print(event)
 
-TAG_RE = re.compile(r'<[^>]+>')
-AMP_RE = re.compile(r'&amp;')
-APO_RE = re.compile(r'&#039;')
 def remove_tags(text):
   """
     Remove any HTML Tags from a string
@@ -230,101 +236,87 @@ def formatDateToGoogleAPI(year, date, time, ampm, utcRef):
   edateTimeRfc3339 = edate+"T"+etime+utcRef
   return sdateTimeRfc3339, edateTimeRfc3339
 
-def parseLaunchFields(launchFields,launchId):
-  """
-    The purpose of this function is to take as input a single HTML Table
-    row which is seen in the Space Flight Insider's Launch Calendar website,
-    parse and format fields needed for writing to the Google Calendar API.
+def splitTimeFields(timeString):
+  time_time = ""
+  time_ampm = ""
+  time_utcref = ""
+  if("AM" in timeString):
+    time_ampm = "AM"
+    time_time = timeString.split(" AM")[0]
+  elif("PM"in timeString):
+    time_ampm = "PM"
+    time_time = timeString.split(" PM")[0]
+  time_utcref = timeString.split("UTC")[1].strip(")")
+  return time_time, time_ampm, time_utcref
 
-    This function assumes all needed fields are present thus non-scheduled
-    launches are parsed out.
-  """
-  global launchesCount
-  global listCount
-  listCount += 1
-  # If the launch has no determined date yet, skip it
-  if "TBD" in launchFields[1]:
-    return
-  # If the launch has no determined time yet, skip it
-  elif "TBD" in launchFields[14]:
-    return
-  else:
-    descriptionElement = 0
-    for element in launchFields:
-      descriptionElement += 1
-      if element.find("class=\"description\">") > -1:
-        break
-    launchesCount += 1
-    # Launch Vehicle
-    launchVehicle = remove_tags(launchFields[6].strip())
-    # Launch Payload
-    launchPayload = remove_tags(launchFields[2].strip())
-    # Launch Date/Time Convert to RFC3339 Format
-    launchTime = remove_tags(launchFields[14].strip())
-    rawTime,amPm,timeZone,utcRef = launchTime.split()
-    utcRef = utcRef.strip("(UTC")
-    utcRef = utcRef.strip(")")
-    launchDate = remove_tags(launchFields[1].strip().strip("NET"))
-    year = '2016'
-    date,edate = formatDateToGoogleAPI(year, launchDate, rawTime, amPm, utcRef)
-    # Launch Location
-    launchLocation = remove_tags(launchFields[11].strip())
-    # Launch Description
-    launchDescription = remove_tags(launchFields[descriptionElement].strip())
-    # Launch Payload Manufacturer Logo
-    if("img src" in launchFields[4]):
-      *blah,launchPayloadLogoURL = launchFields[4].strip().split("http")
-      launchPayloadLogoURL,*blah = launchPayloadLogoURL.split(".png")
-      launchPayloadLogoURL = "http"+launchPayloadLogoURL+".png"
-    # Launch Vehicle Manufacturer Logo
-    if("img src" in launchFields[5]):
-      *blah,launchVehicleLogoURL = launchFields[5].strip().split("http")
-      launchVehicleLogoURL,*blah = launchVehicleLogoURL.split(".png")
-      launchVehicleLogoURL = "http"+launchVehicleLogoURL+".png"
-    writeEvent(
-      launchVehicle+" Launch, Payload: "+launchPayload,
-      launchLocation,
-      launchDescription,
-      date,
-      edate,
-      launchId
-    )
+def convertLaunchData(fields):
+      # Convert the Time to a RFC3336 Standard, required by Google API
+      # def formatDateToGoogleAPI(year, date, time, ampm, utcRef):
+      launchFields_year = datetime.datetime.now().strftime("%Y")
+      stime,etime = formatDateToGoogleAPI(launchFields_year,fields[1],fields[2],fields[3],fields[4])
+      titleText = fields[7]+" Satellite Launch via "+fields[6]
+      global launchesCount
+      launchesCount += 1
+      # writeEvent(titleText, locationText, descriptionText, startTime, endTime, launchId):
+      return titleText,fields[5],fields[-1],stime,etime,fields[0]
+
+# Used by Beautiful Soup
+def launch_table(tag):
+  return tag.table and tag.has_attr('class') and tag.has_attr('id')
 
 def getAllLaunches():
   launchEntry = 0
   tableDepth = 0
-  launchFields = list()
-  launchId = ""
+  launchEvents = list()
+  global listCount
   try:
-    with urllib.request.urlopen('http://www.spaceflightinsider.com/launch-schedule/') as urlfh:
-      for line in urlfh:
-        line = line.decode('utf-8')
-        # Find start of a launch schedule entry
-        if ("<table class=" in line) and ("launchcalendar" in line):
-          launchEntry = 1
-          *blah,launchId = line.split("id=\"")
-          launchId,*blah = launchId.split("\">")
-          launchId = launchId.strip("-")
-          print(launchId)
+    # Grab the entire page
+    launchCalHandle = urllib.request.urlopen('http://www.spaceflightinsider.com/launch-schedule/')
+    launchCalHtml = launchCalHandle.read()
+    soup = bs4(launchCalHtml, 'html.parser')
+    # Cleanup the Launch Entries as a string with consistent spacing, allows
+    # better modularization of the script.
+    for launchEvent in soup.body.find_all(launch_table)[1:]:
+      # Increment the list counter
+      listCount += 1
+      launchFields = list()
+      launchString = re.sub(' +', ' ', launchEvent.prettify().replace('\n', ' ').replace('\r', ''))
+      # print(launchString)
+      # Get the launchID
+      launchFields.append(launchString.split('"launchcalendar" id="')[1].split('"> <tr>')[0].strip())
+      # Get the date, bypass non-hard-scheduled launches
+      launchFields.append(launchString.split('</span> <span>')[1].split(' </span>')[0].strip())
+      if(
+      not('Jan' in launchFields[-1]) and not('Feb' in launchFields[-1]) and
+      not('Mar' in launchFields[-1]) and not('Apr' in launchFields[-1]) and
+      not('May' in launchFields[-1]) and not('Jun' in launchFields[-1]) and
+      not('Jul' in launchFields[-1]) and not('Aug' in launchFields[-1]) and
+      not('Sep' in launchFields[-1]) and not('Oct' in launchFields[-1]) and
+      not('Nov' in launchFields[-1]) and not('Dec' in launchFields[-1])):
+        continue
+      # Get the time, bypass non-hard-scheduled launches
+      if("Time" in launchString):
+        if("TBD" in launchString.split('<th> Time </th> <td>')[1].split(' </td>')[0].strip()):
           continue
-        # Capture when at the end of a launch entry
-        elif (launchEntry is 1) and ("</table" in line) and (tableDepth is 0):
-          launchEntry = 0
-          parseLaunchFields(launchFields,launchId)
-          launchFields = []
-          continue
-          # break
-        # Keep Track of Depth of Tables When parsing Launch Fields
-        if (launchEntry is 1) and ("<table" in line):
-          tableDepth += 1
-          continue
-        elif (launchEntry is 1) and ("</table" in line):
-          tableDepth -= 1
-          continue
-
-        # Store Launch Entry
-        if(launchEntry is 1):
-          launchFields.append(line)
+        else:
+          tempTime = splitTimeFields(launchString.split('<th> Time </th> <td>')[1].split(' </td>')[0].strip())
+          for timeField in tempTime:
+            launchFields.append(timeField)
+      else:
+        continue
+      # Get the Location
+      launchFields.append(launchString.split('<th> Location </th> <td>')[1].split('</td>')[0].strip())
+      # Get the Satellite
+      launchFields.append(launchString.split('<th colspan="2">')[1].split('</th>')[0].strip())
+      # Get the Launch Vehicle
+      if("<wbr>" in launchString.split('<br/>')[1].split('</td>')[0].strip()):
+        launchFields.append(re.sub(' </wbr>', '', re.sub(' <wbr> ', '', launchString.split('<br/>')[1].split('</td>')[0].strip())))
+      else:
+        launchFields.append(launchString.split('<br/>')[1].split('</td>')[0].strip())
+      # Get the description
+      launchFields.append(launchString.split('"description" colspan="2"> <p>')[1].split('</p>')[0].strip())
+      # Convert Stored Data to writeEvent()
+      writeEvent(convertLaunchData(launchFields))
   except urllib.error.HTTPError:
     print("There was an error accessing the Space Flight Insider Launch Schedule.")
     print("The server could be down or having issues. Try again.")
