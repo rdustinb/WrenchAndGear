@@ -23,6 +23,7 @@ My configuration of VIM utilizes the following Pathogen-installed packages:
  * [tabular](https://github.com/godlygeek/tabular)
  * [verilog_systemverilog](https://github.com/vhda/verilog_systemverilog.vim)
  * [vim-airline](https://github.com/bling/vim-airline)
+ * [vim-airline-themes](https://github.com/vim-airline/vim-airline-themes)
  * [vim-colorschemes](https://github.com/flazz/vim-colorschemes)
  * [vim-gitgutter](https://github.com/airblade/vim-gitgutter)
  * [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides)
