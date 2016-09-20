@@ -11,6 +11,10 @@ to my Public Launch Calendar. Feel free to subscribe using the following link:
 ## .vimrc Configuration
 My configuration of VIM uses Pathogen for package installation.
 
+My configuration uses either Source Code Pro for Powerline (MacOSX), or Liberation Mono for Powerline (Linux) for development.
+
+[Powerline Fonts](https://github.com/powerline/fonts)
+
 My configuration of VIM utilizes the following Pathogen-installed packages:
  * [ctrlp](https://github.com/ctrlpvim/ctrlp.vim)
  * [gundo](https://github.com/vim-scripts/Gundo)
