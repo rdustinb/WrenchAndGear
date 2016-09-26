@@ -1,6 +1,10 @@
 # WrenchAndGear
 This repository will contain configuration settings for tools I use so that I may tweak them in one place and have those configurations available everywhere.
 
+Install the Python3 requirements for my environment by using the supplied requirement file:
+
+    pip3 install -r env_requirements.txt
+
 ## Launch Script
 This script is used to parse the SpaceFlight Insider [Launch Calendar](http://www.spaceflightinsider.com/launch-schedule/) and properly format the event fields, writing them via the Google Calendar API to my Google Calendar. You can us it too, you just need to modify the script to point to YOUR Google Calendar API Instance and the calendars Public URL.
 
