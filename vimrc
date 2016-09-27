@@ -47,6 +47,11 @@ nnoremap <F9> za
 onoremap <F9> <C-C>za
 vnoremap <F9> zf
 
+" Disable Auto-Fold for Markdown
+let g:vim_markdown_folding_style_pythonic = 1
+let g:vim_markdown_json_frontmatter = 1
+let g:vim_markdown_new_list_item_indent = 1
+
 " Turn off all scroll bars, toolbar and menu bar
 set guioptions-=T
 set guioptions-=m
