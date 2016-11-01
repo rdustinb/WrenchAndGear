@@ -50,7 +50,7 @@ vnoremap <F9> zf
 " Disable Auto-Fold for Markdown
 let g:vim_markdown_folding_style_pythonic = 1
 let g:vim_markdown_json_frontmatter = 1
-let g:vim_markdown_new_list_item_indent = 1
+let g:vim_markdown_new_list_item_indent = 2
 
 " Turn off all scroll bars, toolbar and menu bar
 set guioptions-=T
@@ -63,7 +63,7 @@ set noeb vb t_vb=
 au GUIEnter * set vb t_vb=
 
 " Python style guide settings
-set tabstop=8
+set tabstop=2
 set expandtab
 set softtabstop=2
 set shiftwidth=2
@@ -153,6 +153,7 @@ nmap <leader>bl :ls <CR>
 " Turn on the leading white space macro
 let g:indent_guides_enable_on_vim_startup = 1
 let g:indent_guides_auto_colors = 0
+let g:indent_guides_start_level = 2
 autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=#273333 ctermbg=7
 
 " Enable incremental searches. VIM begins highlighting matched characters in a
@@ -208,7 +209,7 @@ nmap <silent> <C-N> :set hls!<CR>:set hls?<CR>
 
 " Color the 80eth Column for proper code alignment
 highlight ColorColumn guibg=#3a2a3a
-set cc=81,82
+set cc=121,122
 
 " Color is specific for the colorscheme codeschool in dark mode, change if
 " colorscheme is altered.
