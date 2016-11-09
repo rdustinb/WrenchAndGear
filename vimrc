@@ -1,7 +1,7 @@
 " Disable vi compatible mode
 set nocompatible
 
-filetype indent plugin on
+"filetype indent plugin on
 
 " turn on syntax highlight
 syntax on
@@ -270,10 +270,6 @@ let @c='wdwkuywkdklpbýcýb'
 nnoremap <esc> :noh<return><esc>
 
 " ################## Python Development Specific stuff ##################
-" Add the ability to search for Python Documentation
-" Define where 'pydoc' is located
-"let g:pydoc_cmd="python C:/Progra~1/Python26/Lib/pydoc.py"
-
 " Add the Smart Indent function for keywords in Python files
 autocmd BufRead *.py set smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class
 
