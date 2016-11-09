@@ -27,57 +27,157 @@ from urllib import request
 from urllib import error
 
 dns_query_timeout_in_seconds = 1
-dns_servers = {
-  'Level31' : ['209.244.0.3', '209.244.0.4'],
-  'Verisign2' : ['64.6.64.6', '64.6.65.6'],
-  'Google3' : ['8.8.8.8', '8.8.4.4'],
-  'DNS.WATCH4' : ['84.200.69.80', '84.200.70.40'],
-  'Comodo Secure DNS' : ['8.26.56.26', '8.20.247.20'],
-  'OpenDNS Home5' : ['208.67.222.222', '208.67.220.220'],
-  'DNS Advantage' : ['156.154.70.1', '156.154.71.1'],
-  'Norton ConnectSafe6' : ['199.85.126.10', '199.85.127.10'],
-  'GreenTeamDNS7' : ['81.218.119.11', '209.88.198.133'],
-  'SafeDNS8' : ['195.46.39.39', '195.46.39.40'],
-  'Dyn' : ['216.146.35.35', '216.146.36.36'],
-  'FreeDNS10' : ['37.235.1.174', '37.235.1.177'],
-  'Alternate DNS11' : ['198.101.242.72', '23.253.163.53'],
-  'Yandex.DNS12' : ['77.88.8.8', '77.88.8.1'],
-  'censurfridns.dk13' : ['91.239.100.100', '89.233.43.71'],
-  'Hurricane Electric14' : ['74.82.42.42'],
-  'puntCAT15' : ['109.69.8.51'],
-  'OpenNIC9' : ['162.211.64.20', '199.195.249.174'],
-  'SmartViper' : ['208.76.50.50', '208.76.51.51']
+dns_servers_blank = {
+  'Level31'              : {
+    '209.244.0.3'         : [],
+    '209.244.0.4'         : []
+  },
+  'Verisign2'            : {
+    '64.6.64.6' : [],
+    '64.6.65.6' : []
+  },
+  'Google3'              : {
+    '8.8.8.8' : [],
+    '8.8.4.4' : []
+  },
+  'DNS.WATCH4'           : {
+    '84.200.69.80' : [],
+    '84.200.70.40' : []
+  },
+  'Comodo Secure DNS'    : {
+    '8.26.56.26' : [],
+    '8.20.247.20' : []
+  },
+  'OpenDNS Home5'        : {
+    '208.67.222.222' : [],
+    '208.67.220.220' : []
+  },
+  'DNS Advantage'        : {
+    '156.154.70.1' : [],
+    '156.154.71.1' : []
+  },
+  'Norton ConnectSafe6'  : {
+    '199.85.126.10' : [],
+    '199.85.127.10' : []
+  },
+  'GreenTeamDNS7'        : {
+    '81.218.119.11' : [],
+    '209.88.198.133' : []
+  },
+  'SafeDNS8'             : {
+    '195.46.39.39' : [],
+    '195.46.39.40' : []
+  },
+  'Dyn'                  : {
+    '216.146.35.35' : [],
+    '216.146.36.36' : []
+  },
+  'FreeDNS10'            : {
+    '37.235.1.174' : [],
+    '37.235.1.177' : []
+  },
+  'Alternate DNS11'      : {
+    '198.101.242.72' : [],
+    '23.253.163.53' : []
+  },
+  'Yandex.DNS12'         : {
+    '77.88.8.8' : [],
+    '77.88.8.1' : []
+  },
+  'censurfridns.dk13'    : {
+    '91.239.100.100' : [],
+    '89.233.43.71' : []
+  },
+  'Hurricane Electric14' : {
+    '74.82.42.42' : []
+  },
+  'puntCAT15'            : {
+    '109.69.8.51' : []
+  },
+  'OpenNIC9'             : {
+    '199.195.249.174' : []
+  }
 }
 
-web_servers = [
-  'apple.com',
-  'bbc.co.uk',
-  'ebay.com',
-  'facebook.com',
-  'fivethirtyeight.com',
-  'github.com',
-  'goodreads.com',
-  'google.com',
-  'ifixit.com',
-  'imgur.com',
-  'instagram.com',
-  'netflix.com',
-  'nytimes.com',
-  'paypal.com',
-  'pinterest.com',
-  'shopify.com',
-  'tumblr.com',
-  'twitter.com',
-  'whatsapp.com',
-  'wikipedia.org',
-  'youtube.com'
-]
+web_servers_blank = {
+  'apple.com' : [],
+  'bbc.co.uk' : [],
+  'ebay.com' : [],
+  'facebook.com' : [],
+  'fivethirtyeight.com' : [],
+  'github.com' : [],
+  'goodreads.com' : [],
+  'google.com' : [],
+  'ifixit.com' : [],
+  'imgur.com' : [],
+  'instagram.com' : [],
+  'netflix.com' : [],
+  'nytimes.com' : [],
+  'paypal.com' : [],
+  'pinterest.com' : [],
+  'shopify.com' : [],
+  'tumblr.com' : [],
+  'twitter.com' : [],
+  'whatsapp.com' : [],
+  'wikipedia.org' : [],
+  'youtube.com' : []
+}
 
 ping_servers = [
   'cnn.com',
   'etsy.com',
   'reddit.com'
 ]
+
+def load_dns_data_structures():
+  """
+    This function will attempt to load/read the stored DNS and Web server JSON objects from the same directory that the
+    script was launched from. If no file is found, the default will be used.
+  """
+  import json
+  try:
+    with open('test_internet_dns.json', 'r') as fp:
+      return(json.load(fp))
+  except:
+    print("DNS JSON File does not exist, using default.")
+    return(dns_servers_blank)
+
+def load_web_data_structures():
+  """
+    This function will attempt to load/read the stored DNS and Web server JSON objects from the same directory that the
+    script was launched from. If no file is found, the default will be used.
+  """
+  import json
+  try:
+    with open('test_internet_web.json', 'r') as fp:
+      return(json.load(fp))
+  except:
+    print("Web JSON File does not exist, using default.")
+    return(web_servers_blank)
+
+def store_dns_data_structures(dns_servers):
+  """
+    This function will store the modified DNS server structure as a JSON object in the same directory that the script
+    was launched from.
+  """
+  import json
+  try:
+    with open('test_internet_dns.json', 'w') as fp:
+      json.dump(dns_servers, fp)
+  except:
+    print("DNS JSON File could not be stored.")
+
+def store_web_data_structures(web_servers):
+  """
+    This function will store the modified DNS server structure as a JSON object in the same directory that the script
+    was launched from.
+  """
+  import json
+  try:
+    with open('test_internet_web.json', 'w') as fp:
+      json.dump(web_servers, fp)
+  except:
+    print("Web JSON File could not be stored.")
 
 def test_dns_servers(dns_server_list, dns_timeout):
   """
@@ -88,7 +188,7 @@ def test_dns_servers(dns_server_list, dns_timeout):
   """
   for server_name in dns_server_list.keys():
     cprint(server_name, 'white', attrs=['bold'])
-    for ipaddress in dns_server_list[server_name]:
+    for ipaddress in dns_server_list[server_name].keys():
       # Create a new resolver to use for completing a DNS request, this will test each server for accessibility
       testing_resolver = dns.resolver.Resolver()
       testing_resolver.lifetime = dns_timeout
@@ -97,21 +197,27 @@ def test_dns_servers(dns_server_list, dns_timeout):
         start_time = time.time();
         result = testing_resolver.query('google.com')
         elapsed_time_ms = int((time.time() - start_time)*1000);
-        # print("\t%s\tup"%(ipaddress))
         result_text = colored("Up", 'green')
         result_text = ("%s\t%s ms"%(result_text,elapsed_time_ms))
+        # Append the elapsed time to the array
+        dns_server_list[server_name][ipaddress].append(elapsed_time_ms)
       except DNSException:
         result_text = colored("timeout", 'red')
+        # Append the timeout value to the array
+        dns_server_list[server_name][ipaddress].append((dns_timeout*1000))
       except:
         result_text = colored("unknown", 'red')
+        # Append the timeout value to the array
+        dns_server_list[server_name][ipaddress].append((dns_timeout*1000))
       # Pretty Printou
       if(len(ipaddress) < 8):
         print("\t%s\t\t%s"%(ipaddress,result_text))
       else:
         print("\t%s\t%s"%(ipaddress,result_text))
+  return dns_server_list
 
 def test_web_servers(web_server_list):
-  for server_name in web_server_list:
+  for server_name in web_server_list.keys():
     req = request.Request(('https://www.'+server_name))
     try: 
       start_time = time.time();
@@ -119,8 +225,12 @@ def test_web_servers(web_server_list):
       elapsed_time_ms = int((time.time() - start_time)*1000);
       result_text = colored("good", 'green')
       result_text = ("%s\t%s ms"%(result_text,elapsed_time_ms))
+      # Append the elapsed time to the array
+      web_server_list[server_name].append(elapsed_time_ms)
     except:
       result_text = colored("unreachable", 'red')
+      # Append the timeout value to the array
+      web_server_list[server_name].append((30000))
     if(len(server_name) < 8):
       server_name = colored(server_name, 'white', attrs=['bold'])
       print("%s\t\t\t%s"%(server_name,result_text))
@@ -130,12 +240,17 @@ def test_web_servers(web_server_list):
     else:
       server_name = colored(server_name, 'white', attrs=['bold'])
       print("%s\t%s"%(server_name,result_text))
+  return web_server_list
 
 """
   Execute the script.
 """
+dns_servers_working = load_dns_data_structures()
+web_servers_working = load_web_data_structures()
 print(colored("-- DNS Servers --", "white", attrs=['bold']))
-test_dns_servers(dns_servers, dns_query_timeout_in_seconds)
+dns_servers_working = test_dns_servers(dns_servers_working, dns_query_timeout_in_seconds)
 print("\n")
 print(colored("-- Web Servers --", "white", attrs=['bold']))
-test_web_servers(web_servers)
+web_servers_working = test_web_servers(web_servers_working)
+store_dns_data_structures(dns_servers_working)
+store_web_data_structures(web_servers_working)
