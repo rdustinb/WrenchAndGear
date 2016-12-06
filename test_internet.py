@@ -204,11 +204,11 @@ def test_dns_servers(dns_server_list, dns_timeout):
       except DNSException:
         result_text = colored("timeout", 'red')
         # Append the timeout value to the array
-        dns_server_list[server_name][ipaddress].append((dns_timeout*1000))
+        dns_server_list[server_name][ipaddress].append(0)
       except:
         result_text = colored("unknown", 'red')
         # Append the timeout value to the array
-        dns_server_list[server_name][ipaddress].append((dns_timeout*1000))
+        dns_server_list[server_name][ipaddress].append(0)
       # Pretty Printou
       if(len(ipaddress) < 8):
         print("\t%s\t\t%s"%(ipaddress,result_text))
@@ -230,7 +230,7 @@ def test_web_servers(web_server_list):
     except:
       result_text = colored("unreachable", 'red')
       # Append the timeout value to the array
-      web_server_list[server_name].append((30000))
+      web_server_list[server_name].append(0)
     if(len(server_name) < 8):
       server_name = colored(server_name, 'white', attrs=['bold'])
       print("%s\t\t\t%s"%(server_name,result_text))
