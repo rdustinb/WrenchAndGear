@@ -1,31 +1,29 @@
-# Critical Commands
+#Critical Commands
 This scratchpad note will hold critical commands that I have found useful during
 my coding adventures.
 
-Terminal
----
+##Terminal
+BASH Commands I've created to perform lots of crazy awesome stuff.
 ```
 egrep -il "  " ./* -A 0
 ```
 
   * &lt;CTRL&gt;+v, &lt;TAB&gt; will add a tab between the quotes allowing searching for tab spaces in all files in a directory.
 
-VIM
----
+##VIM
+None
 
+##Pebble Development
+None
 
-Pebble Development
----
+##FPGA Development
+None
 
-
-FPGA Development
----
-
-Mac Environment
----
+##Mac Environment
 Meld for OSX can be downloaded here:
 https://yousseb.github.io/meld/
 
+This will allow meld to be used as gitdiff
 Edit the .gitconfig file with these sections:
 ```
 [diff]
@@ -44,9 +42,6 @@ Edit the .gitconfig file with these sections:
   cmd = open -W -a Meld --args --auto-merge \"$PWD/$LOCAL\" \"$PWD/$BASE\" \"$PWD/$REMOTE\" --output=\"$PWD/$MERGED\"
 ```
 
-This will allow meld to be used as gitdiff
-
----
 iCloud setup on the Mac has become extremely bloated, so if there is a small drive being utilized it might be best to disable all iCloud "sync" features except those directly used on the Mac in question. For instance, disabling the following freed up almost 5GB:
 
 * Photos
@@ -74,7 +69,7 @@ defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true
 
   * Install the missing package manager _Homebrew_ on Mac OSX.
 
-#### Disk Space Savings
+###Disk Space Savings
 ```
 defaults write com.apple.iTunes DeviceBackupsDisabled -bool true
 ```
