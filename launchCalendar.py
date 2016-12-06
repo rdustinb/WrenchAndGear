@@ -254,7 +254,7 @@ def convertLaunchData(fields):
       # def formatDateToGoogleAPI(year, date, time, ampm, utcRef):
       launchFields_year = datetime.datetime.now().strftime("%Y")
       stime,etime = formatDateToGoogleAPI(launchFields_year,fields[1],fields[2],fields[3],fields[4])
-      titleText = fields[7]+" Satellite Launch via "+fields[6]
+      titleText = fields[6]+" Satellite Launch via "+fields[7]
       global launchesCount
       launchesCount += 1
       # writeEvent(titleText, locationText, descriptionText, startTime, endTime, launchId):
@@ -306,9 +306,8 @@ def getAllLaunches():
         continue
       # Get the Location
       launchFields.append(launchString.split('<th> Location </th> <td>')[1].split('</td>')[0].strip())
-      # Get the Satellite
+      # Get the Satellite and launch vehicle
       launchFields.append(launchString.split('<th colspan="2">')[1].split('</th>')[0].strip())
-      # Get the Launch Vehicle
       if("<wbr>" in launchString.split('<br/>')[1].split('</td>')[0].strip()):
         launchFields.append(re.sub(' </wbr>', '', re.sub(' <wbr> ', '', launchString.split('<br/>')[1].split('</td>')[0].strip())))
       else:
