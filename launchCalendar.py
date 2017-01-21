@@ -36,6 +36,7 @@ LAUNCHCALENDARID = 'cnogq69s3e5p64ph1mmfusk64c@group.calendar.google.com'
 TAG_RE = re.compile(r'<[^>]+>')
 AMP_RE = re.compile(r'&amp;')
 APO_RE = re.compile(r'&#039;')
+LAUNCHID_RE = re.compile(r'launchcalendar[ a-zA-Z]{0,5}" id="')
 
 """
   The following functions are used to install credentials from a file called
@@ -95,9 +96,9 @@ def clearCalendar():
     # print("  %s"%(event["summary"]))
     # print("  %s"%(event["start"]['dateTime']))
   for event in events["items"]:
-    print("Deleting event ID %s"%(event["id"]))
-    print("  %s"%(event["summary"]))
-    print("  %s"%(event["start"]['dateTime']))
+    #print("Deleting event ID %s"%(event["id"]))
+    #print("  %s"%(event["summary"]))
+    #print("  %s"%(event["start"]['dateTime']))
     service.events().delete(calendarId=LAUNCHCALENDARID, eventId=event["id"]).execute()
     totalDeleted += 1
 
@@ -273,49 +274,56 @@ def getAllLaunches():
     # Grab the entire page
     launchCalHandle = urllib.request.urlopen('http://www.spaceflightinsider.com/launch-schedule/')
     launchCalHtml = launchCalHandle.read()
+    #launchCalHtml = re.split('Upcoming Missions This Year</span>', launchCalHtml)[1]
+    #launchCalHtml = re.split('Past Missions This Year', launchCalHtml)[0]
     soup = bs4(launchCalHtml, 'html.parser')
     # Cleanup the Launch Entries as a string with consistent spacing, allows
     # better modularization of the script.
-    for launchEvent in soup.body.find_all(launch_table)[1:]:
+    for launchEvent in soup.body.find_all(launch_table):
       # Increment the list counter
       listCount += 1
       launchFields = list()
       launchString = re.sub(' +', ' ', launchEvent.prettify().replace('\n', ' ').replace('\r', ''))
-      # print(launchString)
-      # Get the launchID
-      launchFields.append(launchString.split('"launchcalendar" id="')[1].split('"> <tr>')[0].strip())
-      # Get the date, bypass non-hard-scheduled launches
-      launchFields.append(launchString.split('</span> <span>')[1].split(' </span>')[0].strip())
-      if(
-      not('Jan' in launchFields[-1]) and not('Feb' in launchFields[-1]) and
-      not('Mar' in launchFields[-1]) and not('Apr' in launchFields[-1]) and
-      not('May' in launchFields[-1]) and not('Jun' in launchFields[-1]) and
-      not('Jul' in launchFields[-1]) and not('Aug' in launchFields[-1]) and
-      not('Sep' in launchFields[-1]) and not('Oct' in launchFields[-1]) and
-      not('Nov' in launchFields[-1]) and not('Dec' in launchFields[-1])):
-        continue
-      # Get the time, bypass non-hard-scheduled launches
-      if("Time" in launchString):
-        if("TBD" in launchString.split('<th> Time </th> <td>')[1].split(' </td>')[0].strip()):
+      # Parse the entire set from Beautiful soup, skip an entry if it is larger than 3000 characters as it is a BS failure
+      if(len(launchString) > 3000):
+        next
+      else:
+        print(len(launchString));
+        # Get the launchID
+        launchFields.append(re.split('launchcalendar[ a-zA-Z]{0,5}" id="', launchString)[1].split('"> <tr>')[0].strip())
+        # Get the date, bypass non-hard-scheduled launches
+        launchFields.append(launchString.split('</span> <span>')[1].split(' </span>')[0].strip())
+        if(
+        not('Jan' in launchFields[-1]) and not('Feb' in launchFields[-1]) and
+        not('Mar' in launchFields[-1]) and not('Apr' in launchFields[-1]) and
+        not('May' in launchFields[-1]) and not('Jun' in launchFields[-1]) and
+        not('Jul' in launchFields[-1]) and not('Aug' in launchFields[-1]) and
+        not('Sep' in launchFields[-1]) and not('Oct' in launchFields[-1]) and
+        not('Nov' in launchFields[-1]) and not('Dec' in launchFields[-1])):
           continue
+        # Get the time, bypass non-hard-scheduled launches
+        if("Time" in launchString):
+          if("TBD" in launchString.split('<th> Time </th> <td>')[1].split(' </td>')[0].strip()):
+            continue
+          else:
+            tempTime = splitTimeFields(launchString.split('<th> Time </th> <td>')[1].split(' </td>')[0].strip())
+            for timeField in tempTime:
+              launchFields.append(timeField)
         else:
-          tempTime = splitTimeFields(launchString.split('<th> Time </th> <td>')[1].split(' </td>')[0].strip())
-          for timeField in tempTime:
-            launchFields.append(timeField)
-      else:
-        continue
-      # Get the Location
-      launchFields.append(launchString.split('<th> Location </th> <td>')[1].split('</td>')[0].strip())
-      # Get the Satellite and launch vehicle
-      launchFields.append(launchString.split('<th colspan="2">')[1].split('</th>')[0].strip())
-      if("<wbr>" in launchString.split('<br/>')[1].split('</td>')[0].strip()):
-        launchFields.append(re.sub(' </wbr>', '', re.sub(' <wbr> ', '', launchString.split('<br/>')[1].split('</td>')[0].strip())))
-      else:
-        launchFields.append(launchString.split('<br/>')[1].split('</td>')[0].strip())
-      # Get the description
-      launchFields.append(launchString.split('"description" colspan="2"> <p>')[1].split('</p>')[0].strip())
-      # Convert Stored Data to writeEvent()
-      writeEvent(convertLaunchData(launchFields))
+          continue
+        # Get the Location
+        launchFields.append(launchString.split('<th> Location </th> <td>')[1].split('</td>')[0].strip())
+        # Get the Satellite
+        launchFields.append(launchString.split('<th colspan="2">')[1].split('</th>')[0].strip())
+        # Get the launch vehicle
+        if("<wbr>" in launchString.split('<br/>')[1].split('</td>')[0].strip()):
+          launchFields.append(re.sub(' </wbr>', '', re.sub(' <wbr> ', '', launchString.split('<br/>')[1].split('</td>')[0].strip())))
+        else:
+          launchFields.append(launchString.split('<br/>')[1].split('</td>')[0].strip())
+        # Get the description
+        launchFields.append(launchString.split('"description" colspan="2"> <p>')[1].split('</p>')[0].strip())
+        # Convert Stored Data to writeEvent()
+        writeEvent(convertLaunchData(launchFields))
   except urllib.error.HTTPError:
     print("There was an error accessing the Space Flight Insider Launch Schedule.")
     print("The server could be down or having issues. Try again.")
