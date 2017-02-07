@@ -38,7 +38,7 @@ hi Folded guibg=darkmagenta guifg=white
 hi Vertsplit guibg=white guifg=black
 
 " GVIM Code Folding
-au BufWinLeave ?* mkview
+au BufWritePost,BufLeave,BufWinLeave ?* mkview
 au BufWinEnter ?* silent loadview
 
 " Fold and Create folds with F9
