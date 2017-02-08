@@ -20,11 +20,23 @@
     https://www.lifewire.com/free-and-public-dns-servers-2626062
 """
 import time
-from termcolor import colored, cprint
-import dns.resolver
-from dns.exception import DNSException
-from urllib import request
-from urllib import error
+
+try:
+  from termcolor import colored, cprint
+except:
+  print("Please install Python 3 version of termcolor package using:\n\n\tpip install termcolor\n\n")
+
+try:
+  import dns.resolver
+  from dns.exception import DNSException
+except:
+  print("Please install Python 3 version of dnspython package using:\n\n\tpip install dnspython\n\n")
+
+try:
+  from urllib import request
+  from urllib import error
+except:
+  print("Please install Python 3 version of urllib package using:\n\n\tpip install urllib\n\n")
 
 dns_query_timeout_in_seconds = 1
 dns_servers_blank = {

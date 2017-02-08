@@ -27,41 +27,92 @@
 DBHEADERCOLOR="\033[38;5;112m"
 DBENDCOLOR="\033[m"
 DBNONECOLOR="\033[38;5;234m"
+SINGLEFILE="0"
 
 if [[ -n "$1" ]]
 then
-    first=`gls -alh --color=always "$1" | grep "^d"`
-    second=`gls -alh --color=always "$1" | grep "^-"`
-    third=`gls -alh --color=always "$1" | grep "^l"`
+    visibledirs=`gls -lh --color=always "$1" | grep "^d"`
+    hiddendirs=`gls -alh --color=always "$1" | grep "^d" | egrep "((;..m\.)|( \.))"`
+    visiblefiles=`gls -lh --color=always "$1" | grep "^-"`
+    hiddenfiles=`gls -alh --color=always "$1" | grep "^-" | egrep "((;..m\.)|( \.))"`
+    links=`gls -alh --color=always "$1" | grep "^l"`
+    if [ -f "$1" ]
+    then
+      SINGLEFILE="1"
+    fi
 else
-    first=`gls -alh --color=always | grep '^d'`
-    second=`gls -alh --color=always | grep '^-'`
-    third=`gls -alh --color=always | grep '^l'`
+    visibledirs=`gls -lh --color=always | grep "^d"`
+    hiddendirs=`gls -ldh --color=always .* | grep "^d"`
+    visiblefiles=`gls -lh --color=always | grep "^-"`
+    hiddenfiles=`gls -ldh --color=always .* | grep "^-"`
+    links=`gls -alh --color=always | grep "^l"`
 fi
 
-if [[ $first ]]
+if [[ "$SINGLEFILE" -eq "0" ]]
 then
-    echo -e "$DBHEADERCOLOR-------- Directories --------$DBENDCOLOR"
-    echo "$first"
-else
-    echo -e "$DBHEADERCOLOR-------- Directories --------$DBENDCOLOR"
-    echo -e "$DBNONECOLOR none $DBENDCOLOR"
-fi
+  if [[ $visibledirs ]]
+  then
+      echo -e "$DBHEADERCOLOR-------- Directories --------$DBENDCOLOR"
+      echo "$visibledirs"
+  else
+      echo -e "$DBHEADERCOLOR-------- Directories --------$DBENDCOLOR"
+      echo -e "$DBNONECOLOR none $DBENDCOLOR"
+  fi
 
-if [[ $second ]]
-then
-    echo -e "$DBHEADERCOLOR----------- Files -----------$DBENDCOLOR"
-    echo "$second"
-else
-    echo -e "$DBHEADERCOLOR----------- Files -----------$DBENDCOLOR"
-    echo -e "$DBNONECOLOR none $DBENDCOLOR"
-fi
+  if [[ $hiddendirs ]]
+  then
+      echo -e "$DBHEADERCOLOR---- Hidden Directories -----$DBENDCOLOR"
+      echo "$hiddendirs"
+  else
+      echo -e "$DBHEADERCOLOR---- Hidden Directories -----$DBENDCOLOR"
+      echo -e "$DBNONECOLOR none $DBENDCOLOR"
+  fi
 
-if [[ $third ]]
-then
-    echo -e "$DBHEADERCOLOR----------- Links -----------$DBENDCOLOR"
-    echo "$third"
+  if [[ $visiblefiles ]]
+  then
+      echo -e "$DBHEADERCOLOR----------- Files -----------$DBENDCOLOR"
+      echo "$visiblefiles"
+  else
+      echo -e "$DBHEADERCOLOR----------- Files -----------$DBENDCOLOR"
+      echo -e "$DBNONECOLOR none $DBENDCOLOR"
+  fi
+
+  if [[ $hiddenfiles ]]
+  then
+      echo -e "$DBHEADERCOLOR------- Hidden Files --------$DBENDCOLOR"
+      echo "$hiddenfiles"
+  else
+      echo -e "$DBHEADERCOLOR------- Hidden Files --------$DBENDCOLOR"
+      echo -e "$DBNONECOLOR none $DBENDCOLOR"
+  fi
+
+  if [[ $links ]]
+  then
+      echo -e "$DBHEADERCOLOR----------- Links -----------$DBENDCOLOR"
+      echo "$links"
+  else
+      echo -e "$DBHEADERCOLOR----------- Links -----------$DBENDCOLOR"
+      echo -e "$DBNONECOLOR none $DBENDCOLOR"
+  fi
 else
-    echo -e "$DBHEADERCOLOR----------- Links -----------$DBENDCOLOR"
-    echo -e "$DBNONECOLOR none $DBENDCOLOR"
+  if [[ $visibledirs ]]
+  then
+    echo "$visibledirs"
+  fi
+  if [[ $hiddendirs ]]
+  then
+    echo "$hiddendirs"
+  fi
+  if [[ $visiblefiles ]]
+  then
+    echo "$visiblefiles"
+  fi
+  if [[ $hiddenfiles ]]
+  then
+    echo "$hiddenfiles"
+  fi
+  if [[ $links ]]
+  then
+    echo "$links"
+  fi
 fi
