@@ -20,6 +20,7 @@
     https://www.lifewire.com/free-and-public-dns-servers-2626062
 """
 import time
+import sys
 
 try:
   from termcolor import colored, cprint
@@ -141,52 +142,56 @@ ping_servers = [
   'reddit.com'
 ]
 
-def load_dns_data_structures():
+def load_dns_data_structures(location):
   """
     This function will attempt to load/read the stored DNS and Web server JSON objects from the same directory that the
     script was launched from. If no file is found, the default will be used.
   """
   import json
   try:
-    with open('test_internet_dns.json', 'r') as fp:
+    filename = '.'+location+'_dns.json'
+    with open(filename, 'r') as fp:
       return(json.load(fp))
   except:
     print("DNS JSON File does not exist, using default.")
     return(dns_servers_blank)
 
-def load_web_data_structures():
+def load_web_data_structures(location):
   """
     This function will attempt to load/read the stored DNS and Web server JSON objects from the same directory that the
     script was launched from. If no file is found, the default will be used.
   """
   import json
   try:
-    with open('test_internet_web.json', 'r') as fp:
+    filename = '.'+location+'_web.json'
+    with open(filename, 'r') as fp:
       return(json.load(fp))
   except:
     print("Web JSON File does not exist, using default.")
     return(web_servers_blank)
 
-def store_dns_data_structures(dns_servers):
+def store_dns_data_structures(dns_servers, location):
   """
     This function will store the modified DNS server structure as a JSON object in the same directory that the script
     was launched from.
   """
   import json
   try:
-    with open('test_internet_dns.json', 'w') as fp:
+    filename = '.'+location+'_dns.json'
+    with open(filename, 'w') as fp:
       json.dump(dns_servers, fp)
   except:
     print("DNS JSON File could not be stored.")
 
-def store_web_data_structures(web_servers):
+def store_web_data_structures(web_servers, location):
   """
     This function will store the modified DNS server structure as a JSON object in the same directory that the script
     was launched from.
   """
   import json
   try:
-    with open('test_internet_web.json', 'w') as fp:
+    filename = '.'+location+'_web.json'
+    with open(filename, 'w') as fp:
       json.dump(web_servers, fp)
   except:
     print("Web JSON File could not be stored.")
@@ -257,12 +262,16 @@ def test_web_servers(web_server_list):
 """
   Execute the script.
 """
-dns_servers_working = load_dns_data_structures()
-web_servers_working = load_web_data_structures()
+if(sys.argv[1] != ''):
+  location = sys.argv[1]
+else:
+  location = "unspecified"
+dns_servers_working = load_dns_data_structures(location)
+web_servers_working = load_web_data_structures(location)
 print(colored("-- DNS Servers --", "white", attrs=['bold']))
 dns_servers_working = test_dns_servers(dns_servers_working, dns_query_timeout_in_seconds)
 print("\n")
 print(colored("-- Web Servers --", "white", attrs=['bold']))
 web_servers_working = test_web_servers(web_servers_working)
-store_dns_data_structures(dns_servers_working)
-store_web_data_structures(web_servers_working)
+store_dns_data_structures(dns_servers_working, location)
+store_web_data_structures(web_servers_working, location)
