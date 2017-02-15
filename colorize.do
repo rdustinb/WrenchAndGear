@@ -1,6 +1,12 @@
 # Example config data here:
 # http://noc-performance.googlecode.com/svn-history/r27/trunk/Source/gl_sim/modelsim.tcl
 
+#####################################
+# Add any custom waves and such here.
+# add wave -noupdate
+# add wave -noupdate -divider <NULL>
+#####################################
+
 TreeUpdate [SetDefaultTree]
 configure wave -background #101010
 configure wave -foreground #999999
