@@ -98,17 +98,13 @@ dns_servers_blank = {
     '77.88.8.1' : []
   },
   'censurfridns.dk13'    : {
-    '91.239.100.100' : [],
-    '89.233.43.71' : []
+    '91.239.100.100' : []
   },
   'Hurricane Electric14' : {
     '74.82.42.42' : []
   },
   'puntCAT15'            : {
     '109.69.8.51' : []
-  },
-  'OpenNIC9'             : {
-    '199.195.249.174' : []
   }
 }
 
@@ -133,7 +129,8 @@ web_servers_blank = {
   'twitter.com' : [],
   'whatsapp.com' : [],
   'wikipedia.org' : [],
-  'youtube.com' : []
+  'youtube.com' : [],
+  'zoho.com' : []
 }
 
 ping_servers = [
@@ -262,16 +259,19 @@ def test_web_servers(web_server_list):
 """
   Execute the script.
 """
-if(sys.argv[1] != ''):
+location = "unspecified"
+if(len(sys.argv) > 1):
   location = sys.argv[1]
-else:
-  location = "unspecified"
+
 dns_servers_working = load_dns_data_structures(location)
 web_servers_working = load_web_data_structures(location)
+
 print(colored("-- DNS Servers --", "white", attrs=['bold']))
 dns_servers_working = test_dns_servers(dns_servers_working, dns_query_timeout_in_seconds)
 print("\n")
 print(colored("-- Web Servers --", "white", attrs=['bold']))
 web_servers_working = test_web_servers(web_servers_working)
+print("\n")
+
 store_dns_data_structures(dns_servers_working, location)
 store_web_data_structures(web_servers_working, location)
