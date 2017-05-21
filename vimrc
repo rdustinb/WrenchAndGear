@@ -111,7 +111,7 @@ if has('unix')
     set guifont=Liberation\ Mono\ for\ Powerline\ Medium\ 8.5
   endif
 endif
-set lines=40 columns=120
+set lines=40 columns=165
 " Set the color scheme to something that I can read on a black
 colorscheme codeschool
 
