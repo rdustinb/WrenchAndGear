@@ -58,6 +58,12 @@ set guioptions-=m
 set guioptions-=r
 set guioptions-=L
 
+:set formatoptions+=t
+:set formatoptions+=c
+:set formatoptions+=q
+:set formatoptions+=r
+:set formatoptions+=o
+
 " Disable Visual and Audible Bells
 set noeb vb t_vb=
 au GUIEnter * set vb t_vb=
@@ -67,7 +73,8 @@ set tabstop=2
 set expandtab
 set softtabstop=2
 set shiftwidth=2
-set textwidth=0
+" Similar to the column highlight down below. Wrap at the column before the highlight.
+set textwidth=120
 " vim-airline shows which line we are on, so disable the builtin
 " VIM line numbers
 "set number
