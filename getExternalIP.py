@@ -1,6 +1,6 @@
 # Libraries to access the MyIPAddress website
-import urllib.request
-import urllib.error
+from urllib import request
+from urllib import error
 
 # Libraries to access the mail server
 from smtplib import SMTP
@@ -17,9 +17,9 @@ from datetime import datetime, timezone
 
 # Globals
 # App-Specific Password for Google
-MYPASSWORD = "xxxx"
+MYPASSWORD = "ddcnwdelcvgonzre"
 # Google Email Address
-MYEMAIL = "xxxx@gmail.com"
+MYEMAIL = "embeddedcrypticvapor@gmail.com"
 # This is the email that the update script "pretends" to send the email from
 SERVEREMAIL = "terminalmail@server.com"
 OLDIPLOG = "/Users/%s/Library/LaunchAgents/getExternalIP_storedip.log"%(getlogin())
@@ -37,19 +37,11 @@ def getCurrentIp():
   # Try to access the External IP Website
   ################################################################################
   try:
-    with urllib.request.urlopen("http://myexternalip.com") as urlfh:
-      for line in urlfh:
-        line = line.decode(encoding='UTF-8')
-        if("<div id=\"wrapper\"><div id=\"header\"><ul id=\"navi\"><li class=\"first\"><a href=\"/\" title=\"home\">home</a>" in line):
-          #print("Found line: "+line+"\n\n")
-          (*blah,ipaddress) = line.split('data-ip="')
-          #print("IP Address is: "+ipaddress+"\n\n")
-          (ipaddress,*blah) = ipaddress.split('"')
-          #print("IP Address is: "+ipaddress+"\n\n")
-    return ipaddress
+    #return request.urlopen("https://myexternalip.com/raw").read().decode('utf-8').strip()
+    return request.urlopen("https://wtfismyip.com/text").read().decode('utf-8').strip()
   except:
-    errorList.append("A URLError occured when trying to access the whatsmyip website.")
-    print("A URLError occured when trying to access the whatsmyip website.")
+    errorList.append("A URLError occured when trying to access the wtfismyip website.")
+    print("A URLError occured when trying to access the wtfismyip website.")
 
 def checkStoredIp(ipaddress="127.0.0.1"):
   ################################################################################
@@ -121,4 +113,3 @@ if(errorList != []):
     email.sendmail(SERVEREMAIL,MYEMAIL,
       "Subject: %s\n\nIP address update script had errors.\n%s"
       %("Update Script Errors",errorList))
-
