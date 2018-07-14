@@ -25,27 +25,29 @@
 # exit 0
 
 DBHEADERCOLOR="\033[38;5;112m"
+DBDIRCOLOR="\033[38;5;21m"
+DBLINKCOLOR="\033[38;5;164m"
 DBENDCOLOR="\033[m"
 DBNONECOLOR="\033[38;5;234m"
 SINGLEFILE="0"
 
 if [[ -n "$1" ]]
 then
-    visibledirs=`gls -lh --color=always "$1" | grep "^d"`
-    hiddendirs=`gls -alh --color=always "$1" | grep "^d" | egrep "((;..m\.)|( \.))"`
-    visiblefiles=`gls -lh --color=always "$1" | grep "^-"`
-    hiddenfiles=`gls -alh --color=always "$1" | grep "^-" | egrep "((;..m\.)|( \.))"`
-    links=`gls -alh --color=always "$1" | grep "^l"`
+    visibledirs=`ls -lhG "$1" | grep "^d" | awk -v DBDIRCOLOR=$DBDIRCOLOR -v DBENDCOLOR=$DBENDCOLOR '{printf("%-11s %3d %6s %s %6s %s %2s %5s %s\n", $1,$2,$3,$4,$5,$6,$7,$8,DBDIRCOLOR$9DBENDCOLOR)}'`
+    hiddendirs=`ls -alhG "$1" | grep "^d" | egrep "((;..m\.)|( \.))" | awk -v DBDIRCOLOR=$DBDIRCOLOR -v DBENDCOLOR=$DBENDCOLOR '{printf("%-11s %3d %6s %s %6s %s %2s %5s %s\n", $1,$2,$3,$4,$5,$6,$7,$8,DBDIRCOLOR$9DBENDCOLOR)}'`
+    visiblefiles=`ls -lhG "$1" | grep "^-"`
+    hiddenfiles=`ls -alhG "$1" | grep "^-" | egrep "((;..m\.)|( \.))"`
+    links=`ls -alhG "$1" | grep "^l" | awk -v DBLINKCOLOR=$DBLINKCOLOR -v DBENDCOLOR=$DBENDCOLOR '{printf("%-11s %3d %6s %s %6s %s %2s %5s %s %s %s\n", $1,$2,$3,$4,$5,$6,$7,$8,DBLINKCOLOR$9DBENDCOLOR,$10,$11)}'`
     if [ -f "$1" ]
     then
       SINGLEFILE="1"
     fi
 else
-    visibledirs=`gls -lh --color=always | grep "^d"`
-    hiddendirs=`gls -ldh --color=always .* | grep "^d"`
-    visiblefiles=`gls -lh --color=always | grep "^-"`
-    hiddenfiles=`gls -ldh --color=always .* | grep "^-"`
-    links=`gls -alh --color=always | grep "^l"`
+    visibledirs=`ls -lhG | grep "^d" | awk -v DBDIRCOLOR=$DBDIRCOLOR -v DBENDCOLOR=$DBENDCOLOR '{printf("%-11s %3d %6s %s %6s %s %2s %5s %s\n", $1,$2,$3,$4,$5,$6,$7,$8,DBDIRCOLOR$9DBENDCOLOR)}'`
+    hiddendirs=`ls -ldhG .* | grep "^d" | awk -v DBDIRCOLOR=$DBDIRCOLOR -v DBENDCOLOR=$DBENDCOLOR '{printf("%-11s %3d %6s %s %6s %s %2s %5s %s\n", $1,$2,$3,$4,$5,$6,$7,$8,DBDIRCOLOR$9DBENDCOLOR)}'`
+    visiblefiles=`ls -lhG | grep "^-"`
+    hiddenfiles=`ls -ldhG .* | grep "^-"`
+    links=`ls -alhG | grep "^l" | awk -v DBLINKCOLOR=$DBLINKCOLOR -v DBENDCOLOR=$DBENDCOLOR '{printf("%-11s %3d %6s %s %6s %s %2s %5s %s %s %s\n", $1,$2,$3,$4,$5,$6,$7,$8,DBLINKCOLOR$9DBENDCOLOR,$10,$11)}'`
 fi
 
 if [[ "$SINGLEFILE" -eq "0" ]]

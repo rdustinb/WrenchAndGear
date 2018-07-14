@@ -18,9 +18,6 @@ My configuration uses either **Source Code Pro for Powerline** (MacOSX), or **Li
 My configuration also requires the **codeschool** colorscheme.
 
 My configuration of VIM utilizes the following Pathogen-installed packages:
- * [ctrlp](https://github.com/ctrlpvim/ctrlp.vim)
- * [gundo](https://github.com/vim-scripts/Gundo)
- * [nerdcommenter](https://github.com/scrooloose/nerdcommenter)
  * [nerdtree](https://github.com/scrooloose/nerdtree)
  * [tabular](https://github.com/godlygeek/tabular)
  * [verilog_systemverilog](https://github.com/vhda/verilog_systemverilog.vim)
@@ -29,5 +26,4 @@ My configuration of VIM utilizes the following Pathogen-installed packages:
  * [vim-colorschemes](https://github.com/flazz/vim-colorschemes)
  * [vim-gitgutter](https://github.com/airblade/vim-gitgutter)
  * [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides)
- * [vim-surround](https://github.com/tpope/vim-surround)
  * [vim-visual-increment] (https://github.com/vim-scripts/visual-increment)
