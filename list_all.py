@@ -21,7 +21,10 @@ try:
 except:
   specifiedFolder = "."
 
-thisDir = subprocess.check_output("ls -alh "+specifiedFolder, universal_newlines=True, shell=True).split("\n")[1:-1]
+try:
+  thisDir = subprocess.check_output("ls -alh "+specifiedFolder, universal_newlines=True, shell=True).split("\n")[1:-1]
+except:
+  exit()
 whoAmI = subprocess.check_output("whoami", universal_newlines=True, shell=True).strip()
 
 theseHiddenDirs = list()
