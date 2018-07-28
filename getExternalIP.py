@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 
 # Globals
 # App-Specific Password for Google
-MYPASSWORD = "ddcnwdelcvgonzre"
+MYPASSWORD = "ourmssghgskuceus"
 # Google Email Address
 MYEMAIL = "embeddedcrypticvapor@gmail.com"
 # This is the email that the update script "pretends" to send the email from
@@ -34,16 +34,28 @@ receivedSMTPDataError = False
 
 def getCurrentIp():
   ################################################################################
-  # Try to access the External IP Website
+  # Try to access the External IP Website -- wtfismyip Raw
   ################################################################################
+  wtfismyip = str()
   try:
-    #return request.urlopen("https://myexternalip.com/raw").read().decode('utf-8').strip()
-    return request.urlopen("https://wtfismyip.com/text").read().decode('utf-8').strip()
+    wtfismyip = request.urlopen("https://wtfismyip.com/text").read().decode('utf-8').strip()
   except:
+    wtfismyip = 'Failed'
     errorList.append("A URLError occured when trying to access the wtfismyip website.")
     print("A URLError occured when trying to access the wtfismyip website.")
+  ################################################################################
+  # Try to access the External IP Website -- myexternalip Raw
+  ################################################################################
+  myexternalip = str()
+  try:
+    myexternalip = request.urlopen("https://myexternalip.com/raw").read().decode('utf-8').strip()
+  except:
+    myexternalip = 'Failed'
+    errorList.append("A URLError occured when trying to access the myexternalip website.")
+    print("A URLError occured when trying to access the myexternalip website.")
+  return [wtfismyip,myexternalip]
 
-def checkStoredIp(ipaddress="127.0.0.1"):
+def checkStoredIp(ipaddresses=['Failed','Failed']):
   ################################################################################
   # Test for JSON File, Check Last Recorded IP Address
   ################################################################################
@@ -54,22 +66,28 @@ def checkStoredIp(ipaddress="127.0.0.1"):
       # If the storage file exists, read out the IP Address
       with open(OLDIPLOG, "r") as ipfh:
         for line in ipfh:
-          storedipaddress = line
+          storedipaddress = line.strip()
       # Compare stored IP Address with that just detected
-      if(storedipaddress != ipaddress):
+      if((storedipaddress != ipaddresses[0]) or (storedipaddress != ipaddresses[1])):
         with open(OLDIPLOG, "w") as ipfh:
-          ipfh.write(ipaddress)
-          sendUpdatedIp(ipaddress)
+          # Only store the new ip address if the two samples match each other
+          if(ipaddresses[0] == ipaddresses[1]):
+            ipfh.write(ipaddresses[0])
+          ipaddresses.insert(0,storedipaddress)
+          sendUpdatedIp(ipaddresses)
     else:
       # If no storage file exists, create it and the send an update email
       with open(OLDIPLOG, "w") as ipfh:
-        ipfh.write(ipaddress)
-        sendUpdatedIp(ipaddress)
+        # Only store the new ip address if the two samples match each other
+        if(ipaddresses[0] == ipaddresses[1]):
+          ipfh.write(ipaddresses[0])
+        ipaddresses.insert(0,'0.0.0.0')
+        sendUpdatedIp(ipaddresses)
   else:
     print("It looks like an error occured in getCurrentIp() so the function")
     print("checkStoredIp() is not being run...")
 
-def sendUpdatedIp(ipaddress="127.0.0.1"):
+def sendUpdatedIp(ipaddresses=['0.0.0.0','Failed','Failed']):
   ################################################################################
   # Try to Login and Send update Email
   ################################################################################
@@ -77,8 +95,8 @@ def sendUpdatedIp(ipaddress="127.0.0.1"):
     with SMTP('smtp.gmail.com:587') as email:
       email.starttls()
       email.login(MYEMAIL,MYPASSWORD)
-      email.sendmail(SERVEREMAIL,MYEMAIL,
-        "Subject: %s\n\nIP address has changed to:\n%s"%("Server IP Address",ipaddress))
+      email.sendmail(SERVEREMAIL,"dustin@crypticvapor.com",
+        "Subject: %s\n\nOriginal IP address:\n%s\n\nIP address current, sample 1:\n%s\n\nIP address current, sample 2:\n%s"%("Server IP Address",ipaddresses[0],ipaddresses[1],ipaddresses[2]))
   except SMTPHeloError:
     errorList.append("An SMTP Helo Error occurred.")
   except SMTPAuthenticationError:
@@ -93,7 +111,6 @@ def sendUpdatedIp(ipaddress="127.0.0.1"):
     errorList.append("The server returned an unknown error.")
 
 # Read and check
-#getCurrentIp()
 checkStoredIp(getCurrentIp())
 # Store Errors to the Logfile
 if(errorList != []):
@@ -106,10 +123,3 @@ if(errorList != []):
       ipfh.write("Error list incurred the following errors:")
       for line in errorList:
         ipfh.write(line)
-  # Let's also email when errors occur
-  with SMTP('smtp.gmail.com:587') as email:
-    email.starttls()
-    email.login(MYEMAIL,MYPASSWORD)
-    email.sendmail(SERVEREMAIL,MYEMAIL,
-      "Subject: %s\n\nIP address update script had errors.\n%s"
-      %("Update Script Errors",errorList))
