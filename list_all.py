@@ -132,29 +132,12 @@ def colored(thisString, thisColor):
 
 maxWidth = fieldZeroMax+fieldOneMax+fieldTwoMax+fieldThreeMax+fieldFourMax+fieldSixMax+fieldSevenMax+3+7
 
-label = " Directories "
-print(colored("-"*int((maxWidth-len(label))/2)+label+"-"*int(((maxWidth-len(label))/2)-(1-(maxWidth-len(label))%2)), colorSectionLabels))
-for line in theseDirs:
-  # We need to pad certain fields with spaces so everything lines up pretty-like
-  part0,part1 = alignFields(line)
-  print("%s %s" % (part0,colored(part1, colorTypeFolders)) )
-if not theseDirs:
-  print(colored("None", colorNones))
-
 label = " Hidden Directories "
 print(colored("-"*int((maxWidth-len(label))/2)+label+"-"*int(((maxWidth-len(label))/2)-(1-(maxWidth-len(label))%2)), colorSectionLabels))
 for line in theseHiddenDirs:
   part0,part1 = alignFields(line)
   print("%s %s" % (part0,colored(part1, colorTypeFolders)) )
 if not theseHiddenDirs:
-  print(colored("None", colorNones))
-
-label = " Files "
-print(colored("-"*int((maxWidth-len(label))/2)+label+"-"*int(((maxWidth-len(label))/2)-(1-(maxWidth-len(label))%2)), colorSectionLabels))
-for line in theseFiles:
-  part0,part1 = alignFields(line)
-  print("%s %s" % (part0,colored(part1, colorTypeFiles)) )
-if not theseFiles:
   print(colored("None", colorNones))
 
 label = " Hidden Files "
@@ -171,4 +154,21 @@ for line in theseLinks:
   part0,part1,part2,part3 = alignFields(line)
   print("%s %s %s %s" % (part0,colored(part1, colorTypeFiles),colored(part2, colorTypeLinkSymbol),colored(part3, colorNones)) )
 if not theseLinks:
+  print(colored("None", colorNones))
+
+label = " Directories "
+print(colored("-"*int((maxWidth-len(label))/2)+label+"-"*int(((maxWidth-len(label))/2)-(1-(maxWidth-len(label))%2)), colorSectionLabels))
+for line in theseDirs:
+  # We need to pad certain fields with spaces so everything lines up pretty-like
+  part0,part1 = alignFields(line)
+  print("%s %s" % (part0,colored(part1, colorTypeFolders)) )
+if not theseDirs:
+  print(colored("None", colorNones))
+
+label = " Files "
+print(colored("-"*int((maxWidth-len(label))/2)+label+"-"*int(((maxWidth-len(label))/2)-(1-(maxWidth-len(label))%2)), colorSectionLabels))
+for line in theseFiles:
+  part0,part1 = alignFields(line)
+  print("%s %s" % (part0,colored(part1, colorTypeFiles)) )
+if not theseFiles:
   print(colored("None", colorNones))
