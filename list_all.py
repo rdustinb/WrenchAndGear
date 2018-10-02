@@ -130,7 +130,10 @@ for line in thisDir:
 def colored(thisString, thisColor):
   return '\033[%sm%s\033[0m'%(thisColor,thisString)
 
-print(colored("-------- Directories --------", colorSectionLabels))
+maxWidth = fieldZeroMax+fieldOneMax+fieldTwoMax+fieldThreeMax+fieldFourMax+fieldSixMax+fieldSevenMax+3+7
+
+label = " Directories "
+print(colored("-"*int((maxWidth-len(label))/2)+label+"-"*int(((maxWidth-len(label))/2)-(1-(maxWidth-len(label))%2)), colorSectionLabels))
 for line in theseDirs:
   # We need to pad certain fields with spaces so everything lines up pretty-like
   part0,part1 = alignFields(line)
@@ -138,28 +141,32 @@ for line in theseDirs:
 if not theseDirs:
   print(colored("None", colorNones))
 
-print(colored("----- Hidden Directories ----", colorSectionLabels))
+label = " Hidden Directories "
+print(colored("-"*int((maxWidth-len(label))/2)+label+"-"*int(((maxWidth-len(label))/2)-(1-(maxWidth-len(label))%2)), colorSectionLabels))
 for line in theseHiddenDirs:
   part0,part1 = alignFields(line)
   print("%s %s" % (part0,colored(part1, colorTypeFolders)) )
 if not theseHiddenDirs:
   print(colored("None", colorNones))
 
-print(colored("----------- Files -----------", colorSectionLabels))
+label = " Files "
+print(colored("-"*int((maxWidth-len(label))/2)+label+"-"*int(((maxWidth-len(label))/2)-(1-(maxWidth-len(label))%2)), colorSectionLabels))
 for line in theseFiles:
   part0,part1 = alignFields(line)
   print("%s %s" % (part0,colored(part1, colorTypeFiles)) )
 if not theseFiles:
   print(colored("None", colorNones))
 
-print(colored("-------- Hidden Files -------", colorSectionLabels))
+label = " Hidden Files "
+print(colored("-"*int((maxWidth-len(label))/2)+label+"-"*int(((maxWidth-len(label))/2)-(1-(maxWidth-len(label))%2)), colorSectionLabels))
 for line in theseHiddenFiles:
   part0,part1 = alignFields(line)
   print("%s %s" % (part0,colored(part1, colorTypeFiles)) )
 if not theseHiddenFiles:
   print(colored("None", colorNones))
 
-print(colored("----------- Links -----------", colorSectionLabels))
+label = " Links "
+print(colored("-"*int((maxWidth-len(label))/2)+label+"-"*int(((maxWidth-len(label))/2)-(1-(maxWidth-len(label))%2)), colorSectionLabels))
 for line in theseLinks:
   part0,part1,part2,part3 = alignFields(line)
   print("%s %s %s %s" % (part0,colored(part1, colorTypeFiles),colored(part2, colorTypeLinkSymbol),colored(part3, colorNones)) )
