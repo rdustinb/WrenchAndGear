@@ -1,5 +1,3 @@
-#!/local/myapps/bin/python3
-
 """
   The purpose of this script is to alias a quick command to list all of the files and folders
   in the current directory or in a specified directory as passed by argument, and separate them
@@ -22,9 +20,12 @@ except:
   specifiedFolder = "."
 
 try:
-  thisDir = subprocess.check_output("ls -alh "+specifiedFolder, universal_newlines=True, shell=True).split("\n")[1:-1]
+  thisDir = subprocess.check_output("ls -alh "+specifiedFolder, universal_newlines=True, shell=True, stderr=subprocess.PIPE)
 except:
-  exit()
+  print("Error : Cannot access '%s'"%(specifiedFolder))
+  sys.exit()
+
+thisDir = thisDir.split("\n")[1:-1]
 whoAmI = subprocess.check_output("whoami", universal_newlines=True, shell=True).strip()
 
 theseHiddenDirs = list()
