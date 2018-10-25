@@ -25,7 +25,10 @@ except:
   print("Error : Cannot access '%s'"%(specifiedFolder))
   sys.exit()
 
-thisDir = thisDir.split("\n")[1:-1]
+if "total" in thisDir:
+  thisDir = thisDir.split("\n")[1:-1]
+else:
+  thisDir = thisDir.split("\n")[0:-1]
 whoAmI = subprocess.check_output("whoami", universal_newlines=True, shell=True).strip()
 
 theseHiddenDirs = list()
