@@ -16,11 +16,12 @@ import sys
 
 try:
   specifiedFolder = ''.join(sys.argv[1])
+  specifiedFolder = specifiedFolder.replace("\\", "")
 except:
   specifiedFolder = "."
 
 try:
-  thisDir = subprocess.check_output("ls -alh "+specifiedFolder, universal_newlines=True, shell=True, stderr=subprocess.PIPE)
+  thisDir = subprocess.check_output("ls -alh \""+specifiedFolder+"\"", universal_newlines=True, shell=True, stderr=subprocess.PIPE)
 except:
   print("Error : Cannot access '%s'"%(specifiedFolder))
   sys.exit()
