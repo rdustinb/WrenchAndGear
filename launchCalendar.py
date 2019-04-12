@@ -1,7 +1,7 @@
 import urllib.request
 import urllib.error
 
-import os
+import sys
 
 def grabRawPage(localFileOrHttpRequest):
   if localFileOrHttpRequest is "http":
@@ -35,6 +35,7 @@ def formatDataFromRawPage(launchCalHtml):
   # split into individual launch events
   launchCalHtml = launchCalHtml.split("<span class=\"launchdate\">")[1:]
   # format individual launches
+  launchCalDict = dict()
   for launch in launchCalHtml:
     # Get the mission name
     launchMission = "%s"%(launch.split("mission\">")[1].split("<")[0])
@@ -44,11 +45,26 @@ def formatDataFromRawPage(launchCalHtml):
     launchSite = "%s"%(launch.split("Launch site:</span>")[1].split("</div>")[0])
     # Get the launch description
     launchDescription = "%s"%(launch.split("missdescrip\">")[1].split("[")[0])
-    launchCalHtml[launchCalHtml.index(launch)] = "%s\n\t%s\n\t%s\n\t%s"%(launchMission,launchWindow,launchSite,launchDescription)
-  #print(type(launchCalHtml))
-  return(launchCalHtml)
+    #launchCalHtml[launchCalHtml.index(launch)] = "%s\n\t%s\n\t%s\n\t%s"%(launchMission,launchWindow,launchSite,launchDescription)
+    launchCalDict[launchMission] = {"date": launchWindow, "site": launchSite, "description": launchDescription}
+  #return(launchCalHtml)
+  return(launchCalDict)
+
+def filterTBDLaunches(launchCalDict):
+  # find entries that do not have a set launch window
+  workingLaunchDict = dict(launchCalDict) # copy the dict so we aren't modifying the original
+  deleteKeys = list()
+  for thisKey in workingLaunchDict.keys():
+    if "TBD" in workingLaunchDict[thisKey]["date"]:
+      deleteKeys.append(thisKey)
+  # delete all the keys found before
+  for thisKey in deleteKeys:
+    del workingLaunchDict[thisKey]
+  return(workingLaunchDict)
 
 if __name__ == '__main__':
-  launchCalHtml = grabRawPage("http")
-  for launch in formatDataFromRawPage(launchCalHtml):
-    print(launch)
+  launchCalHtml = grabRawPage("local")
+  launchCalFormat = formatDataFromRawPage(launchCalHtml)
+  launchCalFilter = filterTBDLaunches(launchCalFormat)
+  print("Full calendar events count: %d"%(len(launchCalFormat.keys())))
+  print("Filtered calendar events count: %d"%(len(launchCalFilter.keys())))
