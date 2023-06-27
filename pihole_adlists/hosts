@@ -1,13 +1,15 @@
 # Blocking YouTube, otherwise my kids will never get anything done...
-0.0.0.0 youtube.com
+0.0.0.0 www.youtube.com
 0.0.0.0 m.youtube.com
-0.0.0.0 googlevideo.com
-0.0.0.0 youtu.be
-0.0.0.0 ytimg.com
-0.0.0.0 ytimg.l.google.com
-0.0.0.0 youtube.l.google.com
-0.0.0.0 i.google.com
-0.0.0.0 googleusercontent.com
-0.0.0.0 gstatic.com
-0.0.0.0 youtube-nocookie.com
+0.0.0.0 s.youtube.com
+0.0.0.0 mtalk.google.com
+
+0.0.0.0 pki-goog.l.google.com
+0.0.0.0 i.ytimg.com
+0.0.0.0 r5.sn-q4fzene7.googlevideo.com
+0.0.0.0 r5---sn-q4fzene7.googlevideo.com
+0.0.0.0 photos-ugc.l.googleusercontent.com
+0.0.0.0 yt3.ggpht.com
+0.0.0.0 youtubei.googleapis.com
+0.0.0.0 notifications-pa.googleapis.com
 0.0.0.0 yt3.googleusercontent.com
