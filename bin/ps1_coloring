@@ -1,20 +1,3 @@
-# Rebuild the PATH
-PATH=''
-PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-PATH=$PATH:~/Documents/bin
-
-# Aliases
-if [ -z ${gvim+blah} ]
-then
-  alias gvim=/Users/${USER}/Documents/bin/mvim
-  export gvim
-fi
-
-if [ -z ${sr+blah} ]
-then
-  alias sr='source ~/.bashrc'
-fi
-
 # Change the PS1 Variable
 function exitstatus {
   EXITSTATUS="$?"
@@ -41,4 +24,5 @@ function exitstatus {
     PS1="${COMMONPROMPT1}${BAD}:X${OFF}${COMMONPROMPT2}"
   fi
 }
+
 PROMPT_COMMAND=exitstatus
