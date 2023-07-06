@@ -38,6 +38,7 @@ cd ~/.vim
 git clone https://github.com/flazz/vim-colorschemes.git
 rsync -av ~/.vim/vim-colorschemes/colors ~/.vim/
 rsync -av ~/.vim/vim-colorschemes/scripts ~/.vim/
+rm -fr ~/.vim/vim-colorscheme
 echo -e "\nVerilog/SystemVerilog Syntax highlighter"
 cd ~/.vim/bundle
 git clone https://github.com/vhda/verilog_systemverilog.vim
