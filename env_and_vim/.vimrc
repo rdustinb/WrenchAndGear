@@ -29,7 +29,10 @@ set visualbell
 set encoding=utf-8
 
 " Font
-set guifont=Source\ Code\ Pro\ for\ Powerline\ 10
+" Linux Variant:
+"set guifont=Source\ Code\ Pro\ for\ Powerline\ 10
+" macOS Variant:
+set guifont=SourceCodeProForPowerline-Regular:h10
 
 " Whitespace
 set nowrap

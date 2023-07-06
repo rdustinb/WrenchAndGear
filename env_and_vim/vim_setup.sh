@@ -50,9 +50,13 @@ cd ~/.vim/plugin
 wget https://raw.githubusercontent.com/triglav/vim-visual-increment/master/plugin/visual-increment.vim
 cd ~/.vim/doc
 wget https://raw.githubusercontent.com/triglav/vim-visual-increment/master/doc/visual-increment.txt
+
 cd ~
 
 # Pull the latest .vimrc
 echo -e "\nMy .vimrc"
 wget https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/env_and_vim/.vimrc ~/ 
-dos2unix ~/.vimrc
+
+# Pull the fonts
+wget https://github.com/powerline/fonts/raw/master/SourceCodePro/Source%20Code%20Pro%20for%20Powerline.otf
+echo "Please install the font ~/Source\ Code\ Pro\ for\ Powerline.otf"
