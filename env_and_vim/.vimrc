@@ -1,3 +1,16 @@
+" Don't try to be vi compatible
+set nocompatible
+
+" Helps force plugins to load correctly when it is turned back on below
+filetype off
+
+" Invoke Pathogen
+execute pathogen#infect()
+
+" Turn on Syntax Highlighting
+syntax on
+
+" Disable swap files
 set noswapfile
 
 " For plugins to load correctly
