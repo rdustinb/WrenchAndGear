@@ -1,0 +1,7 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: Get uptime of the device
+      command: uptime
+      register: uptime
+    - debug: var=uptime.stdout_lines

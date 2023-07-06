@@ -1,0 +1,38 @@
+# Just learning stuff and playing around with YAML
+# Jeff Geerling's example from Ansible for DevOps, chapter 3
+# ---
+# - hosts: all
+#   become: yes
+#   tasks:
+#     - yum: name=chrony state=present
+#     - service: name=chronyd state=started enabled=yes
+#
+# Now to try and create a yaml playbook to update all the SW on my different PIs
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Normal Upgrade of packages
+      apt: 
+        upgrade: yes
+        update_cache: yes 
+    - name: Distribution Upgrade of packages
+      apt: 
+        upgrade: dist
+        update_cache: yes 
+    - name: Autoremove packages as needed
+      apt: 
+        autoremove: yes
+        clean: yes
+        update_cache: yes 
+    - name: Reboot the devices, long delay is necessary for slow devices
+      ansible.builtin.reboot:
+        post_reboot_delay: 120
+
+# Future work to see if reboots are necessary and then reboot the device....
+###    - name: Perform reboot
+###      ansible.builtin.reboot:
+###        post_reboot_delay: 30
+###      when: >
+###        eeprom_update.stdout.find('updates pending') != -1 or
+###        reboot.stat.exists
