@@ -22,5 +22,10 @@ wget https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/env_and_vim
 chmod +x vim_setup.sh
 ./vim_setup.sh
 
+echo "Fetching and running the pi services setup script..."
+wget https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/pi_services/pi_services_setup.sh
+chmod +x pi_services_setup.sh
+./pi_services_setup.sh
+
 echo "Rebooting..."
 sudo reboot now
