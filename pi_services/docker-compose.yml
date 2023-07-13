@@ -59,16 +59,33 @@ services:
     restart: always
   #####################################################################
   # This container spins up a Minecraft server so my kids and I can play on the same worlds
-  minecraft:
-    container_name: minecraft
-    image: itzg/minecraft-server
+  # This is a Geyser-variant of Minecraft so that iOS devices can join this server (since
+  # the server is the Java edition).
+  # https://geysermc.org
+  minecraft-server:
+    image: 05jchambers/legendary-minecraft-purpur-geyser:latest
+    container_name: minecraft-server
     tty: true
     stdin_open: true
     ports:
       - "25565:25565"
+      - "19132:19132/udp"
+      - "19132:19132"
     environment:
+      SERVER_NAME: "Dockerized-Minecraft-Server"
+      MOTD: "Minecraft Server"
       EULA: "TRUE"
+      MAX_PLAYERS: 10
+      TZ: 'America/Denver'
+      VERSION: '1.21.10'
+      LEVEL_TYPE: "DEFAULT"
+      ENABLE_RCON: "TRUE"
+      RCON_PASSWORD: "CHANGEME"
+      RCON_PORT: 28016
     volumes:
-      # attach the relative directory 'data' to the container's /data path
-      - ./data:/data
+      - '~/minecraft:/minecraft'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
     restart: always
