@@ -9,8 +9,8 @@ sudo apt update ; sudo apt upgrade -Y
 echo "Install git..."
 sudo apt install git
 
-echo "Install gim..."
-sudo apt install vim
+echo "Install gvim..."
+sudo apt install vim -Y
 
 echo "Fetching and running the bin setup script..."
 wget https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/bin_setup.sh
