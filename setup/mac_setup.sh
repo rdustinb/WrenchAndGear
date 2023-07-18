@@ -1,23 +1,6 @@
 #!/bin/bash
 
 #################################################
-# Update and Install some basics that the pi needs...
-echo "Updating and upgrading..."
-sudo apt update ; sudo apt upgrade -Y
-
-echo "Install git..."
-sudo apt install git
-
-echo "Install gvim..."
-sudo apt install vim -Y
-
-echo "Install pip..."
-sudo apt install python3-pip -Y
-
-echo "Install pyserial via pip..."
-pip install pyserial
-
-#################################################
 echo "Setting up the terminal and the custom list all scripts..."
 mkdir -p ~/bin
 cd ~/bin
@@ -38,6 +21,7 @@ echo "source bin/ps1_coloring" >> ~/.bashrc
 
 #################################################
 echo "Fetching and running the vim setup script..."
+cd ~
 wget https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/setup/vim_setup.sh
 chmod +x vim_setup.sh
 ./vim_setup.sh
@@ -62,6 +46,4 @@ echo "  docker compose up -d"
 echo ""
 
 echo "Please install the custom font 'Source Code Pro for Powerline.otf' located in the $HOME directory."
-
-echo "Rebooting the computer..."
-sudo reboot now
+echo "Please reboot for changes to take effect..."
