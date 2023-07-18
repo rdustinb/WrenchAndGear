@@ -40,7 +40,7 @@ echo "Please logout and back in for changes to take effect."
 
 #################################################
 echo "Fetching and running the vim setup script..."
-wget https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/env_and_vim/vim_setup.sh
+wget https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/setup/vim_setup.sh
 chmod +x vim_setup.sh
 ./vim_setup.sh
 
@@ -56,7 +56,7 @@ sudo usermod -aG docker $$USER
 # Fetch the latest docker-compose file...
 echo "Fetching the latest docker-compose.yml file..."
 cd ~
-wget https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/pi_services/docker-compose.yml
+wget https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/docker/docker-compose.yml
 echo "After the reboot, edit the compose file to only include the containers needed to run on this system."
 echo "The launch Docker with:"
 echo "  docker compose up -d"

@@ -55,7 +55,7 @@ cd ~
 
 # Pull the latest .vimrc
 echo -e "\nMy .vimrc"
-wget https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/env_and_vim/.vimrc ~/ 
+wget https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/setup/.vimrc ~/ 
 
 # Pull the fonts
 wget https://github.com/powerline/fonts/raw/master/SourceCodePro/Source%20Code%20Pro%20for%20Powerline.otf
