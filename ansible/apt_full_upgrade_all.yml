@@ -27,7 +27,7 @@
         update_cache: yes 
     - name: Reboot the devices, long delay is necessary for slow devices
       ansible.builtin.reboot:
-        post_reboot_delay: 120
+        post_reboot_delay: 600
 
 # Future work to see if reboots are necessary and then reboot the device....
 ###    - name: Perform reboot
