@@ -89,3 +89,25 @@ services:
       options:
         max-size: "1m"
     restart: always
+  #####################################################################
+  # This container spins up an instance of OctoPrint
+  # It requires the ARM v7 processor or greater, meaning it will not 
+  # launch on the Raspberry Pi Zero W (1st gen)
+  #
+  # https://hub.docker.com/r/octoprint/octoprint
+  octoprint:
+    container_name: octoprint  
+    image: octoprint/octoprint 
+    network_mode: host
+    ports:
+      - 80:80
+    devices:
+    # use `python -m serial.tools.miniterm` to see what the name is of the printer, this requires pyserial
+      - /dev/ttyAMA0:/dev/ttyAMA0     
+      - /dev/video0:/dev/video0
+    environment:
+      - TZ=America/Denver
+      - ENABLE_MJPG_STREAMER=true     
+    volumes:
+      - '~/octoprint:/octoprint'
+    restart: unless-stopped
