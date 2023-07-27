@@ -104,10 +104,11 @@ services:
     devices:
     # use `python -m serial.tools.miniterm` to see what the name is of the printer, this requires pyserial
       - /dev/ttyAMA0:/dev/ttyAMA0     
+      - /dev/ttyUSB0:/dev/ttyUSB0     
       - /dev/video0:/dev/video0
     environment:
       - TZ=America/Denver
       - ENABLE_MJPG_STREAMER=true     
     volumes:
       - '~/octoprint:/octoprint'
-    restart: unless-stopped
+    restart: always
