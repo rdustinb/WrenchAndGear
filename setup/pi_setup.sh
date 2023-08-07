@@ -50,7 +50,7 @@ curl -sSL https://get.docker.com | sh
 
 # Adding the current user to the Docker group so compose files can be run by the user
 echo "Adding your username to the docker group..."
-sudo usermod -aG docker $$USER
+sudo usermod -aG docker $USER
 
 # Fetch the latest docker-compose file...
 echo "Fetching the latest docker-compose.yml file..."
