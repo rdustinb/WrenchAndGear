@@ -9,10 +9,10 @@ echo "Install git..."
 sudo apt install git
 
 echo "Install gvim..."
-sudo apt install vim -Y
+sudo apt install vim -y
 
 echo "Install pip..."
-sudo apt install python3-pip -Y
+sudo apt install python3-pip -y
 
 echo "Install pyserial via pip..."
 pip install pyserial
