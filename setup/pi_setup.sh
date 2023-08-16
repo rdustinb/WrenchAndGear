@@ -3,10 +3,10 @@
 #################################################
 # Update and Install some basics that the pi needs...
 echo "Updating and upgrading..."
-sudo apt update ; sudo apt upgrade -Y
+sudo apt update ; sudo apt upgrade -y
 
 echo "Install git..."
-sudo apt install git
+sudo apt install git -y
 
 echo "Install gvim..."
 sudo apt install vim -y
