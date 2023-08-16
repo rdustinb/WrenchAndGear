@@ -99,8 +99,6 @@ services:
     container_name: octoprint  
     image: octoprint/octoprint 
     network_mode: host
-    ports:
-      - 80:80
     devices:
     # use `python -m serial.tools.miniterm` to see what the name is of the printer, this requires pyserial
       - /dev/ttyAMA0:/dev/ttyAMA0     
