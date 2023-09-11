@@ -1,0 +1,15 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: Get CPU Info of the device
+      shell: cat /proc/cpuinfo | tail -n1
+      register: cpu
+    - name: Get memory usage of the device
+      command: free -h
+      register: free
+    - name: Get uptime of the device
+      command: uptime -p
+      register: uptime
+    - debug: var=cpu.stdout_lines
+    - debug: var=free.stdout_lines
+    - debug: var=uptime.stdout_lines
