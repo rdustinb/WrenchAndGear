@@ -131,7 +131,9 @@ set nrformats=alpha
 " No configs yet....
 
 " Highlight the TODO keyword in all code comments
-autocmd Syntax * syntax keyword Todo containedin=.*Comment.* contained TODO
+"autocmd Syntax * syntax keyword Todo containedin=.*Comment.* contained TODO
+" This will highlight TODO even in markdown files.
+autocmd WinEnter,VimEnter * :silent! call matchadd('Todo', 'TODO', -1)
 
 " Set the initial window size
 set lines=48 columns=175
@@ -160,3 +162,6 @@ au! Syntax sdc source ~/.vim/syntax/sdc.vim
 au! Syntax ndc source ~/.vim/syntax/ndc.vim
 " Use my custom PSM keywords
 au! Syntax psm source ~/.vim/syntax/psm.vim
+
+" Support other markdown file extensions
+au BufRead,BufNewFile *.md set filetype=markdown
