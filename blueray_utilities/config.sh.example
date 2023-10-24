@@ -1,0 +1,7 @@
+#!/bin/bash
+
+username=
+hostname=
+primaryDrive=
+backupDrive=
+
