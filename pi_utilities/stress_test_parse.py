@@ -1,6 +1,6 @@
 import os
 
-folder = "rev1Case"
+folder = "rev1_rev2"
 
 DEBUG=False
 FREQUENCY=True
@@ -8,7 +8,7 @@ TEMPERATURE=True
 # Choose to Show or Store the figure
 SHOW=False
 STORE=True
-figureName = "out.png"
+figureName = "out3.png"
 
 # Keyed entries are for each run, the values of the keys are lists of values
 frequency = dict()
