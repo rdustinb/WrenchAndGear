@@ -14,8 +14,20 @@ sudo apt install vim -y
 echo "Install pip..."
 sudo apt install python3-pip -y
 
+echo "Creating a new Python Virtual Environment to install development packages to..."
+python -m venv python_dev_env
+
+echo "Basing in the virtual environment to install pip packages I commonly use..."
+cd python_dev_env
+source bin/activate
+
 echo "Install pyserial via pip..."
 pip install pyserial
+
+echo "Exiting the virtual environment..."
+deactivate
+
+cd ~
 
 #################################################
 echo "Setting up the terminal and the custom list all scripts..."
@@ -61,7 +73,16 @@ echo "The launch Docker with:"
 echo "  docker compose up -d"
 echo ""
 
-echo "Please install the custom font 'Source Code Pro for Powerline.otf' located in the $HOME directory."
+#################################################
+echo "Installing the font converter package for use to convert the .otf to .ttf font..."
+sudo apt install fontforge -y
+
+mkdir ~/.fonts
+
+fontforge -lang=ff -c 'Open($1); Generate($2);' "Source Code Pro for Powerline.otf" "Source Code Pro for Powerline.ttf"
+
+echo "Installing Source Code Pro for Powerline locally..."
+mv "Source Code Pro for Powerline.ttf" .fonts/
 
 echo "Rebooting the computer..."
-sudo reboot now
+sudo shutdown -r now
