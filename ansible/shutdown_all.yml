@@ -1,6 +1,6 @@
 # Author: Dustin Brothers
 # Description:
-#   yaml playbook to update all the SW on my different PIs, always rebooting
+#   yaml playbook to shutdown all nodes.
 ---
 - hosts: all
   become: true
