@@ -1,0 +1,31 @@
+#!/bin/csh
+# CSH Version
+
+set EXITSTATUS="$?"
+
+set BOLD= "%{\e[1m%}"
+set OFF= "%{\e[0m%}"
+
+set GOOD= "${BOLD}%{\e[38;5;19m%}"
+set BAD= "${BOLD}%{\e[38;5;52m%}"
+
+set GRAYMED= "%{\e[38;5;252m%}"
+set AMPERSAND= "%{\e[38;5;172m%}"
+set GRAYDARK= "%{\e[38;5;238m%}"
+set TIME= "%{\e[38;5;226m%}"
+
+set SHELLNAME= "%{\e[38;5;162m%}"
+
+set COMMONPROMPT1="\n ${GRAYDARK}%~${OFF} \n"
+set COMMONPROMPT2=" [${BOLD}%n${OFF}${AMPERSAND}@${OFF}${GRAYMED}%m${OFF}, ${SHELLNAME}CSH${OFF}] ${TIME}%P${OFF}$ "
+
+set prompt="${COMMONPROMPT1}${COMMONPROMPT2}"
+
+# CSH Cannot handle variations in the prompt as it is only set once at the beginning of time...
+# if ($EXITSTATUS == 0) then
+#   # Good Last Command
+#   set prompt="${COMMONPROMPT1}${GOOD}:)${OFF} ${COMMONPROMPT2}"
+# else
+#   # Bad Last Command
+#   set prompt="${COMMONPROMPT1}${BAD}:X${OFF} ${COMMONPROMPT2}"
+# endif
