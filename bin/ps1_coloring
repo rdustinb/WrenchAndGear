@@ -1,3 +1,5 @@
+#!/bin/bash
+# BASH Version
 # Change the PS1 Variable
 function exitstatus {
   EXITSTATUS="$?"
@@ -11,9 +13,12 @@ function exitstatus {
   GRAYMED="\[\033[38;5;252m\]"
   AMPERSAND="\[\033[38;5;172m\]"
   GRAYDARK="\[\033[38;5;238m\]"
+  TIME="\[\033[38;5;226m\]"
+
+  SHELLNAME="\[\033[38;5;162m\]"
 
   COMMONPROMPT1="\n${GRAYDARK}\w${OFF}\n"
-  COMMONPROMPT2=" [${BOLD}\u${OFF}${AMPERSAND}@${OFF}${GRAYMED}\h${OFF}] $ "
+  COMMONPROMPT2=" [${BOLD}\u${OFF}${AMPERSAND}@${OFF}${GRAYMED}\h${OFF}, ${SHELLNAME}BASH${OFF}] ${TIME}\t${OFF}$ "
 
   if [ "${EXITSTATUS}" -eq 0 ]
   then
