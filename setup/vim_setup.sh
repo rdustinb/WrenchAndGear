@@ -22,6 +22,10 @@ echo -e "\nAirline-Themes"
 git clone https://github.com/vim-airline/vim-airline-themes.git ~/.vim/bundle/vim-airline-themes
 echo -e "\nIndent Guides"
 git clone https://github.com/preservim/vim-indent-guides.git ~/.vim/bundle/vim-indent-guides
+echo -e "\nXilinx TCL Highlighting"
+git clone https://github.com/amal-khailtash/vim-xtcl-syntax.git
+echo -e "\nXilinx XDC Highlighting"
+git clone https://github.com/amal-khailtash/vim-xdc-syntax.git
 
 # Install Gitgutter (isn't there a Pathogen way?)
 echo -e "\nGit Gutter"
