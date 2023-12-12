@@ -23,9 +23,9 @@ git clone https://github.com/vim-airline/vim-airline-themes.git ~/.vim/bundle/vi
 echo -e "\nIndent Guides"
 git clone https://github.com/preservim/vim-indent-guides.git ~/.vim/bundle/vim-indent-guides
 echo -e "\nXilinx TCL Highlighting"
-git clone https://github.com/amal-khailtash/vim-xtcl-syntax.git
+git clone https://github.com/amal-khailtash/vim-xtcl-syntax.git ~/.vim/bundle/vim-xtcl-syntax
 echo -e "\nXilinx XDC Highlighting"
-git clone https://github.com/amal-khailtash/vim-xdc-syntax.git
+git clone https://github.com/amal-khailtash/vim-xdc-syntax.git ~/.vim/bundle/vim-xdc-syntax
 
 # Install Gitgutter (isn't there a Pathogen way?)
 echo -e "\nGit Gutter"
