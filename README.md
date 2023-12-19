@@ -1,6 +1,13 @@
 # WrenchAndGear
 This repository will contain configuration settings for tools I use so that I may tweak them in one place and have those configurations available everywhere.
 
+## Raspberry Pi Setup
+Run this command on the Raspberry Pi to set it up the way I like it:
+
+``` bash
+wget https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/setup/pi_setup.sh ; chmod +x pi_setup.sh ; ./pi_setup.sh
+```
+
 ## Launch Script
 This script is used to parse the SpaceFlight Insider [Launch Calendar](http://www.spaceflightinsider.com/launch-schedule/) and properly format the event fields, writing them via the Google Calendar API to my Google Calendar. You can us it too, you just need to modify the script to point to YOUR Google Calendar API Instance and the calendars Public URL.
 
