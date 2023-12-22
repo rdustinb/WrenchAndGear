@@ -14,6 +14,12 @@ sudo apt install vim -y
 echo "Install pip..."
 sudo apt install python3-pip -y
 
+echo "Install psutil..."
+sudo apt install python3-psutil -y
+
+echo "Install GitHub CLI tool..."
+sudo apt install gh -y
+
 echo "Creating a new Python Virtual Environment to install development packages to..."
 python -m venv python_dev_env
 
