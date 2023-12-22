@@ -1,0 +1,10 @@
+# Author: Dustin Brothers
+# Description:
+#   yaml playbook to update the Clustering repo and script on my different PIs
+---
+- hosts: all
+  tasks:
+    - name: Pull latest Clustering repo to get updates from any pushes I have done
+      ansible.builtin.shell:
+        cmd: git pull origin main
+        chdir: ~/Clustering
