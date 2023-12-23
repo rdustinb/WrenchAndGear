@@ -4,7 +4,11 @@
 ---
 - hosts: all
   tasks:
-    - name: Pull latest Clustering repo to get updates from any pushes I have done
+    - name: Pull latest local data collector script...
       ansible.builtin.shell:
         cmd: git pull origin main
-        chdir: ~/Clustering
+        chdir: ~/python_dev_env/Clustering
+    - name: Remove data.json file...
+      ansible.builtin.file:
+        path: ~/data.json
+        state: absent
