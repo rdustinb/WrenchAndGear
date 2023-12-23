@@ -20,15 +20,27 @@ sudo apt install python3-psutil -y
 echo "Install GitHub CLI tool..."
 sudo apt install gh -y
 
+echo "Install Stresstest tool..."
+sudo apt install stress -y
+
+echo "Install the Python Virtual-Environment tool..."
+sudo apt install python3-venv -y
+
 echo "Creating a new Python Virtual Environment to install development packages to..."
-python -m venv python_dev_env
+python3 -m venv python_dev_env
 
 echo "Basing in the virtual environment to install pip packages I commonly use..."
 cd python_dev_env
 source bin/activate
 
 echo "Install pyserial via pip..."
-pip install pyserial
+pip3 install pyserial
+
+echo "Install stressberry via pip..."
+pip3 install stressberry
+
+echo "Install gpiozero via pip..."
+pip3 install gpiozero
 
 echo "Exiting the virtual environment..."
 deactivate

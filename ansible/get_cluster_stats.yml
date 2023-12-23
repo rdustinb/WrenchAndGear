@@ -1,0 +1,11 @@
+# Author: Dustin Brothers
+# Description:
+#   yaml playbook to pull the stats JSON files from the cluster Pis
+---
+- hosts: all
+  tasks:
+    - name: Fetch the stats JSON files from the cluster Pis
+      ansible.builtin.fetch:
+        src: ~/data.json
+        dest: ~/data/stats_data_{{ inventory_hostname }}.json
+        flat: yes
