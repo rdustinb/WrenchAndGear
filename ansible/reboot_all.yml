@@ -1,0 +1,11 @@
+# Author: Dustin Brothers
+# Description:
+#   Reboot all nodes...
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Reboot the devices, long delay is necessary for slow devices
+      ansible.builtin.reboot:
+        post_reboot_delay: 120
+
