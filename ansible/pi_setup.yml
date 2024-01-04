@@ -1,0 +1,50 @@
+# Author: Dustin Brothers
+# Description:
+#   yaml playbook to setup a raspberry pi with all my stuffs...
+---
+- hosts: all
+  tasks:
+    - name: Normal Upgrade of packages
+      apt: 
+        upgrade: yes
+        update_cache: yes 
+      become: true
+    - name: Install git, vim, pip, psutil, gh, stress, and venv
+      apt: 
+        name: "{{ item }}"
+        update_cache: yes 
+      loop:
+        - git
+        - vim
+        - python3-pip
+        - python3-psutil
+        - gh
+        - stress
+        - python3-venv
+      become: true
+    - name: Install venv pip3 packages
+      pip: 
+        name: "{{ item }}"
+        virtualenv: /home/vagrant/python_dev_env
+        virtualenv_command: "/usr/bin/python3 -m 'venv'"
+      loop:
+        - pyserial
+        - stressberry
+        - gpiozero
+    - name: Create the ~/bin folder...
+      file:
+        path: ~/bin/
+        state: directory
+    - name: Fetch terminal tools and colors
+      get_url:
+        url: "{{ item }}"
+        dest: ~/bin/
+      loop: 
+        - https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/ps1_coloring
+        - https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/list_all.py
+    - name: Update the .bashrc file to source the terminal tools and colors
+      shell:
+        cmd: "{{ item }}"
+      loop:
+        - echo "alias ll='python3 ~/bin/list_all.py'" >> ~/.bashrc
+        - echo "source ~/bin/ps1_coloring" >> ~/.bashrc
