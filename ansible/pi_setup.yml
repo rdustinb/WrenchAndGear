@@ -135,7 +135,7 @@
     - name: Adding my user to the docker group...
       user:
         append: true
-        group: docker
+        groups: docker
         name: "{{ ansible_ssh_user }}"
       become: true
     - name: Fetch my docker playbook...
