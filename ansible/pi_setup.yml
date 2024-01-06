@@ -9,6 +9,8 @@
         upgrade: yes
         update_cache: yes 
       become: true
+    ############################################################################
+    # Install Common Packages I use
     - name: Install git, vim, curl, fontforge, pip, psutil, gh, stress, and venv
       apt: 
         update_cache: yes
@@ -23,6 +25,8 @@
           - stress
           - python3-venv
       become: true
+    ############################################################################
+    # Setup my Python Virtual Environment
     - name: Install venv pip3 packages
       pip: 
         name: 
@@ -38,6 +42,8 @@
       loop:
         - ~/bin/
         - ~/.fonts/
+    ############################################################################
+    # Install custom tools
     - name: Fetch terminal tools and colors
       get_url:
         url: "{{ item }}"
@@ -51,6 +57,8 @@
     - name: Add my PS1 coloring script to the bashrc...
       shell:
         cmd: echo "source ~/bin/ps1_coloring" >> ~/.bashrc
+    ############################################################################
+    # Setup my VIM Environment
     - name: Fetch VIM .vimrc
       get_url:
         url: https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/setup/.vimrc
@@ -132,6 +140,8 @@
       git:
         repo: https://github.com/vhda/verilog_systemverilog.vim
         dest: ~/.vim/bundle/verilog_systemverilog
+    ############################################################################
+    # Setup my Docker Environment
     - name: Fetch Docker setup script...
       get_url:
         url: https://get.docker.com
