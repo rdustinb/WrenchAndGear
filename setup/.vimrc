@@ -28,11 +28,15 @@ set visualbell
 " Encoding
 set encoding=utf-8
 
-" Font
-" Linux Variant:
-"set guifont=Source\ Code\ Pro\ for\ Powerline\ 10
-" macOS Variant:
-set guifont=SourceCodeProForPowerline-Regular:h10
+" Font                                                                                                                                                                         
+let os = substitute(system('uname'), "\n", "", "")
+if os == "Linux"
+  " Linux Variant:
+  set guifont=Source\ Code\ Pro\ for\ Powerline\ 10
+elseif os == "Darwin"
+  " macOS Variant:
+  set guifont=SourceCodeProForPowerline-Regular:h10
+endif
 
 " Whitespace
 set nowrap
