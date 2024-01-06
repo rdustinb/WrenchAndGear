@@ -11,28 +11,26 @@
       become: true
     - name: Install git, vim, curl, fontforge, pip, psutil, gh, stress, and venv
       apt: 
-        name: "{{ item }}"
-        update_cache: yes 
-      loop:
-        - git
-        - vim
-        - curl
-        - fontforge
-        - python3-pip
-        - python3-psutil
-        - gh
-        - stress
-        - python3-venv
+        update_cache: yes
+        pkg:
+          - git
+          - vim
+          - curl
+          - fontforge
+          - python3-pip
+          - python3-psutil
+          - gh
+          - stress
+          - python3-venv
       become: true
     - name: Install venv pip3 packages
       pip: 
-        name: "{{ item }}"
-        virtualenv: /home/vagrant/python_dev_env
+        name: 
+          - pyserial
+          - stressberry
+          - gpiozero
+        virtualenv: ~/python_dev_env
         virtualenv_command: "/usr/bin/python3 -m 'venv'"
-      loop:
-        - pyserial
-        - stressberry
-        - gpiozero
     - name: Create several folders needed...
       file:
         path: "{{ item }}"
