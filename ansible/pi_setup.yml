@@ -9,13 +9,14 @@
         upgrade: yes
         update_cache: yes 
       become: true
-    - name: Install git, vim, fontforge, pip, psutil, gh, stress, and venv
+    - name: Install git, vim, curl, fontforge, pip, psutil, gh, stress, and venv
       apt: 
         name: "{{ item }}"
         update_cache: yes 
       loop:
         - git
         - vim
+        - curl
         - fontforge
         - python3-pip
         - python3-psutil
@@ -56,11 +57,6 @@
       get_url:
         url: https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/setup/.vimrc
         dest: ~/
-    #- name: Install fontforge
-    #  apt: 
-    #    name: fontforge
-    #    update_cache: yes 
-    #  become: true
     - name: Fetch VIM font
       get_url:
         url: https://github.com/powerline/fonts/raw/master/SourceCodePro/Source%20Code%20Pro%20for%20Powerline.otf
@@ -128,3 +124,17 @@
     - name: Install VIM SystemVerilog syntax highlighter...
       shell:
         cmd: git clone https://github.com/vhda/verilog_systemverilog.vim ~/.vim/bundle/verilog_systemverilog
+    - name: Fetch Docker setup script...
+      get_url:
+        url: https://get.docker.com
+        dest: ~/docker_setup.sh
+        mode: '0777'
+    - name: Run Docker setup...
+      shell:
+        cmd: ~/docker_setup.sh
+    - name: Adding my user to the docker group...
+      user:
+        append: true
+        group: docker
+        name: "{{ ansible_ssh_user }}"
+      become: true
