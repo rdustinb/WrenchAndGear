@@ -138,3 +138,11 @@
         group: docker
         name: "{{ ansible_ssh_user }}"
       become: true
+    - name: Fetch my docker playbook...
+      get_url:
+        url: https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/docker/docker-compose.yml
+        dest: ~/
+    - name: Reboot to get group settings to take effect...
+      reboot:
+        msg: "Rebooting machine..."
+      become: true
