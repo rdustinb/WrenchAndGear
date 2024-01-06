@@ -1,0 +1,57 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # These are the configurations for ALL VMs created below.
+
+  # General Vagrant VM Configuration
+  # https://developer.hashicorp.com/vagrant/docs/vagrantfile/machine_settings#config-vm-box
+  config.vm.box = "debian/bookworm64"
+
+  # Disable the VirtualBox synced folder to the host machine.
+  # https://developer.hashicorp.com/vagrant/docs/synced-folders/basic_usage#disabling
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  ######################################
+  # It's impossible to change these without first repackaging
+  # the Vagrant Box:
+
+  # Configure the Vagrant VM to use the host user's key
+  # https://developer.hashicorp.com/vagrant/docs/vagrantfile/ssh_settings#config-ssh-private_key_path
+  #config.ssh.private_key_path = "~/.ssh/id_rsa"
+
+  # Change the username from the default "vagrant"
+  # https://developer.hashicorp.com/vagrant/docs/vagrantfile/ssh_settings#config-ssh-username
+  #config.ssh.username = "pi"
+
+  ######################################
+
+  ######################################
+  # VirtualBox Configurations
+  config.vm.provider :virtualbox do |v|
+    v.memory = 512
+    v.linked_clone = true
+  end
+  ######################################
+
+  ######################################
+  # Define Individual VMs
+  # Test Server, define name must match the hosts.ini file entry
+  config.vm.define "test" do |app|
+    # VM-specific Configs
+    #app.ssh.username = "pi"
+    app.vm.hostname = "test-0.vagrant"
+    app.vm.network :private_network, ip:"192.168.60.100"
+  end
+  ######################################
+
+  ######################################
+  # Define the ansible playbook used when provisioning
+  config.vm.provision "ansible" do |ansible|
+    #ansible.verbose = "v"
+    ansible.playbook = "provision.yml"
+  end
+  ######################################
+end
