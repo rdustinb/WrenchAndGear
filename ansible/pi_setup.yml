@@ -66,8 +66,9 @@
       shell:
         cmd: fc-cache
     - name: Download VIM Colorschemes which also create the initial .vim folder structure...
-      shell:
-        cmd: git clone https://github.com/flazz/vim-colorschemes.git ~/.vim
+      git:
+        repo: https://github.com/flazz/vim-colorschemes.git
+        dest: ~/.vim
     - name: Create several other VIM tool folders needed...
       file:
         path: "{{ item }}"
@@ -82,14 +83,16 @@
         url: https://tpo.pe/pathogen.vim
         dest: ~/.vim/autoload/
     - name: Download VIM NerdTree...
-      shell:
-        cmd: git clone https://github.com/preservim/nerdtree.git ~/.vim/pack/vendor/start/nerdtree
+      git:
+        repo: https://github.com/preservim/nerdtree.git
+        dest: ~/.vim/pack/vendor/start/nerdtree
     - name: Install VIM NerdTree...
       shell:
         cmd: vim -u NONE -c "helptags ~/.vim/pack/vendor/start/nerdtree/doc" -c q
     - name: Download VIM Git Gutter tool...
-      shell:
-        cmd: git clone https://github.com/airblade/vim-gitgutter.git ~/.vim/pack/airblade/start
+      git:
+        repo: https://github.com/airblade/vim-gitgutter.git
+        dest: ~/.vim/pack/airblade/start
     - name: Install VIM Git Gutter tool...
       shell:
         cmd: vim -u NONE -c "helptags vim-gitgutter/doc" -c q
@@ -102,26 +105,33 @@
         url: https://raw.githubusercontent.com/triglav/vim-visual-increment/master/doc/visual-increment.txt
         dest: ~/.vim/docs
     - name: Install VIM Tabular tool...
-      shell:
-        cmd: git clone https://github.com/godlygeek/tabular.git ~/.vim/bundle/tabular
+      git:
+        repo: https://github.com/godlygeek/tabular.git
+        dest: ~/.vim/bundle/tabular
     - name: Install VIM Airline tool...
-      shell:
-        cmd: git clone https://github.com/vim-airline/vim-airline.git ~/.vim/bundle/vim-airline
+      git:
+        repo: https://github.com/vim-airline/vim-airline.git
+        dest: ~/.vim/bundle/vim-airline
     - name: Install VIM Airline themes...
-      shell:
-        cmd: git clone https://github.com/vim-airline/vim-airline-themes.git ~/.vim/bundle/vim-airline-themes
+      git:
+        repo: https://github.com/vim-airline/vim-airline-themes.git
+        dest: ~/.vim/bundle/vim-airline-themes
     - name: Install VIM Indent guides...
-      shell:
-        cmd: git clone https://github.com/preservim/vim-indent-guides.git ~/.vim/bundle/vim-indent-guides
+      git:
+        repo: https://github.com/preservim/vim-indent-guides.git
+        dest: ~/.vim/bundle/vim-indent-guides
     - name: Install VIM Xilinx TCL syntax highlighter...
-      shell:
-        cmd: git clone https://github.com/amal-khailtash/vim-xtcl-syntax.git ~/.vim/bundle/vim-xtcl-syntax
+      git:
+        repo: https://github.com/amal-khailtash/vim-xtcl-syntax.git
+        dest: ~/.vim/bundle/vim-xtcl-syntax
     - name: Install VIM Xilinx Constraints syntax highlighter...
-      shell:
-        cmd: git clone https://github.com/amal-khailtash/vim-xdc-syntax.git ~/.vim/bundle/vim-xdc-syntax
+      git:
+        repo: https://github.com/amal-khailtash/vim-xdc-syntax.git
+        dest: ~/.vim/bundle/vim-xdc-syntax
     - name: Install VIM SystemVerilog syntax highlighter...
-      shell:
-        cmd: git clone https://github.com/vhda/verilog_systemverilog.vim ~/.vim/bundle/verilog_systemverilog
+      git:
+        repo: https://github.com/vhda/verilog_systemverilog.vim
+        dest: ~/.vim/bundle/verilog_systemverilog
     - name: Fetch Docker setup script...
       get_url:
         url: https://get.docker.com
