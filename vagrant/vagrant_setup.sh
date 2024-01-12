@@ -1,9 +1,7 @@
-echo -e "\nDestroying my test VM..."
-vagrant destroy test -f
+# First cleanup any Vagrant VMs
+vagrant_cleanup.sh
 
-echo -e "\nRemoving all traces of Vagrant VM configurations..."
-rm -fr ~/VirtualBox\ VMs/* ~/.vagrant.d .vagrant
-
+# Setup the new Vagrant VM
 echo -e "\nBuilding the VM with Vagrant..."
 vagrant up
 
