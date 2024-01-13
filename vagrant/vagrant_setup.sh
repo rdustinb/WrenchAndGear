@@ -1,5 +1,5 @@
 # First cleanup any Vagrant VMs
-vagrant_cleanup.sh
+./vagrant_cleanup.sh
 
 # Setup the new Vagrant VM
 echo -e "\nBuilding the VM with Vagrant..."
