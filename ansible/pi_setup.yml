@@ -161,10 +161,6 @@
       get_url:
         url: https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/docker/docker-compose.yml
         dest: ~/
-    - name: Reboot to get group settings to take effect...
-      reboot:
-        msg: "Rebooting machine..."
-      become: true
     ############################################################################
     # Create a Cronjob to collect stats about the system
     - name: Install Clustering repo...
@@ -175,3 +171,9 @@
       cron:
         name: "System Stats"
         job: "source /home/$( whoami )/python_dev_env/bin/activate ; python3 /home/$( whoami )/python_dev_env/Clustering/utilities/local_data_collector.py ; deactivate"
+    ############################################################################
+    # Reboot after all setup is complete...
+    - name: Reboot to get group settings to take effect...
+      reboot:
+        msg: "Rebooting machine..."
+      become: true
