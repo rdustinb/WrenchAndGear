@@ -110,3 +110,17 @@ services:
     volumes:
       - '~/octoprint:/octoprint'
     restart: always
+  #####################################################################
+  # This container spins up an instance of HomeAssistant
+  # The instructions for getting this running are here:
+  #   https://www.home-assistant.io/installation/raspberrypi#docker-compose
+  homeassistant:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    volumes:
+      - ~/ha-config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
