@@ -149,8 +149,8 @@
         dest: ~/docker_setup.sh
         mode: '0777'
     - name: Run Docker setup...
-      shell:
-        cmd: ~/docker_setup.sh
+      shell: 
+        cmd: /home/{{ ansible_ssh_user }}/docker_setup.sh
     - name: Adding my user to the docker group...
       user:
         append: true
