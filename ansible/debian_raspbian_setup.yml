@@ -4,176 +4,182 @@
 ---
 - hosts: all
   tasks:
-    - name: Normal Upgrade of packages
-      apt: 
-        upgrade: yes
-        update_cache: yes 
-      become: true
-    ############################################################################
-    # Install Common Packages I use
-    - name: Install git, vim, curl, fontforge, pip, psutil, gh, stress, and venv
-      apt: 
-        update_cache: yes
-        pkg:
-          - git
-          - vim
-          - curl
-          - fontforge
-          - python3-pip
-          - python3-psutil
-          - gh
-          - stress
-          - python3-venv
-      become: true
+    ####################################################################################
+    #- name: Print all available facts...
+    #  debug:
+    #    var: ansible_facts
+    ########- name: Normal Upgrade of packages
+    ########  apt: 
+    ########    upgrade: yes
+    ########    update_cache: yes 
+    ########  become: true
+    ####################################################################################
+    ######### Install Common Packages I use
+    ########- name: Install git, vim, curl, fontforge, pip, psutil, gh, stress, and venv
+    ########  apt: 
+    ########    update_cache: yes
+    ########    pkg:
+    ########      - git
+    ########      - vim
+    ########      - curl
+    ########      - fontforge
+    ########      - python3-pip
+    ########      - python3-psutil
+    ########      - python3-venv
+    ########  become: true
     ############################################################################
     # Setup my Python Virtual Environment
-    - name: Install venv pip3 packages
-      pip: 
-        name: 
-          - pyserial
-          - psutil
-          - stressberry
-          - gpiozero
-        virtualenv: ~/python_dev_env
-        virtualenv_command: "/usr/bin/python3 -m 'venv'"
+    # {{ discovered_interpreter_python }}
+    - name: Create python virtual environment...
+      command:
+        cmd: python3 -m venv /home/{{ ansible_ssh_user }}/python_dev_env
+        creates: /home/{{ ansible_ssh_user }}/python_dev_env
+    - name: Install venv pyserial
+      shell: /home/{{ ansible_ssh_user }}/python_dev_env/bin/pip3 install pyserial
+    - name: Install venv psutil
+      shell: /home/{{ ansible_ssh_user }}/python_dev_env/bin/pip3 install psutil
+        #- name: Install venv stressberry
+        #  shell: /home/{{ ansible_ssh_user }}/python_dev_env/bin/pip3 install stressberry
+    - name: Install venv gpiozero
+      shell: /home/{{ ansible_ssh_user }}/python_dev_env/bin/pip3 install gpiozero
     - name: Create several folders needed...
       file:
         path: "{{ item }}"
         state: directory
       loop:
-        - ~/bin/
-        - ~/.fonts/
-    ############################################################################
-    # Install custom tools
-    - name: Fetch terminal tools and colors
-      get_url:
-        url: "{{ item }}"
-        dest: ~/bin/
-      loop: 
-        - https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/ps1_coloring
-        - https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/list_all.py
-    - name: Add my listing script to the bashrc...
-      shell:
-        cmd: echo "alias ll='python3 ~/bin/list_all.py'" >> ~/.bashrc
-    - name: Add my PS1 coloring script to the bashrc...
-      shell:
-        cmd: echo "source ~/bin/ps1_coloring" >> ~/.bashrc
-    ############################################################################
-    # Setup my VIM Environment
-    - name: Fetch VIM .vimrc
-      get_url:
-        url: https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/setup/.vimrc
-        dest: ~/
-    - name: Fetch VIM font
-      get_url:
-        url: https://github.com/powerline/fonts/raw/master/SourceCodePro/Source%20Code%20Pro%20for%20Powerline.otf
-        dest: ~/
-    - name: Convert VIM font...
-      shell:
-        cmd: fontforge -lang=ff -c 'Open($1); Generate($2);' ~/Source%20Code%20Pro%20for%20Powerline.otf ~/.fonts/Source\ Code\ Pro\ for\ Powerline.ttf
-    - name: Update font cache...
-      shell:
-        cmd: fc-cache
-    - name: Download VIM Colorschemes which also create the initial .vim folder structure...
-      git:
-        repo: https://github.com/flazz/vim-colorschemes.git
-        dest: ~/.vim
-    - name: Create several other VIM tool folders needed...
-      file:
-        path: "{{ item }}"
-        state: directory
-      loop:
-        - ~/.vim/autoload
-        - ~/.vim/bundle
-        - ~/.vim/plugin
-        - ~/.vim/pack/airblade/start
-    - name: Fetch Pathogen
-      get_url:
-        url: https://tpo.pe/pathogen.vim
-        dest: ~/.vim/autoload/
-    - name: Download VIM NerdTree...
-      git:
-        repo: https://github.com/preservim/nerdtree.git
-        dest: ~/.vim/pack/vendor/start/nerdtree
-    - name: Install VIM NerdTree...
-      shell:
-        cmd: vim -u NONE -c "helptags ~/.vim/pack/vendor/start/nerdtree/doc" -c q
-    - name: Download VIM Git Gutter tool...
-      git:
-        repo: https://github.com/airblade/vim-gitgutter.git
-        dest: ~/.vim/pack/airblade/start
-    - name: Install VIM Git Gutter tool...
-      shell:
-        cmd: vim -u NONE -c "helptags vim-gitgutter/doc" -c q
-    - name: Fetch VIM Visual Increment
-      get_url:
-        url: https://raw.githubusercontent.com/triglav/vim-visual-increment/master/plugin/visual-increment.vim
-        dest: ~/.vim/plugin
-    - name: Fetch VIM Visual Increment docs
-      get_url:
-        url: https://raw.githubusercontent.com/triglav/vim-visual-increment/master/doc/visual-increment.txt
-        dest: ~/.vim/docs
-    - name: Install VIM Tabular tool...
-      git:
-        repo: https://github.com/godlygeek/tabular.git
-        dest: ~/.vim/bundle/tabular
-    - name: Install VIM Airline tool...
-      git:
-        repo: https://github.com/vim-airline/vim-airline.git
-        dest: ~/.vim/bundle/vim-airline
-    - name: Install VIM Airline themes...
-      git:
-        repo: https://github.com/vim-airline/vim-airline-themes.git
-        dest: ~/.vim/bundle/vim-airline-themes
-    - name: Install VIM Indent guides...
-      git:
-        repo: https://github.com/preservim/vim-indent-guides.git
-        dest: ~/.vim/bundle/vim-indent-guides
-    - name: Install VIM Xilinx TCL syntax highlighter...
-      git:
-        repo: https://github.com/amal-khailtash/vim-xtcl-syntax.git
-        dest: ~/.vim/bundle/vim-xtcl-syntax
-    - name: Install VIM Xilinx Constraints syntax highlighter...
-      git:
-        repo: https://github.com/amal-khailtash/vim-xdc-syntax.git
-        dest: ~/.vim/bundle/vim-xdc-syntax
-    - name: Install VIM SystemVerilog syntax highlighter...
-      git:
-        repo: https://github.com/vhda/verilog_systemverilog.vim
-        dest: ~/.vim/bundle/verilog_systemverilog
-    ############################################################################
-    # Setup my Docker Environment
-    - name: Fetch Docker setup script...
-      get_url:
-        url: https://get.docker.com
-        dest: ~/docker_setup.sh
-        mode: '0777'
-    - name: Run Docker setup...
-      shell: 
-        cmd: /home/{{ ansible_ssh_user }}/docker_setup.sh
-    - name: Adding my user to the docker group...
-      user:
-        append: true
-        groups: docker
-        name: "{{ ansible_ssh_user }}"
-      become: true
-    - name: Fetch my docker playbook...
-      get_url:
-        url: https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/docker/docker-compose.yml
-        dest: ~/
-    ############################################################################
-    # Create a Cronjob to collect stats about the system
-    - name: Install Clustering repo...
-      git:
-        repo: https://github.com/rdustinb/Clustering.git
-        dest: ~/python_dev_env/Clustering
-    - name: Create a cronjob to collect system stats...
-      cron:
-        name: "System Stats"
-        job: "source /home/$( whoami )/python_dev_env/bin/activate ; python3 /home/$( whoami )/python_dev_env/Clustering/utilities/local_data_collector.py ; deactivate"
-    ############################################################################
-    # Reboot after all setup is complete...
-    - name: Reboot to get group settings to take effect...
-      reboot:
-        msg: "Rebooting machine..."
-      become: true
+        - /home/{{ ansible_ssh_user }}/bin/
+        - /home/{{ ansible_ssh_user }}/.fonts/
+    ####################################################################################
+    ######### Install custom tools
+    ########- name: Fetch terminal tools and colors
+    ########  get_url:
+    ########    url: "{{ item }}"
+    ########    dest: /home/{{ ansible_ssh_user }}/bin/
+    ########  loop: 
+    ########    - https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/ps1_coloring
+    ########    - https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/list_all.py
+    ########- name: Add my listing script to the bashrc...
+    ########  shell:
+    ########    cmd: echo "alias ll='python3 ~/bin/list_all.py'" >> /home/{{ ansible_ssh_user }}/.bashrc
+    ########- name: Add my PS1 coloring script to the bashrc...
+    ########  shell:
+    ########    cmd: echo "source ~/bin/ps1_coloring" >> /home/{{ ansible_ssh_user }}/.bashrc
+    ####################################################################################
+    ######### Setup my VIM Environment
+    ########- name: Fetch VIM .vimrc
+    ########  get_url:
+    ########    url: https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/setup/.vimrc
+    ########    dest: /home/{{ ansible_ssh_user }}/
+    ########- name: Fetch VIM font
+    ########  get_url:
+    ########    url: https://github.com/powerline/fonts/raw/master/SourceCodePro/Source%20Code%20Pro%20for%20Powerline.otf
+    ########    dest: /home/{{ ansible_ssh_user }}/
+    ########- name: Convert VIM font...
+    ########  shell:
+    ########    cmd: fontforge -lang=ff -c 'Open($1); Generate($2);' /home/{{ ansible_ssh_user }}/Source%20Code%20Pro%20for%20Powerline.otf /home/{{ ansible_ssh_user }}/.fonts/Source\ Code\ Pro\ for\ Powerline.ttf
+    ########- name: Update font cache...
+    ########  shell:
+    ########    cmd: fc-cache
+    ########- name: Download VIM Colorschemes which also create the initial .vim folder structure...
+    ########  git:
+    ########    repo: https://github.com/flazz/vim-colorschemes.git
+    ########    dest: /home/{{ ansible_ssh_user }}/.vim
+    ########- name: Create several other VIM tool folders needed...
+    ########  file:
+    ########    path: "{{ item }}"
+    ########    state: directory
+    ########  loop:
+    ########    - /home/{{ ansible_ssh_user }}/.vim/autoload
+    ########    - /home/{{ ansible_ssh_user }}/.vim/bundle
+    ########    - /home/{{ ansible_ssh_user }}/.vim/plugin
+    ########    - /home/{{ ansible_ssh_user }}/.vim/pack/airblade/start
+    ########- name: Fetch Pathogen
+    ########  get_url:
+    ########    url: https://tpo.pe/pathogen.vim
+    ########    dest: /home/{{ ansible_ssh_user }}/.vim/autoload/
+    ########- name: Download VIM NerdTree...
+    ########  git:
+    ########    repo: https://github.com/preservim/nerdtree.git
+    ########    dest: /home/{{ ansible_ssh_user }}/.vim/pack/vendor/start/nerdtree
+    ########- name: Install VIM NerdTree...
+    ########  shell:
+    ########    cmd: vim -u NONE -c "helptags ~/.vim/pack/vendor/start/nerdtree/doc" -c q
+    ########- name: Download VIM Git Gutter tool...
+    ########  git:
+    ########    repo: https://github.com/airblade/vim-gitgutter.git
+    ########    dest: /home/{{ ansible_ssh_user }}/.vim/pack/airblade/start
+    ########- name: Install VIM Git Gutter tool...
+    ########  shell:
+    ########    cmd: vim -u NONE -c "helptags vim-gitgutter/doc" -c q
+    ########- name: Fetch VIM Visual Increment
+    ########  get_url:
+    ########    url: https://raw.githubusercontent.com/triglav/vim-visual-increment/master/plugin/visual-increment.vim
+    ########    dest: /home/{{ ansible_ssh_user }}/.vim/plugin
+    ########- name: Fetch VIM Visual Increment docs
+    ########  get_url:
+    ########    url: https://raw.githubusercontent.com/triglav/vim-visual-increment/master/doc/visual-increment.txt
+    ########    dest: /home/{{ ansible_ssh_user }}/.vim/docs
+    ########- name: Install VIM Tabular tool...
+    ########  git:
+    ########    repo: https://github.com/godlygeek/tabular.git
+    ########    dest: /home/{{ ansible_ssh_user }}/.vim/bundle/tabular
+    ########- name: Install VIM Airline tool...
+    ########  git:
+    ########    repo: https://github.com/vim-airline/vim-airline.git
+    ########    dest: /home/{{ ansible_ssh_user }}/.vim/bundle/vim-airline
+    ########- name: Install VIM Airline themes...
+    ########  git:
+    ########    repo: https://github.com/vim-airline/vim-airline-themes.git
+    ########    dest: /home/{{ ansible_ssh_user }}/.vim/bundle/vim-airline-themes
+    ########- name: Install VIM Indent guides...
+    ########  git:
+    ########    repo: https://github.com/preservim/vim-indent-guides.git
+    ########    dest: /home/{{ ansible_ssh_user }}/.vim/bundle/vim-indent-guides
+    ########- name: Install VIM Xilinx TCL syntax highlighter...
+    ########  git:
+    ########    repo: https://github.com/amal-khailtash/vim-xtcl-syntax.git
+    ########    dest: /home/{{ ansible_ssh_user }}/.vim/bundle/vim-xtcl-syntax
+    ########- name: Install VIM Xilinx Constraints syntax highlighter...
+    ########  git:
+    ########    repo: https://github.com/amal-khailtash/vim-xdc-syntax.git
+    ########    dest: /home/{{ ansible_ssh_user }}/.vim/bundle/vim-xdc-syntax
+    ########- name: Install VIM SystemVerilog syntax highlighter...
+    ########  git:
+    ########    repo: https://github.com/vhda/verilog_systemverilog.vim
+    ########    dest: /home/{{ ansible_ssh_user }}/.vim/bundle/verilog_systemverilog
+    ####################################################################################
+    ######### Setup my Docker Environment
+    ########- name: Fetch Docker setup script...
+    ########  get_url:
+    ########    url: https://get.docker.com
+    ########    dest: /home/{{ ansible_ssh_user }}/docker_setup.sh
+    ########    mode: '0777'
+    ########- name: Run Docker setup...
+    ########  shell: 
+    ########    cmd: /home/{{ ansible_ssh_user }}/docker_setup.sh
+    ########- name: Adding my user to the docker group...
+    ########  user:
+    ########    append: true
+    ########    groups: docker
+    ########    name: "{{ ansible_ssh_user }}"
+    ########  become: true
+    ########- name: Fetch my docker playbook...
+    ########  get_url:
+    ########    url: https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/docker/docker-compose.yml
+    ########    dest: /home/{{ ansible_ssh_user }}/
+    ####################################################################################
+    ######### Create a Cronjob to collect stats about the system
+    ########- name: Install Clustering repo...
+    ########  git:
+    ########    repo: https://github.com/rdustinb/Clustering.git
+    ########    dest: /home/{{ ansible_ssh_user }}/python_dev_env/Clustering
+    ########- name: Create a cronjob to collect system stats...
+    ########  cron:
+    ########    name: "System Stats"
+    ########    job: "source /home/$( whoami )/python_dev_env/bin/activate ; python3 /home/$( whoami )/python_dev_env/Clustering/utilities/local_data_collector.py ; deactivate"
+    ####################################################################################
+    ######### Reboot after all setup is complete...
+    ########- name: Reboot to get group settings to take effect...
+    ########  reboot:
+    ########    msg: "Rebooting machine..."
+    ########  become: true
