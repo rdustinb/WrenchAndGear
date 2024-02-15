@@ -20,9 +20,6 @@
           - curl
           - fontforge
           - python3-pip
-          - python3-psutil
-          - gh
-          - stress
           - python3-venv
       become: true
     ############################################################################
@@ -30,15 +27,6 @@
     - name: Create venv
       shell:
         cmd: /usr/bin/python3 -m venv /home/{{ ansible_ssh_user }}/python_dev_env
-    - name: Install venv pip3 packages
-      pip: 
-        name: 
-          - pyserial
-          - psutil
-          - stressberry
-          - gpiozero
-        virtualenv: ~/python_dev_env
-        virtualenv_command: "/usr/bin/python3 -m 'venv'"
     - name: Create several folders needed...
       file:
         path: "{{ item }}"
