@@ -24,6 +24,7 @@
           - gh
           - stress
           - python3-venv
+          - lshw
       become: true
     ############################################################################
     # Setup my Python Virtual Environment
@@ -175,6 +176,9 @@
       cron:
         name: "System Stats"
         job: "source /home/$( whoami )/python_dev_env/bin/activate ; python3 /home/$( whoami )/python_dev_env/Clustering/utilities/local_data_collector.py ; deactivate"
+    ############################################################################
+    # Add user to spi and gpio groups so that the user can access the RPi IO
+    # TODO
     ############################################################################
     # Reboot after all setup is complete...
     - name: Reboot to get group settings to take effect...
