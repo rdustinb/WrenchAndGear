@@ -1,5 +1,20 @@
 #!/bin/bash
 
+# Change the default shell
+chsh -s /bin/bash
+
+# Create the needed .bash_profile file to source the .bashrc file from
+echo "source ~/.bashrc" >> ~/.bash_profile
+
+# Install Homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+#################################################
+# Install WGet and MacVIM
+echo "Using brew to install wget and macvim..."
+brew install wget
+brew install macvim
+
 #################################################
 echo "Setting up the terminal and the custom list all scripts..."
 mkdir -p ~/bin
@@ -30,11 +45,7 @@ rm vim_setup.sh
 #################################################
 # First grab the latest version of Docker, and install it
 echo "Fetching and installing Docker..."
-curl -sSL https://get.docker.com | sh
-
-# Adding the current user to the Docker group so compose files can be run by the user
-echo "Adding your username to the docker group..."
-sudo usermod -aG docker $USER
+brew install docker
 
 # Fetch the latest docker-compose file...
 echo "Fetching the latest docker-compose.yml file..."
