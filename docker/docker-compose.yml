@@ -114,9 +114,14 @@ services:
   # This container spins up an instance of HomeAssistant
   # The instructions for getting this running are here:
   #   https://www.home-assistant.io/installation/raspberrypi#docker-compose
+  # TODO
+  #   If adons are desired, it is possible to install HACS within the docker
+  # container using the following commands:
+  #   docker exec -it homeassistant bash
+  #   wget -O - https://get.hacs.xyz | bash -
   homeassistant:
     container_name: homeassistant
-    image: "ghcr.io/home-assistant/home-assistant:stable"
+    image: "ghcr.io/home-assistant/home-assistant:latest"
     volumes:
       - ~/ha-config:/config
       - /etc/localtime:/etc/localtime:ro
