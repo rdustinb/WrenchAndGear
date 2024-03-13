@@ -58,3 +58,21 @@ echo ""
 
 echo "Please install the custom font 'Source Code Pro for Powerline.otf' located in the $HOME directory."
 echo "Please reboot for changes to take effect..."
+
+#################################################
+# Install Tart for running VMs
+# This replaces the older use of Vagrant + VirtualBox since they no longer support the m-series Apple Silicon
+echo "Fetching and installing Tart for virtualizing..."
+brew install cirruslabs/cli/tart
+
+#################################################
+# Automate VM Creation with Packer
+echo "Fetching and installing Packer for VM automation..."
+brew tap hashicorp/tap
+brew install hashicorp/tap/packer
+
+#################################################
+# Setup Syntax Highlighting for HCL
+mkdir -p ~/.vim/pack/jvirtanen/start
+cd ~/.vim/pack/jvirtanen/start
+git clone https://github.com/jvirtanen/vim-hcl.git
