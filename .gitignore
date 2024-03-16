@@ -1,1 +1,4 @@
 *.json
+vagrant-ssh
+*.iso
+*.pkrvars.hcl
