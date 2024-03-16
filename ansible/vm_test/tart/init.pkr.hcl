@@ -1,7 +1,7 @@
 packer {
   required_plugins {
     tart = {
-      version = ">= 0.6.0"
+      version = ">= 2.7.0"
       source  = "github.com/cirruslabs/tart"
     }
   }
@@ -92,7 +92,7 @@ source "tart-cli" "tart" {
     "<return>",
     # Wait for OS and Grub to be installed:
     "<wait3m10s>",
-    "<return>",
+    "<return>"
   ]
   ssh_username      = "${var.username}"
   ssh_password      = "${var.password}"
@@ -101,8 +101,4 @@ source "tart-cli" "tart" {
 
 build {
   sources = ["source.tart-cli.tart"]
-
-  #provisioner "ansible" {
-  #  playbook_file = "../../debian_raspbian_setup.yml"
-  #}
 }
