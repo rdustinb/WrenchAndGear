@@ -1,7 +1,7 @@
 packer {
   required_plugins {
     tart = {
-      version = ">= 2.7.0"
+      version = ">= 0.6.0"
       source  = "github.com/cirruslabs/tart"
     }
   }
@@ -27,7 +27,7 @@ source "tart-cli" "tart" {
   vm_name           = "debian-12.5.0-vanilla"
   cpu_count         = 4
   memory_gb         = 8
-  disk_size_gb      = 20
+  disk_size_gb      = 50
   boot_wait         = "2s"
   boot_command      = [
     "<return>",
