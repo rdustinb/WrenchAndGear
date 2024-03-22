@@ -10,6 +10,10 @@
     - name: Get uptime of the device
       command: uptime -p
       register: uptime
+    - name: Get Kernel version of the OS
+      shell: uname -r
+      register: kernel
     - debug: var=cpu.stdout_lines
     - debug: var=free.stdout_lines
     - debug: var=uptime.stdout_lines
+    - debug: var=kernel.stdout_lines
