@@ -39,22 +39,22 @@
     ############################################################################
     - name: Make a directory to build the kernel in
       file:
-        path: /home/{{ ansible_ssh_user }}/blasting
+        path: /home/{{ ansible_ssh_user }}/kernel_build
         state: directory
         mode: '0755'
     ############################################################################
     - name: Fetch the latest linux kernel
       get_url:
         url: https://cdn.kernel.org/pub/linux/kernel/v{{ vars.kernelMajorVersion }}.x/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}.tar.xz
-        dest: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}.tar.xz
+        dest: /home/{{ ansible_ssh_user }}/kernel_build/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}.tar.xz
     - name: Fetch the latest linux kernel pgp signature
       get_url:
         url: https://cdn.kernel.org/pub/linux/kernel/v{{ vars.kernelMajorVersion }}.x/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}.tar.sign
-        dest: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}.tar.sign
+        dest: /home/{{ ansible_ssh_user }}/kernel_build/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}.tar.sign
     ############################################################################
     - name: Uncompress the linux kernel source
       shell:
-        chdir: /home/{{ ansible_ssh_user }}/blasting/
+        chdir: /home/{{ ansible_ssh_user }}/kernel_build/
         cmd: xz --decompress --force --keep linux-*.tar.xz
     ############################################################################
     - name: Fetch the kernel.org public keys
@@ -63,69 +63,69 @@
     ############################################################################
     - name: Verify the source
       shell:
-        chdir: /home/{{ ansible_ssh_user }}/blasting/
+        chdir: /home/{{ ansible_ssh_user }}/kernel_build/
         cmd: gpg2 --verify linux-*.tar.sign
     ############################################################################
     - name: Unarchive the linux kernel source
       unarchive:
-        src: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}.tar
+        src: /home/{{ ansible_ssh_user }}/kernel_build/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}.tar
         remote_src: true
-        dest: /home/{{ ansible_ssh_user }}/blasting/
+        dest: /home/{{ ansible_ssh_user }}/kernel_build/
     ############################################################################
     - name: Copy the current kernel configuration into the build directory
       shell:
-        chdir: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
+        chdir: /home/{{ ansible_ssh_user }}/kernel_build/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
         cmd: cp /boot/config-"$(uname -r)" .config
     ############################################################################
     - name: Update the configuration for the new kernel
       shell:
-        chdir: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
+        chdir: /home/{{ ansible_ssh_user }}/kernel_build/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
         cmd: make olddefconfig
     ############################################################################
     - name: Disable module signing for debian
       shell:
-        chdir: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
-        cmd: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}/scripts/config --file .config --disable MODULE_SIG
+        chdir: /home/{{ ansible_ssh_user }}/kernel_build/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
+        cmd: /home/{{ ansible_ssh_user }}/kernel_build/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}/scripts/config --file .config --disable MODULE_SIG
     ############################################################################
     - name: Append a string to the linux kernel version so I know this is a built kernel
       shell:
-        chdir: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
-        cmd: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}/scripts/config --file .config --set-str LOCALVERSION "-bleeding"
+        chdir: /home/{{ ansible_ssh_user }}/kernel_build/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
+        cmd: /home/{{ ansible_ssh_user }}/kernel_build/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}/scripts/config --file .config --set-str LOCALVERSION "-bleeding"
     ############################################################################
     ############################################################################
     ############################################################################
     - name: Build the Kernel Modules and Bare Kernel
       shell:
-        chdir: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
+        chdir: /home/{{ ansible_ssh_user }}/kernel_build/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
         cmd: make -j$(nproc) 2>&1 | tee make_kernel.log
     ############################################################################
     - name: Install the kernel modules
       shell:
-        chdir: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
+        chdir: /home/{{ ansible_ssh_user }}/kernel_build/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
         cmd: make modules_install -j$(nproc)
       become: true
     ############################################################################
     - name: Install the kernel headers
       shell:
-        chdir: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
+        chdir: /home/{{ ansible_ssh_user }}/kernel_build/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
         cmd: make headers_install
       become: true
     ############################################################################
     - name: Install the kernel dtbs, ARM and RISCV only!
       shell:
-        chdir: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
+        chdir: /home/{{ ansible_ssh_user }}/kernel_build/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
         cmd: make dtbs_install
       become: true
     ############################################################################
     - name: Install the kernel
       shell:
-        chdir: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
+        chdir: /home/{{ ansible_ssh_user }}/kernel_build/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
         cmd: make install
       become: true
     ############################################################################
     - name: Update grub
       shell:
-        chdir: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
+        chdir: /home/{{ ansible_ssh_user }}/kernel_build/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
         cmd: grub-mkconfig -o /boot/grub/grub.cfg
       become: true
     ############################################################################
