@@ -92,10 +92,12 @@
         chdir: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
         cmd: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}/scripts/config --file .config --set-str LOCALVERSION "-bleeding"
     ############################################################################
-    - name: Build the kernel
+    ############################################################################
+    ############################################################################
+    - name: Build the Kernel Modules and Bare Kernel
       shell:
         chdir: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
-        cmd: make -j$(nproc) 2>&1 | tee make.log
+        cmd: make -j$(nproc) 2>&1 | tee make_kernel.log
     ############################################################################
     - name: Install the kernel modules
       shell:
@@ -109,7 +111,7 @@
         cmd: make headers_install
       become: true
     ############################################################################
-    - name: Install the kernel dtbs
+    - name: Install the kernel dtbs, ARM and RISCV only!
       shell:
         chdir: /home/{{ ansible_ssh_user }}/blasting/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
         cmd: make dtbs_install
