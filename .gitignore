@@ -1,4 +1,12 @@
-*.json
 vagrant-ssh
+
+# Don't store OS or other ISOs
 *.iso
+
+# Custom configuration and data files (don't store as they could leak sensitive information)
+*.ini
+*.json
 *.pkrvars.hcl
+
+# macOS specific datafiles don't need to be stored
+.DS_Store
