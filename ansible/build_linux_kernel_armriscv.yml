@@ -10,9 +10,8 @@
     kernelMajorVersion: 6
     kernelMinorVersion: 8
     kernelPatchVersion: 1
-    kernelVersion: {{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}
-    buildDir: /home/{{ ansible_ssh_user }}/kernel_build
-    sourceDir: {{ vars.buildDir }}/linux-{{ vars.kernelVersion }}
+    localVersion: "-bleeding"
+    buildFolder: "kernel_build"
   tasks:
     ############################################################################
     - name: Install build dependencies
@@ -42,100 +41,95 @@
     ############################################################################
     - name: Make a directory to build the kernel in
       file:
-        path: /home/{{ ansible_ssh_user }}/kernel_build
+        path: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}"
         state: directory
         mode: '0755'
     ############################################################################
     - name: Fetch the latest linux kernel
       get_url:
-        url: https://cdn.kernel.org/pub/linux/kernel/v{{ vars.kernelMajorVersion }}.x/linux-{{ vars.kernelVersion }}.tar.xz
-        dest: {{ vars.buildDir }}/linux-{{ vars.kernelVersion }}.tar.xz
+        url: "https://cdn.kernel.org/pub/linux/kernel/v{{ vars.kernelMajorVersion }}.x/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}.tar.xz"
+        dest: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}.tar.xz"
     - name: Fetch the latest linux kernel pgp signature
       get_url:
-        url: https://cdn.kernel.org/pub/linux/kernel/v{{ vars.kernelMajorVersion }}.x/linux-{{ vars.kernelVersion }}.tar.sign
-        dest: {{ buildDir }}/linux-{{ vars.kernelVersion }}.tar.sign
+        url: "https://cdn.kernel.org/pub/linux/kernel/v{{ vars.kernelMajorVersion }}.x/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}.tar.sign"
+        dest: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}.tar.sign"
     ############################################################################
     - name: Uncompress the linux kernel source
       shell:
-        chdir: {{ vars.buildDir }}
-        cmd: xz --decompress --force --keep linux-*.tar.xz
+        chdir: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}"
+        cmd: "xz --decompress --force --keep linux-*.tar.xz"
     ############################################################################
     - name: Fetch the kernel.org public keys
       shell:
-        cmd: gpg2 --locate-keys torvalds@kernel.org gregkh@kernel.org
+        cmd: "gpg2 --locate-keys torvalds@kernel.org gregkh@kernel.org"
     ############################################################################
     - name: Verify the source
       shell:
-        chdir: {{ vars.buildDir }}
-        cmd: gpg2 --verify linux-*.tar.sign
+        chdir: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}"
+        cmd: "gpg2 --verify linux-*.tar.sign"
     ############################################################################
     - name: Unarchive the linux kernel source
       unarchive:
-        src: {{ buildDir }}/linux-{{ vars.kernelVersion }}.tar
+        src: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}.tar"
         remote_src: true
-        dest: {{ vars.buildDir }}
+        dest: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}"
     ############################################################################
     ############################################################################
     ############################################################################
     - name: Copy the current kernel configuration into the build directory
       shell:
-        chdir: {{ vars.sourceDir }}
-        cmd: cp /boot/config-"$(uname -r)" .config
-    ############################################################################
-    - name: Generate the new configuration
-      shell:
-        chdir: {{ vars.sourceDir }}
-        cmd: make olddefconfig
+        chdir: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}"
+        cmd: cp -v /boot/config-"$(uname -r)" .config
     ############################################################################
     - name: Update the configuration for the new kernel
       shell:
-        chdir: {{ vars.sourceDir }}
+        chdir: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}"
         cmd: make olddefconfig
     ############################################################################
     - name: Disable module signing for debian
       shell:
-        chdir: {{ vars.sourceDir }}
-        cmd: {{ vars.sourceDir }}/scripts/config --file .config --disable MODULE_SIG
+        chdir: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}"
+        cmd: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}/scripts/config --file .config --disable MODULE_SIG"
     ############################################################################
     - name: Append a string to the linux kernel version so I know this is a built kernel
       shell:
-        chdir: {{ vars.sourceDir }}
-        cmd: {{ vars.sourceDir }}/scripts/config --file .config --set-str LOCALVERSION "-bleeding"
+        chdir: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}"
+        cmd: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}/scripts/config --file .config --set-str LOCALVERSION -bleeding"
     ############################################################################
     ############################################################################
     ############################################################################
     - name: Build the Kernel Modules and Bare Kernel
       shell:
-        chdir: {{ vars.sourceDir }}
+        chdir: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}"
         cmd: make -j$(nproc) 2>&1 | tee make_kernel.log
     ############################################################################
     - name: Install the kernel modules
       shell:
-        chdir: {{ vars.sourceDir }}
+        chdir: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}"
         cmd: make modules_install -j$(nproc)
       become: true
     ############################################################################
     - name: Install the kernel headers
       shell:
-        chdir: {{ vars.sourceDir }}
+        chdir: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}"
         cmd: make headers_install
       become: true
     ############################################################################
     - name: Install the kernel dtbs, ARM and RISCV only!
       shell:
-        chdir: {{ vars.sourceDir }}
+        chdir: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}"
         cmd: make dtbs_install
       become: true
     ############################################################################
     - name: Install the kernel
       shell:
-        chdir: {{ vars.sourceDir }}
+        chdir: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}"
         cmd: make install
       become: true
     ############################################################################
     - name: Update grub
       shell:
-        chdir: {{ vars.sourceDir }}
+        chdir: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}/linux-{{ vars.kernelMajorVersion }}.{{ vars.kernelMinorVersion }}.{{ vars.kernelPatchVersion }}"
         cmd: grub-mkconfig -o /boot/grub/grub.cfg
       become: true
     ############################################################################
