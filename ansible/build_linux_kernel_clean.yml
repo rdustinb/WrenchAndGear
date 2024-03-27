@@ -1,0 +1,22 @@
+# Author: Dustin Brothers
+# Description:
+#   yaml playbook to build and deploy the latest kernel
+---
+
+- hosts: all
+  ############################################################################
+  # Variables
+  vars:
+    kernelMajorVersion: 6
+    kernelMinorVersion: 8
+    kernelPatchVersion: 1
+    buildFolder: "kernel_build"
+  ############################################################################
+  # Tasks
+  tasks:
+    ############################################################################
+    - name: Remove the kernel build folder...
+      become: True
+      file:
+        path: "/home/{{ ansible_ssh_user }}/{{ vars.buildFolder }}"
+        state: absent
