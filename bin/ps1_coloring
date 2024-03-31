@@ -12,7 +12,7 @@ function exitstatus {
 
   GRAYMED="\[\033[38;5;252m\]"
   AMPERSAND="\[\033[38;5;172m\]"
-  GRAYDARK="\[\033[38;5;238m\]"
+  GRAYDARK="\[\033[38;5;246m\]"
   TIME="\[\033[38;5;226m\]"
 
   SHELLNAME="\[\033[38;5;162m\]"
