@@ -81,10 +81,10 @@ source "tart-cli" "tart" {
     "<return>",
     "<return>",
     "<return>",
-    "<wait10s>",
+    "<wait20s>",
     # No to popularity contest:
     "<return>",
-    "<wait2s>",
+    "<wait5s>",
     # Software selection:
     "<down>",
     "<down>",

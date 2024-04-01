@@ -1,0 +1,15 @@
+# Author: Dustin Brothers
+# Description:
+#   Playbook that checks a specific package information on all hosts
+---
+- hosts: all
+  become: true
+  # Pass in a variable with:
+  # ansible-playbook --extra-vars "package=foo"
+  tasks:
+    - name: Gather the package facts
+      package_facts:
+        manager: auto
+    - name: Print the package facts
+      debug:
+        var: ansible_facts.packages[ '{{ vars.thisPackage }}' ][0]['version']
