@@ -1,0 +1,7 @@
+#!/bin/bash
+
+xrandr -o 3
+
+cp ~/Developer/emulation/Configs/system7.5.3.config ~/.config/BasiliskII/prefs
+
+BasiliskII --keycodefile ~/Developer/emulation/Keycodes/keycodes
