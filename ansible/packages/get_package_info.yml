@@ -5,7 +5,7 @@
 - hosts: all
   become: true
   # Pass in a variable with:
-  # ansible-playbook --extra-vars "package=foo"
+  # ansible-playbook --extra-vars "thisPackage=foo"
   tasks:
     - name: Gather the package facts
       package_facts:
