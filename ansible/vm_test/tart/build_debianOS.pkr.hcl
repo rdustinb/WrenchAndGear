@@ -27,7 +27,7 @@ source "tart-cli" "tart" {
   vm_name           = "debian-12.5.0-vanilla"
   cpu_count         = 4
   memory_gb         = 8
-  disk_size_gb      = 50
+  disk_size_gb      = 20
   boot_wait         = "2s"
   boot_command      = [
     "<return>",
