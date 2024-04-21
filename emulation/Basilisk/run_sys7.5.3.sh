@@ -7,4 +7,4 @@ THISFOLDER=`dirname $0`
 rsync -av ${THISFOLDER}/Configs/system7.5.3.config ~/.basilisk_ii_prefs
 
 # Run the System
-/Applications/BasiliskII.app/Contents/MacOS/BasiliskII 2&>1 /dev/null &
+/Applications/BasiliskII.app/Contents/MacOS/BasiliskII &

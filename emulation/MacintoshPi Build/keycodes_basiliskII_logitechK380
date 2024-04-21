@@ -76,8 +76,8 @@ KMSDRM
 51  42	# \
 111 62	# Cursor Up
 37  54	# Ctrl Left
-64  58	# Logo Left (Logo is the COMMAND key, don't confuse this with Alt left)
-133 55	# Alt Left (Alt Left is mapped to start on the Logitech K380 keyboard for some reason)
+133 58	# Logo Left (Start, used as COMMAND)
+64  55	# Alt Left
 65  49	# Space
 108 55	# Alt Right
 135 50	# Menu (-> International)
