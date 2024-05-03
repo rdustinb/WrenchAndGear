@@ -3,17 +3,19 @@
   tasks:
     - name: Get CPU Info of the device
       shell: cat /proc/cpuinfo | grep -i model | tail -n1
-      register: cpu
+      register: thisCpu
     - name: Get memory usage of the device
       command: free -h
-      register: free
+      register: thisFree
     - name: Get uptime of the device
       command: uptime -p
-      register: uptime
+      register: thisUptime
     - name: Get Kernel version of the OS
       shell: uname -r
-      register: kernel
-    - debug: var=cpu.stdout_lines
-    - debug: var=free.stdout_lines
-    - debug: var=uptime.stdout_lines
-    - debug: var=kernel.stdout_lines
+      register: thisKernel
+    - name: Print results!
+      debug: 
+        msg: "{{ thisCpu.stdout }}"
+        msg: "{{ thisFree.stdout }}"
+        msg: "{{ thisUptime.stdout }}"
+        msg: "{{ thisKernel.stdout }}"
