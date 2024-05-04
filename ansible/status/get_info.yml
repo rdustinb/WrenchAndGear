@@ -2,10 +2,10 @@
   gather_facts: false
   tasks:
     - name: Get CPU Info of the device
-      shell: cat /proc/cpuinfo | grep -i model | tail -n1
+      shell: cat /proc/cpuinfo | grep -i model | tail -n1 | awk 'BEGIN { FS=":" } { print $2 }' | xargs
       register: thisCpu
     - name: Get memory usage of the device
-      command: free -h
+      shell: free -ht | tail -n1 | awk '{print $2}'
       register: thisFree
     - name: Get uptime of the device
       command: uptime -p
@@ -15,7 +15,8 @@
       register: thisKernel
     - name: Print results!
       debug: 
-        msg: "{{ thisCpu.stdout }}"
-        msg: "{{ thisFree.stdout }}"
-        msg: "{{ thisUptime.stdout }}"
-        msg: "{{ thisKernel.stdout }}"
+        msg:
+          - "{{ thisCpu.stdout    }}"
+          - "{{ thisFree.stdout   }}"
+          - "{{ thisUptime.stdout }}"
+          - "{{ thisKernel.stdout }}"
