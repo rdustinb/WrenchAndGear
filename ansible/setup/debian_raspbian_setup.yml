@@ -2,35 +2,20 @@
 # Description:
 #   yaml playbook to setup a raspberry pi with all my stuffs...
 ---
+- import: base_setup.yml
 - hosts: all
   tasks:
-    - name: Normal Upgrade of packages
-      apt: 
-        upgrade: yes
-        update_cache: yes 
-      become: true
     ############################################################################
     # Install Common Packages I use
     - name: Install git, vim, curl, fontforge, pip, psutil, gh, stress, and venv
       apt: 
         update_cache: yes
         pkg:
-          - git
-          - vim
-          - curl
-          - fontforge
-          - python3-pip
-          - python3-psutil
-          - gh
           - stress
-          - python3-venv
           - lshw
       become: true
     ############################################################################
     # Setup my Python Virtual Environment
-    - name: Create venv
-      shell:
-        cmd: /usr/bin/python3 -m venv /home/{{ ansible_ssh_user }}/python_dev_env
     - name: Install venv pip3 packages
       pip: 
         name: 
@@ -40,111 +25,6 @@
           - gpiozero
         virtualenv: ~/python_dev_env
         virtualenv_command: "/usr/bin/python3 -m 'venv'"
-    - name: Create several folders needed...
-      file:
-        path: "{{ item }}"
-        state: directory
-      loop:
-        - ~/bin/
-        - ~/.fonts/
-    ############################################################################
-    # Install custom tools
-    - name: Fetch terminal tools and colors
-      get_url:
-        url: "{{ item }}"
-        dest: ~/bin/
-      loop: 
-        - https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/ps1_coloring
-        - https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/list_all.py
-    - name: Add my listing script to the bashrc...
-      shell:
-        cmd: echo "alias ll='python3 ~/bin/list_all.py'" >> ~/.bashrc
-    - name: Add my PS1 coloring script to the bashrc...
-      shell:
-        cmd: echo "source ~/bin/ps1_coloring" >> ~/.bashrc
-    ############################################################################
-    # Setup my VIM Environment
-    - name: Fetch VIM .vimrc
-      get_url:
-        url: https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/setup/.vimrc
-        dest: ~/
-    - name: Fetch VIM font
-      get_url:
-        url: https://github.com/powerline/fonts/raw/master/SourceCodePro/Source%20Code%20Pro%20for%20Powerline.otf
-        dest: ~/
-    - name: Convert VIM font...
-      shell:
-        cmd: fontforge -lang=ff -c 'Open($1); Generate($2);' ~/Source%20Code%20Pro%20for%20Powerline.otf ~/.fonts/Source\ Code\ Pro\ for\ Powerline.ttf
-    - name: Update font cache...
-      shell:
-        cmd: fc-cache
-    - name: Download VIM Colorschemes which also create the initial .vim folder structure...
-      git:
-        repo: https://github.com/flazz/vim-colorschemes.git
-        dest: ~/.vim
-    - name: Create several other VIM tool folders needed...
-      file:
-        path: "{{ item }}"
-        state: directory
-      loop:
-        - ~/.vim/autoload
-        - ~/.vim/bundle
-        - ~/.vim/plugin
-        - ~/.vim/pack/airblade/start
-    - name: Fetch Pathogen
-      get_url:
-        url: https://tpo.pe/pathogen.vim
-        dest: ~/.vim/autoload/
-    - name: Download VIM NerdTree...
-      git:
-        repo: https://github.com/preservim/nerdtree.git
-        dest: ~/.vim/pack/vendor/start/nerdtree
-    - name: Install VIM NerdTree...
-      shell:
-        cmd: vim -u NONE -c "helptags ~/.vim/pack/vendor/start/nerdtree/doc" -c q
-    - name: Download VIM Git Gutter tool...
-      git:
-        repo: https://github.com/airblade/vim-gitgutter.git
-        dest: ~/.vim/pack/airblade/start
-    - name: Install VIM Git Gutter tool...
-      shell:
-        cmd: vim -u NONE -c "helptags vim-gitgutter/doc" -c q
-    - name: Fetch VIM Visual Increment
-      get_url:
-        url: https://raw.githubusercontent.com/triglav/vim-visual-increment/master/plugin/visual-increment.vim
-        dest: ~/.vim/plugin
-    - name: Fetch VIM Visual Increment docs
-      get_url:
-        url: https://raw.githubusercontent.com/triglav/vim-visual-increment/master/doc/visual-increment.txt
-        dest: ~/.vim/docs
-    - name: Install VIM Tabular tool...
-      git:
-        repo: https://github.com/godlygeek/tabular.git
-        dest: ~/.vim/bundle/tabular
-    - name: Install VIM Airline tool...
-      git:
-        repo: https://github.com/vim-airline/vim-airline.git
-        dest: ~/.vim/bundle/vim-airline
-    - name: Install VIM Airline themes...
-      git:
-        repo: https://github.com/vim-airline/vim-airline-themes.git
-        dest: ~/.vim/bundle/vim-airline-themes
-    - name: Install VIM Indent guides...
-      git:
-        repo: https://github.com/preservim/vim-indent-guides.git
-        dest: ~/.vim/bundle/vim-indent-guides
-    - name: Install VIM Xilinx TCL syntax highlighter...
-      git:
-        repo: https://github.com/amal-khailtash/vim-xtcl-syntax.git
-        dest: ~/.vim/bundle/vim-xtcl-syntax
-    - name: Install VIM Xilinx Constraints syntax highlighter...
-      git:
-        repo: https://github.com/amal-khailtash/vim-xdc-syntax.git
-        dest: ~/.vim/bundle/vim-xdc-syntax
-    - name: Install VIM SystemVerilog syntax highlighter...
-      git:
-        repo: https://github.com/vhda/verilog_systemverilog.vim
-        dest: ~/.vim/bundle/verilog_systemverilog
     ############################################################################
     # Setup my Docker Environment
     - name: Fetch Docker setup script...

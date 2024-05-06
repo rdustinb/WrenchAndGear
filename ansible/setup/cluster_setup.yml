@@ -1,9 +1,7 @@
 # Author: Dustin Brothers
 # Description:
-#   yaml playbook to setup a raspberry pi with all my stuffs...
+#   Playbook used to setup my clustered devices.
 ---
-- import: base_setup.yml
-- import: docker_setup.yml
 - hosts: all
   tasks:
     ############################################################################
@@ -16,9 +14,4 @@
       cron:
         name: "System Stats"
         job: "source /home/$( whoami )/python_dev_env/bin/activate ; python3 /home/$( whoami )/python_dev_env/Clustering/utilities/local_data_collector.py ; deactivate"
-    ############################################################################
-    # Reboot after all setup is complete...
-    - name: Reboot to get group settings to take effect...
-      reboot:
-        msg: "Rebooting machine..."
-      become: true
+
