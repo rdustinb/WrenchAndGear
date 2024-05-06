@@ -15,6 +15,35 @@
           - stress
           - xserver-xorg-input-libinput
       become: true
+
+    ############################################################################
+    # Create folders and files, should only be used in test mode...
+    - name: Test purposes, create the overlays folder if it doesn't exist
+      file:
+        path: /boot/overlays
+        recurse: true
+        state: directory
+      become: true
+
+    - name: Test purposes, create the config file if it doesn't exist
+      file:
+        path: /boot/config.txt
+        state: touch
+      become: true
+
+    - name: Test purposes, create the autostart folder if it doesn't exist
+      file:
+        path: /etc/xdg/lxsession/LXDE-pi
+        recurse: true
+        state: directory
+      become: true
+
+    - name: Test purposes, create the autostart file if it doesn't exist
+      file:
+        path: /etc/xdg/lxsession/LXDE-pi/autostart
+        state: touch
+      become: true
+
     ############################################################################
     # Enable 2.8" LCD Display
     - name: Enable LCD Boot Overlays, append to end of file
