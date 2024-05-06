@@ -6,12 +6,18 @@ foo1.local
 [retro]
 foo2.local
 
-[cluster]
+[cluster1]
 node1.local
 node2.local
 node3.local
 node4.local
+
+[cluster2]
 node5.local
 node6.local
 node7.local
 node8.local
+
+[clusters:children]
+cluster1
+cluster2

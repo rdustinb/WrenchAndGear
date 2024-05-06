@@ -10,4 +10,4 @@ cp ~/Developer/emulation/Configs/system7.5.3.config ~/.config/BasiliskII/prefs
 BasiliskII --keycodefile ~/Developer/emulation/Keycodes/keycodes
 
 # When the emulation system shuts down, shut down the host system to fully integrate the two
-#sudo shutdown now
+sudo shutdown now
