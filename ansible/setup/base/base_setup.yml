@@ -8,7 +8,7 @@
   become: true
 ############################################################################
 # Install Common Packages I use
-- name: Install git, vim, curl, fontforge, pip, psutil, gh, stress, and venv
+- name: Install base packages
   apt: 
     update_cache: yes
     pkg:

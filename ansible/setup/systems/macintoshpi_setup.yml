@@ -14,6 +14,7 @@
           - python3-psutil
           - stress
           - xserver-xorg-input-libinput
+      become: true
     ############################################################################
     # Enable 2.8" LCD Display
     - name: Enable LCD Boot Overlays, append to end of file
