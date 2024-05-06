@@ -4,7 +4,7 @@
 xrandr -o 3
 
 # Copy the current emulation configuration into the place that Basilisk expects it
-cp ~/Developer/emulation/Configs/system7.5.3.config ~/.config/BasiliskII/prefs
+cp ~/Developer/emulation/Configs/system.config ~/.config/BasiliskII/prefs
 
 # Launch the emulation system
 BasiliskII --keycodefile ~/Developer/emulation/Keycodes/keycodes
