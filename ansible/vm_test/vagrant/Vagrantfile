@@ -51,7 +51,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Define the ansible playbook used when provisioning
   config.vm.provision "ansible" do |ansible|
     #ansible.verbose = "v"
-    ansible.playbook = "provision.yml"
+    #ansible.playbook = "provision.yml"
+    ansible.playbook = "../../setup/systems/debian_raspbian_setup.yml"
   end
   ######################################
 end

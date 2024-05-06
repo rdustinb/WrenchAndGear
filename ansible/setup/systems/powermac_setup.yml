@@ -3,4 +3,6 @@
 #   Setup a PowerMAC running Debian
 #   For now, it doesn't do anything except the base setup.
 ---
-- import: base_setup.yml
+- hosts: all
+  tasks:
+    - import_tasks: base_setup.yml

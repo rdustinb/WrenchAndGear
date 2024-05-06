@@ -2,12 +2,12 @@
 # Description:
 #   yaml playbook to setup a raspberry pi with all my stuffs...
 ---
-- import: base_setup.yml
 - hosts: all
   tasks:
+    - include_tasks: ../base/base_setup.yml
     ############################################################################
     # Install Common Packages I use
-    - name: Install git, vim, curl, fontforge, pip, psutil, gh, stress, and venv
+    - name: Install needed packages...
       apt: 
         update_cache: yes
         pkg:

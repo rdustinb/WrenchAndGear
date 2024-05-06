@@ -2,9 +2,9 @@
 # Description:
 #   yaml playbook to setup a RPi Macintosh Emulation system
 ---
-- import: base_setup.yml
 - hosts: all
   tasks:
+    - include_tasks: ../base/base_setup.yml
     ############################################################################
     # Install Common Packages I use
     - name: Install needed packages...

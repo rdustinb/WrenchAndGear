@@ -2,10 +2,10 @@
 # Description:
 #   yaml playbook to setup a raspberry pi with all my stuffs...
 ---
-- import: base_setup.yml
-- import: docker_setup.yml
 - hosts: all
   tasks:
+    - include_tasks: ../base/base_setup.yml
+    - include_tasks: ../functions/docker_setup.yml
     ############################################################################
     # Create a Cronjob to collect stats about the system
     - name: Install Clustering repo...
