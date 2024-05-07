@@ -1,15 +1,29 @@
 ############################################################################
+# Install Common Packages I use
+- name: Install needed packages...
+  apt: 
+    update_cache: yes
+    pkg:
+      - autoconf
+      - libmpfr-dev
+  become: true
+
+############################################################################
 # Create folders needed
 - name: Create the emulation configuration directories
   file:
-    path:
-      - ~/Developer/emulation/Configs
-      - ~/Developer/emulation/ROMs
-      - ~/Developer/emulation/Floppys
-      - ~/Developer/emulation/HDDs
-      - ~/Developer/emulation/Keycodes
-    recurse: true
+    path: "{{ item }}"
     state: directory
+    owner: "{{ ansible_ssh_user }}"
+    group: "{{ ansible_ssh_user }}"
+    mode: 0740
+    recurse: true
+  loop:
+    - ~/Developer/emulation/Configs
+    - ~/Developer/emulation/ROMs
+    - ~/Developer/emulation/Floppys
+    - ~/Developer/emulation/HDDs
+    - ~/Developer/emulation/Keycodes
 
 ############################################################################
 # Clone and build Basilisk II from source
@@ -40,43 +54,53 @@
 
 - name: Install Basilisk II
   shell:
-    chdir: ~/macemu/BasiliskII/src/Unix
+    chdir: /home/{{ ansible_ssh_user }}/macemu/BasiliskII/src/Unix
     cmd: make install
   become: true
 
 ############################################################################
 # Fetch the Emulation Files needed
 - name: Fetch the ROM file
+  shell:
     chdir: ~/Developer/emulation/ROMs
     cmd: wget https://github.com/rdustinb/WrenchAndGear/raw/master/emulation/ROMs/ColorClassic-1MB.rom
 
 - name: Fetch the Boot Floppy
+  shell:
     chdir: ~/Developer/emulation/Floppys
     cmd: wget https://github.com/rdustinb/WrenchAndGear/raw/master/emulation/Basilisk/Floppys/System7_Boot.dsk
 
 - name: Fetch the System 7.5.3 Install Floppys
+  shell:
     chdir: ~/Developer/emulation/Floppys
     cmd: wget https://github.com/rdustinb/WrenchAndGear/raw/master/emulation/Basilisk/Floppys/System7.5.3_Install.dsk
 
 - name: Fetch the System 7.5.5 Update Floppys
+  shell:
     chdir: ~/Developer/emulation/Floppys
-    cmd:
-      - wget https://github.com/rdustinb/WrenchAndGear/raw/master/emulation/Basilisk/Floppys/System7.5.5_Update_1.dsk
-      - wget https://github.com/rdustinb/WrenchAndGear/raw/master/emulation/Basilisk/Floppys/System7.5.5_Update_2.dsk
-      - wget https://github.com/rdustinb/WrenchAndGear/raw/master/emulation/Basilisk/Floppys/System7.5.5_Update_3.dsk
+    cmd: "{{ item }}"
+  loop:
+    - wget https://github.com/rdustinb/WrenchAndGear/raw/master/emulation/Basilisk/Floppys/System7.5.5_Update_1.dsk
+    - wget https://github.com/rdustinb/WrenchAndGear/raw/master/emulation/Basilisk/Floppys/System7.5.5_Update_2.dsk
+    - wget https://github.com/rdustinb/WrenchAndGear/raw/master/emulation/Basilisk/Floppys/System7.5.5_Update_3.dsk
 
-- name: Write configuration to a file
+- name: Create the new Basilisk II configuration file
+  file:
+    path: ~/Developer/emulation/Configs/system.config
+    state: touch
+
+- name: Write configuration
   blockinfile:
     path: ~/Developer/emulation/Configs/system.config
     block: |
-      rom /home/{{ ansible_user }}/Developer/emulation/ROMs/ColorClassic-1MB.rom
-      disk /home/{{ ansible_user }}/Developer/emulation/HDDs/System7_Boot.dsk
-      disk /home/{{ ansible_user }}/Developer/emulation/HDDs/System7.5.3_Install.dsk
-      disk /home/{{ ansible_user }}/Developer/emulation/HDDs/System7.5.5_Update_1.dsk
-      disk /home/{{ ansible_user }}/Developer/emulation/HDDs/System7.5.5_Update_2.dsk
-      disk /home/{{ ansible_user }}/Developer/emulation/HDDs/System7.5.5_Update_3.dsk
-      disk /home/{{ ansible_user }}/Developer/emulation/HDDs/HDD.dsk
-      extfs /home/{{ ansible_user }}/Shared
+      rom /home/{{ ansible_ssh_user }}/Developer/emulation/ROMs/ColorClassic-1MB.rom
+      disk /home/{{ ansible_ssh_user }}/Developer/emulation/Floppys/System7_Boot.dsk
+      disk /home/{{ ansible_ssh_user }}/Developer/emulation/Floppys/System7.5.3_Install.dsk
+      disk /home/{{ ansible_ssh_user }}/Developer/emulation/Floppys/System7.5.5_Update_1.dsk
+      disk /home/{{ ansible_ssh_user }}/Developer/emulation/Floppys/System7.5.5_Update_2.dsk
+      disk /home/{{ ansible_ssh_user }}/Developer/emulation/Floppys/System7.5.5_Update_3.dsk
+      disk /home/{{ ansible_ssh_user }}/Developer/emulation/HDDs/HDD.dsk
+      extfs /home/{{ ansible_ssh_user }}/Shared
       screen win/640/480
       seriala /dev/cu.BLTH
       serialb /dev/null
@@ -121,10 +145,24 @@
       delay 0
       init_grab false
 
+- name: Generate a blank emulation HDD
+  shell:
+    chdir: ~/Developer/emulation/HDDs
+    cmd: dd if=/dev/zero of=HDD.dsk bs=524288000 count=1
+
 - name: Add xsession file
+  shell:
     chdir: ~/
     cmd: wget https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/emulation/MacintoshPi%20Build/.xsession
 
 - name: Get keycodes mappings file
+  shell:
     chdir: ~/Developer/emulation/Keycodes
     cmd: wget https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/emulation/MacintoshPi%20Build/keycodes
+
+- name: Setup bashrc to run xsession at login
+  blockinfile:
+    path: ~/.bashrc
+    block: |
+      # Automatically start Basilisk II when login occurs
+      startx

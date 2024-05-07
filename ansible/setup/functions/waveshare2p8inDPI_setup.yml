@@ -35,7 +35,6 @@
       dtoverlay=vc4-kms-v3d
       dtoverlay=vc4-kms-dpi-2inch8
       dtoverlay=waveshare-28dpi-3b-4b   
-      dtoverlay=waveshare-touch-28dpi
   become: true
 
 - name: Download LCD DTBO Files
@@ -50,22 +49,25 @@
     remote_src: yes
   become: true
 
-- name: Rotate the LCD output to the correct orientation
-  lineinfile:
-    path: /etc/xdg/lxsession/LXDE-pi/autostart
-    line: 'xrandr -o 3'
-  become: true
-
-- name: Copy configuration file to rotate the touch interface
-  copy:
-    src: /usr/share/X11/xorg.conf.d/40-libinput.conf
-    dest: /etc/X11/xorg.conf.d/
-    remote_src: yes
-  become: true
-
-- name: Rotate the LCD touch interface to the correct orientation
-  lineinfile:
-    path: /etc/X11/xorg.conf.d/40-libinput.conf
-    insertafter: 'MatchIsTouchscreen'
-    line: '        Option "CalibrationMatrix" "0 1 0 -1 0 1 0 0 1"'
-  become: true
+###############################################################################
+#### Enable 2.8" LCD Touch
+###- name: Enable LCD Boot Overlays, append to end of file
+###  blockinfile:
+###    path: /boot/config.txt
+###    content: |
+###      dtoverlay=waveshare-touch-28dpi
+###  become: true
+###
+###- name: Copy configuration file to rotate the touch interface
+###  copy:
+###    src: /usr/share/X11/xorg.conf.d/40-libinput.conf
+###    dest: /etc/X11/xorg.conf.d/
+###    remote_src: yes
+###  become: true
+###
+###- name: Rotate the LCD touch interface to the correct orientation
+###  lineinfile:
+###    path: /etc/X11/xorg.conf.d/40-libinput.conf
+###    insertafter: 'MatchIsTouchscreen'
+###    line: '        Option "CalibrationMatrix" "0 1 0 -1 0 1 0 0 1"'
+###  become: true

@@ -1,0 +1,20 @@
+# This is a list of tasks to configure a system with low memory. It increases the SWAP size high enough to not cause the
+# system to hang when running apt updates.
+- name: Turn off the swapspace while it is changed
+  become: true
+  shell:
+    cmd: dphys-swapfile swapoff
+- name: Update the swapspace size to 4GB
+  become: true
+  lineinfile:
+    path: /etc/dphys-swapfile
+    regexp: '^CONF_SWAPSIZE='
+    line: CONF_SWAPSIZE=4096
+- name: Setup the new swapspace
+  become: true
+  shell:
+    cmd: dphys-swapfile setup
+- name: Turn on the swapspace while it is changed
+  become: true
+  shell:
+    cmd: dphys-swapfile swapon
