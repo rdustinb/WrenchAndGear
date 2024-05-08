@@ -1,59 +1,114 @@
-############################################################################
-# Create folders and files, should only be used in test mode...
-- name: Test purposes, create the overlays folder if it doesn't exist
-  file:
-    path: /boot/overlays
-    recurse: true
-    state: directory
-  become: true
-
-- name: Test purposes, create the config file if it doesn't exist
-  file:
-    path: /boot/config.txt
-    state: touch
-  become: true
-
-- name: Test purposes, create the autostart folder if it doesn't exist
-  file:
-    path: /etc/xdg/lxsession/LXDE-pi
-    recurse: true
-    state: directory
-  become: true
-
-- name: Test purposes, create the autostart file if it doesn't exist
-  file:
-    path: /etc/xdg/lxsession/LXDE-pi/autostart
-    state: touch
-  become: true
+# DEPRECATION NOTICE
+#
+# It seems that RaspbianOS doesn't properly load the Waveshare DTOverlays if
+# they are loaded this way after the first boot.
+#
+# The DTOverlay files from Waveshare must be loaded onto the newly-imaged
+# boot disk and the config.txt and cmdline.txt file modified before the first
+# boot.
 
 ############################################################################
 # Enable 2.8" LCD Display
+- name: Comment out...
+  become: true
+  replace:
+    dest: /boot/config.txt
+    regexp: "^dtparam=audio=on"
+    replace: "#dtparam=audio=on"
+- name: Comment out...
+  become: true
+  replace:
+    dest: /boot/config.txt
+    regexp: "^camera_auto_detect=1"
+    replace: "#camera_auto_detect=1"
+- name: Comment out...
+  become: true
+  replace:
+    dest: /boot/config.txt
+    regexp: "^display_auto_detect=1"
+    replace: "#display_auto_detect=1"
+- name: Comment out...
+  become: true
+  replace:
+    dest: /boot/config.txt
+    regexp: "^dtoverlay=vc4-kms-v3d"
+    replace: "#dtoverlay=vc4-kms-v3d"
+- name: Comment out...
+  become: true
+  replace:
+    dest: /boot/config.txt
+    regexp: "^max_framebuffers=2"
+    replace: "#max_framebuffers=2"
+- name: Comment out...
+  become: true
+  replace:
+    dest: /boot/config.txt
+    regexp: "^disable_overscan=1"
+    replace: "#disable_overscan=1"
+
 - name: Enable LCD Boot Overlays, append to end of file
+  become: true
   blockinfile:
     path: /boot/config.txt
     content: |
       dtoverlay=vc4-kms-v3d
-      dtoverlay=vc4-kms-dpi-2inch8
       dtoverlay=waveshare-28dpi-3b-4b   
-  become: true
+      dtoverlay=waveshare-28dpi-3b
+      dtoverlay=waveshare-28dpi-4b
+      dtoverlay=waveshare-touch-28dpi
+      dtoverlay=vc4-kms-dpi-2inch8
 
 - name: Download LCD DTBO Files
   get_url:
     url: https://files.waveshare.com/upload/b/b5/28DPI-DTBO.zip
     dest: /tmp
 
-- name: Extract LCD DTBO Files to /boot/overlays
+- name: Extract LCD DTBO Files
+  become: true
   unarchive:
     src: /tmp/28DPI-DTBO.zip
+    dest: /tmp
+    remote_src: yes
+
+- name: Copy files to overlay folder
+  become: true
+  copy:
+    src: "{{ item }}"
     dest: /boot/overlays
     remote_src: yes
+  loop:
+    - /tmp/28DPI-DTBO/vc4-kms-DPI-28inch.dtbo
+    - /tmp/28DPI-DTBO/waveshare-28dpi.dtbo
+    - /tmp/28DPI-DTBO/waveshare-28dpi-3b.dtbo
+    - /tmp/28DPI-DTBO/waveshare-28dpi-4b.dtbo
+    - /tmp/28DPI-DTBO/waveshare-28dpi-3b-4b.dtbo
+    - /tmp/28DPI-DTBO/waveshare-touch-28dpi.dtbo
+
+- name: Rotate the display
   become: true
+  blockinfile:
+    path: /etc/xdg/lxsession/LXDE-pi/autostart
+    content: |
+      xrandr -o 3
+
+- name: Append to the end of the cmdline arguments...
+  become: true
+  lineinfile: 
+    dest: /boot/cmdline.txt 
+    line: " fbcon=rotate:1"
+
+############################################################################
+# Reboot to get the display settings to take effect
+- name: Rebooting...
+  become: true
+  reboot:
+    msg: "Rebooting machine..."
 
 ###############################################################################
 #### Enable 2.8" LCD Touch
 ###- name: Enable LCD Boot Overlays, append to end of file
 ###  blockinfile:
-###    path: /boot/config.txt
+###    path: /boot/firmware/config.txt
 ###    content: |
 ###      dtoverlay=waveshare-touch-28dpi
 ###  become: true

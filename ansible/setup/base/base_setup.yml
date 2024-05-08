@@ -18,7 +18,6 @@
       - vim
       - curl
       - fontforge
-      - gh
       - libsdl2-dev
       - python3-pip
       - python3-venv
@@ -55,7 +54,7 @@
 # Setup my VIM Environment
 - name: Fetch VIM .vimrc
   get_url:
-    url: https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/setup/.vimrc
+    url: https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/utilities/setup/.vimrc
     dest: ~/
 - name: Fetch VIM font
   get_url:

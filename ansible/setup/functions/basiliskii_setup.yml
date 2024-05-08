@@ -148,7 +148,7 @@
 - name: Generate a blank emulation HDD
   shell:
     chdir: ~/Developer/emulation/HDDs
-    cmd: dd if=/dev/zero of=HDD.dsk bs=524288000 count=1
+    cmd: dd if=/dev/zero of=HDD.dsk bs=52428800 count=1
 
 - name: Add xsession file
   shell:
