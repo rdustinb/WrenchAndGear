@@ -100,7 +100,7 @@
       disk /home/{{ ansible_ssh_user }}/Developer/emulation/Floppys/System7.5.5_Update_2.dsk
       disk /home/{{ ansible_ssh_user }}/Developer/emulation/Floppys/System7.5.5_Update_3.dsk
       disk /home/{{ ansible_ssh_user }}/Developer/emulation/HDDs/HDD.dsk
-      extfs /home/{{ ansible_ssh_user }}/Shared
+      extfs /home/{{ ansible_ssh_user }}/Public
       screen win/640/480
       seriala /dev/cu.BLTH
       serialb /dev/null
