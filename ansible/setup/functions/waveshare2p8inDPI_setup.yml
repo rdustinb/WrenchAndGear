@@ -14,7 +14,10 @@
 
 - name: Download LCD DTBO Files
   get_url:
-    url: https://files.waveshare.com/upload/b/b5/28DPI-DTBO.zip
+    # Buster and Ubuntu (Legacy):
+    #url: https://files.waveshare.com/upload/b/b5/28DPI-DTBO.zip
+    # Bookworm and Bullseye:
+    url: https://files.waveshare.com/wiki/2.8inch%20DPI%20LCD/28DPI-DTBO.zip
     dest: /tmp
 
 - name: Extract LCD DTBO Files
@@ -24,6 +27,19 @@
     dest: /tmp
     remote_src: yes
 
+      #- name: Copy Buster and Ubuntu (Legacy) files to overlay folder
+      #  become: true
+      #  copy:
+      #    src: "{{ item }}"
+      #    dest: /boot/overlays/
+      #    remote_src: yes
+      #  loop:
+      #    - /tmp/28DPI-DTBO/vc4-kms-DPI-28inch.dtbo
+      #    - /tmp/28DPI-DTBO/waveshare-28dpi.dtbo
+      #    - /tmp/28DPI-DTBO/waveshare-28dpi-3b.dtbo
+      #    - /tmp/28DPI-DTBO/waveshare-28dpi-4b.dtbo
+      #    - /tmp/28DPI-DTBO/waveshare-28dpi-3b-4b.dtbo
+      #    - /tmp/28DPI-DTBO/waveshare-touch-28dpi.dtbo
 - name: Copy files to overlay folder
   become: true
   copy:
@@ -31,8 +47,7 @@
     dest: /boot/overlays/
     remote_src: yes
   loop:
-    - /tmp/28DPI-DTBO/vc4-kms-DPI-28inch.dtbo
-    - /tmp/28DPI-DTBO/waveshare-28dpi.dtbo
+    - /tmp/28DPI-DTBO/vc4-kms-dpi-2inch8.dtbo
     - /tmp/28DPI-DTBO/waveshare-28dpi-3b.dtbo
     - /tmp/28DPI-DTBO/waveshare-28dpi-4b.dtbo
     - /tmp/28DPI-DTBO/waveshare-28dpi-3b-4b.dtbo

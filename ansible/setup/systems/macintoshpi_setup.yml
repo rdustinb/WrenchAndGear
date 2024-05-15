@@ -4,6 +4,7 @@
 ---
 - hosts: all
   tasks:
+    # The Low Memory setup could still be needed...
     - include_tasks: ../base/lowmem_setup.yml
     - include_tasks: ../functions/waveshare2p8inDPI_setup.yml
     - include_tasks: ../base/base_setup.yml
