@@ -1,23 +1,29 @@
 # Specific groups of hosts can be invoked using the -l switch with ansible-playbook.
-# Ex:     ansible-playbook -i hosts.ini -l cluster....
+#   ansible-playbook -i hosts.ini -l cluster....
+#
+# Number of forks can be specified in the ansible.cfg file:
+#   [defaults]
+#   forks = nn
+# Or by passing an argument to the ansible-playbook command:
+#   ansible-playbook -f nn
 [services]
-foo1.local
+foo1.local ansible_user=fe
 
 [retro]
-foo2.local
+foo2.local ansible_user=fi
 
 [cluster1]
-node1.local
-node2.local
-node3.local
-node4.local
+node1.local ansible_user=fo
+node2.local ansible_user=fo
+node3.local ansible_user=fo
+node4.local ansible_user=fo
 
 [cluster2]
-node5.local
-node6.local
-node7.local
-node8.local
+node5.local ansible_user=fum
+node6.local ansible_user=fum
+node7.local ansible_user=fum
+node8.local ansible_user=fum
 
 [clusters:children]
-cluster1
-cluster2
+cluster1 ansible_user=fe
+cluster2 ansible_user=fe
