@@ -127,3 +127,56 @@ services:
     restart: unless-stopped
     privileged: true
     network_mode: host
+  #####################################################################
+  # Homepage is an open source, web-based console to display all of
+  # the pertinent information desired.
+  #
+  # https://gethomepage.dev/latest/
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    ports:
+      - 3000:3000
+    # The images and icons folders need to be mapped to /app/public/*, 
+    # whereas the config needs to be mapped to /app/config
+    volumes:
+      - ./homepage/config:/app/config
+      - ./homepage/icons:/app/public/icons
+      - ./homepage/images:/app/public/images
+    restart: unless-stopped
+  #####################################################################
+  # Speedtest Tracker is an open source project which can be configured
+  # to periodically test a networks internet bandwidth, complete with a
+  # web interface and graphs and charts.
+  #
+  # This container provides functionality for one of the Homepage
+  # widgets.
+  speedtest-tracker:
+    image: lscr.io/linuxserver/speedtest-tracker:latest
+    container_name: speedtest-tracker
+    network_mode: bridge
+    ports:
+      - 8080:80
+      - 8443:443
+    environment:
+      PUID: 1000
+      PGID: 1000
+      # This key can be obtained by going to: 
+      #   https://speedtest-tracker.dev
+      APP_KEY: 
+      APP_URL: http://localhost
+      # This uses a cronjob time format for how often to run the speedtest
+      SPEEDTEST_SCHEDULE: "*/5 * * * *"
+      # All of the timezone formats are similar to:
+      #   Country/City
+      #
+      # Yes all of these have different effects in the web interface...
+      APP_TIMEZONE: 
+      DISPLAY_TIMEZONE: 
+      DATETIME_FORMAT: 
+      CHART_DATETIME_FORMAT: 
+      DB_CONNECTION: sqlite
+    volumes:
+      - ./speedtest/config:/config
+      - ./speedtest/keys:/config/keys
+    restart: unless-stopped
