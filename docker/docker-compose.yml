@@ -168,13 +168,13 @@ services:
       # This uses a cronjob time format for how often to run the speedtest
       SPEEDTEST_SCHEDULE: "*/5 * * * *"
       # All of the timezone formats are similar to:
-      #   Country/City
-      #
-      # Yes all of these have different effects in the web interface...
-      APP_TIMEZONE: 
-      DISPLAY_TIMEZONE: 
-      DATETIME_FORMAT: 
-      CHART_DATETIME_FORMAT: 
+      #   "Country/City"
+      APP_TIMEZONE: "America/New York"
+      DISPLAY_TIMEZONE: "America/New York"
+      # All of the formats are similar to:
+      #   "y-m-d H:i"
+      DATETIME_FORMAT: "y-m-d H:i" 
+      CHART_DATETIME_FORMAT: "y-m-d H:i"
       DB_CONNECTION: sqlite
     volumes:
       - ./speedtest/config:/config
