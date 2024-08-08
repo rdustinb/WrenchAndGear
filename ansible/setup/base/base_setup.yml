@@ -12,6 +12,7 @@
   apt: 
     update_cache: yes
     pkg:
+      - net-tools
       - htop
       - git
       - neovim
@@ -66,6 +67,9 @@
 - name: Update font cache...
   shell:
     cmd: fc-cache
+- name: Remove original font file...
+  shell:
+    cmd: rm ~/Source%20Code%20Pro%20for%20Powerline.otf
 - name: Download VIM Colorschemes which also create the initial .vim folder structure...
   git:
     repo: https://github.com/flazz/vim-colorschemes.git
