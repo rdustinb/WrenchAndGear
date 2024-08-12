@@ -1,6 +1,10 @@
 from pathlib import Path
 import subprocess
 import sys
+# This is probably installed in a venv...
+import git
+
+DEBUG = True
 
 path = str(sys.argv[1])
 
@@ -16,8 +20,8 @@ def findGits(thisDir):
             if thisNextDir.is_dir():
                 thisNextDir = str(thisNextDir)
                 # Is this is a .git directory, append it and stop recursing
-                if thisNextDir.find(".git") != -1:
-                    gitFolders.append(thisNextDir.strip(".git"))
+                if thisNextDir.endswith('.git'):
+                    gitFolders.append(thisNextDir.replace('.git', ''))
                     continue
                 else:
                     findGits(thisNextDir)
@@ -30,4 +34,14 @@ if __name__ == '__main__':
 
     for thisFolder in gitFolders:
         print("\n%s"%(thisFolder))
-        subprocess.call(['git', 'status', thisFolder])
+        my_repo = git.Repo(thisFolder)
+        # Check for local modifications
+        if my_repo.is_dirty() and not(my_repo.is_dirty(untracked_files=True)):
+            print("Local modifications.")
+        else:
+            print("No local modifications.")
+        # Check for untracked files
+        if my_repo.is_dirty(untracked_files=True):
+            print("Untracked files.")
+        else:
+            print("No untracked files.")
