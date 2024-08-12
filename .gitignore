@@ -10,3 +10,6 @@ vagrant-ssh
 
 # macOS specific datafiles don't need to be stored
 .DS_Store
+
+# Don't store my ansible config files
+*ansible.cfg
