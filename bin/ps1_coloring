@@ -10,6 +10,7 @@ function exitstatus {
   GOOD="${BOLD}\[\033[38;5;19m\]"
   BAD="${BOLD}\[\033[38;5;52m\]"
 
+  RED="${BOLD}\[\033[1;31m\]"
   GRAYMED="\[\033[38;5;252m\]"
   AMPERSAND="\[\033[38;5;172m\]"
   GRAYDARK="\[\033[38;5;246m\]"
@@ -18,7 +19,13 @@ function exitstatus {
   SHELLNAME="\[\033[38;5;162m\]"
 
   COMMONPROMPT1="\n${GRAYDARK}\w${OFF}\n"
-  COMMONPROMPT2=" [${BOLD}\u${OFF}${AMPERSAND}@${OFF}${GRAYMED}\h${OFF}, ${SHELLNAME}BASH${OFF}] ${TIME}\t${OFF}$ "
+  # Highlight if the user is logged in as ROOT
+  if [[ "$(whoami)" == "root" ]]
+  then
+    COMMONPROMPT2=" [${RED}\u${OFF}${AMPERSAND}@${OFF}${GRAYMED}\h${OFF}, ${SHELLNAME}BASH${OFF}] ${TIME}\t${OFF}$ "
+  else
+    COMMONPROMPT2=" [${BOLD}\u${OFF}${AMPERSAND}@${OFF}${GRAYMED}\h${OFF}, ${SHELLNAME}BASH${OFF}] ${TIME}\t${OFF}$ "
+  fi
 
   if [ "${EXITSTATUS}" -eq 0 ]
   then
