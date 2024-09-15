@@ -2,21 +2,26 @@
 # Description:
 #   Setup the Docker Environment
 - name: Fetch Docker setup script...
+  when: docker_exists is failed
   get_url:
-    url: https://get.docker.com
-    dest: ~/docker_setup.sh
-    mode: '0777'
+    url: "https://get.docker.com"
+    dest: "/home/{{ ansible_ssh_user }}/docker_setup.sh"
+    mode: "0777"
 - name: Run Docker setup...
+  when: docker_exists is failed
   shell: 
-    cmd: /home/{{ ansible_ssh_user }}/docker_setup.sh
+    cmd: "/home/{{ ansible_ssh_user }}/docker_setup.sh"
+    creates: "/usr/bin/docker"
   become: true
 - name: Adding my user to the docker group...
+  when: docker_exists is failed
   user:
     append: true
     groups: docker
     name: "{{ ansible_ssh_user }}"
   become: true
 - name: Fetch my docker playbook...
+  when: docker_exists is failed
   get_url:
-    url: https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/docker/docker-compose.yml
-    dest: ~/
+    url: "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/docker/docker-compose.yml"
+    dest: "/home/{{ ansible_ssh_user }}/"

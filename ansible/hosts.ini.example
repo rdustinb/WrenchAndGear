@@ -6,24 +6,59 @@
 #   forks = nn
 # Or by passing an argument to the ansible-playbook command:
 #   ansible-playbook -f nn
-[services]
-foo1.local ansible_user=fe
+#
+# The default Ansible SSH user can be defined per node or in a
+# group's vars definition:
+#   ansible_ssh_user = foo
+#
+# It is often desired in an emulation/VM environment to simply
+# accept the host key when connecting to a system for the first
+# time. This can be emabled with the variable:
+#
+#   ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 
-[retro]
-foo2.local ansible_user=fi
+
+########################################
+# Emulation
+[vagrant_nodes]
+192.168.10.[50:51]
+
+[emulation:children]
+vagrant_nodes
+
+#####################
+# Emulation Variables
+[emulation:vars]
+ansible_ssh_user=myUser
+ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+
+########################################
+# Production
+[services]
+foo1.local
+foo2.local
 
 [cluster1]
-node1.local ansible_user=fo
-node2.local ansible_user=fo
-node3.local ansible_user=fo
-node4.local ansible_user=fo
+# Using the range operator, works just like Verilog
+node[0:3].local
 
 [cluster2]
-node5.local ansible_user=fum
-node6.local ansible_user=fum
-node7.local ansible_user=fum
+# Individual node definitions
+node5.local
+node6.local
+node7.local
 node8.local ansible_user=fum
 
 [clusters:children]
 cluster1 ansible_user=fe
 cluster2 ansible_user=fe
+
+[production:children]
+clusters
+services
+
+#####################
+# Production Variables
+[production:vars]
+ansible_ssh_user=myUser

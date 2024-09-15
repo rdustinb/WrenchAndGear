@@ -1,11 +1,7 @@
 # Author: Dustin Brothers
 # Description:
 #   Base tasks for setup
-- name: Normal Upgrade of packages
-  apt: 
-    upgrade: yes
-    update_cache: yes 
-  become: true
+
 ############################################################################
 # Install Common Packages I use
 - name: Install base packages
@@ -22,118 +18,124 @@
       - libsdl2-dev
       - python3-pip
       - python3-venv
+      - stress
+      - lshw
   become: true
-############################################################################
-# Setup my Python Virtual Environment
-- name: Create venv
-  shell:
-    cmd: /usr/bin/python3 -m venv /home/{{ ansible_ssh_user }}/python_dev_env
+
 ############################################################################
 - name: Create several folders needed...
   file:
     path: "{{ item }}"
     state: directory
   loop:
-    - ~/bin/
-    - ~/.fonts/
+    - "/home/{{ ansible_ssh_user }}/bin/"
+    - "/home/{{ ansible_ssh_user }}/.fonts/"
+
 ############################################################################
 # Install custom tools
 - name: Fetch terminal tools and colors
   get_url:
     url: "{{ item }}"
-    dest: ~/bin/
+    dest: "/home/{{ ansible_ssh_user }}/bin/"
   loop: 
-    - https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/ps1_coloring
-    - https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/list_all.py
+    - "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/ps1_coloring"
+    - "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/list_all.py"
 - name: Add my listing script to the bashrc...
-  shell:
-    cmd: echo "alias ll='python3 ~/bin/list_all.py'" >> ~/.bashrc
+  lineinfile:
+    path: "/home/{{ ansible_ssh_user }}/.bashrc"
+    regexp: '^alias ll='
+    line: "alias ll='python3 ~/bin/list_all.py'"
 - name: Add my PS1 coloring script to the bashrc...
-  shell:
-    cmd: echo "source ~/bin/ps1_coloring" >> ~/.bashrc
+  lineinfile:
+    path: "/home/{{ ansible_ssh_user }}/.bashrc"
+    regexp: '^source.*ps1_coloring'
+    line: "source ~/bin/ps1_coloring"
+
 ############################################################################
 # Setup my VIM Environment
 - name: Fetch VIM .vimrc
   get_url:
-    url: https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/utilities/setup/.vimrc
-    dest: ~/
+    url: "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/utilities/setup/.vimrc"
+    dest: "/home/{{ ansible_ssh_user }}/.vimrc"
 - name: Fetch VIM font
+  when: font_exists is failed
   get_url:
-    url: https://github.com/powerline/fonts/raw/master/SourceCodePro/Source%20Code%20Pro%20for%20Powerline.otf
-    dest: ~/
-- name: Convert VIM font...
+    url: "https://github.com/powerline/fonts/raw/master/SourceCodePro/Source%20Code%20Pro%20for%20Powerline.otf"
+    dest: "/home/{{ ansible_ssh_user }}/Source%20Code%20Pro%20for%20Powerline.otf"
+- name: Convert VIM font and update the font cache...
   shell:
-    cmd: fontforge -lang=ff -c 'Open($1); Generate($2);' ~/Source%20Code%20Pro%20for%20Powerline.otf ~/.fonts/Source\ Code\ Pro\ for\ Powerline.ttf
-- name: Update font cache...
-  shell:
-    cmd: fc-cache
-- name: Remove original font file...
-  shell:
-    cmd: rm ~/Source%20Code%20Pro%20for%20Powerline.otf
+    cmd: > 
+      fontforge -lang=ff -c 'Open($1); Generate($2);' 
+      "/home/{{ ansible_ssh_user }}/Source%20Code%20Pro%20for%20Powerline.otf"
+      "/home/{{ ansible_ssh_user }}/.fonts/Source Code Pro for Powerline.ttf"; 
+      fc-cache
+    creates: "/home/{{ ansible_ssh_user }}/.fonts/Source Code Pro for Powerline.ttf"
 - name: Download VIM Colorschemes which also create the initial .vim folder structure...
   git:
-    repo: https://github.com/flazz/vim-colorschemes.git
-    dest: ~/.vim
+    repo: "https://github.com/flazz/vim-colorschemes.git"
+    dest: "/home/{{ ansible_ssh_user }}/.vim"
 - name: Create several other VIM tool folders needed...
   file:
     path: "{{ item }}"
     state: directory
   loop:
-    - ~/.vim/autoload
-    - ~/.vim/bundle
-    - ~/.vim/plugin
-    - ~/.vim/pack/airblade/start
+    - "/home/{{ ansible_ssh_user }}/.vim/autoload"
+    - "/home/{{ ansible_ssh_user }}/.vim/bundle"
+    - "/home/{{ ansible_ssh_user }}/.vim/plugin"
+    - "/home/{{ ansible_ssh_user }}/.vim/pack/airblade/start"
 - name: Fetch Pathogen
   get_url:
-    url: https://tpo.pe/pathogen.vim
-    dest: ~/.vim/autoload/
+    url: "https://tpo.pe/pathogen.vim"
+    dest: "/home/{{ ansible_ssh_user }}/.vim/autoload/"
 - name: Download VIM NerdTree...
   git:
-    repo: https://github.com/preservim/nerdtree.git
-    dest: ~/.vim/pack/vendor/start/nerdtree
+    repo: "https://github.com/preservim/nerdtree.git"
+    dest: "/home/{{ ansible_ssh_user }}/.vim/pack/vendor/start/nerdtree"
 - name: Install VIM NerdTree...
+  when: vim_nerdtree_exists is failed
   shell:
     cmd: vim -u NONE -c "helptags ~/.vim/pack/vendor/start/nerdtree/doc" -c q
 - name: Download VIM Git Gutter tool...
   git:
-    repo: https://github.com/airblade/vim-gitgutter.git
-    dest: ~/.vim/pack/airblade/start
+    repo: "https://github.com/airblade/vim-gitgutter.git"
+    dest: "/home/{{ ansible_ssh_user }}/.vim/pack/airblade/start"
 - name: Install VIM Git Gutter tool...
+  when: vim_gitgutter_exists is failed
   shell:
     cmd: vim -u NONE -c "helptags vim-gitgutter/doc" -c q
 - name: Fetch VIM Visual Increment
   get_url:
-    url: https://raw.githubusercontent.com/triglav/vim-visual-increment/master/plugin/visual-increment.vim
-    dest: ~/.vim/plugin
+    url: "https://raw.githubusercontent.com/triglav/vim-visual-increment/master/plugin/visual-increment.vim"
+    dest: "/home/{{ ansible_ssh_user }}/.vim/plugin"
 - name: Fetch VIM Visual Increment docs
   get_url:
-    url: https://raw.githubusercontent.com/triglav/vim-visual-increment/master/doc/visual-increment.txt
-    dest: ~/.vim/docs
+    url: "https://raw.githubusercontent.com/triglav/vim-visual-increment/master/doc/visual-increment.txt"
+    dest: "/home/{{ ansible_ssh_user }}/.vim/docs"
 - name: Install VIM Tabular tool...
   git:
-    repo: https://github.com/godlygeek/tabular.git
-    dest: ~/.vim/bundle/tabular
+    repo: "https://github.com/godlygeek/tabular.git"
+    dest: "/home/{{ ansible_ssh_user }}/.vim/bundle/tabular"
 - name: Install VIM Airline tool...
   git:
-    repo: https://github.com/vim-airline/vim-airline.git
-    dest: ~/.vim/bundle/vim-airline
+    repo: "https://github.com/vim-airline/vim-airline.git"
+    dest: "/home/{{ ansible_ssh_user }}/.vim/bundle/vim-airline"
 - name: Install VIM Airline themes...
   git:
-    repo: https://github.com/vim-airline/vim-airline-themes.git
-    dest: ~/.vim/bundle/vim-airline-themes
+    repo: "https://github.com/vim-airline/vim-airline-themes.git"
+    dest: "/home/{{ ansible_ssh_user }}/.vim/bundle/vim-airline-themes"
 - name: Install VIM Indent guides...
   git:
-    repo: https://github.com/preservim/vim-indent-guides.git
-    dest: ~/.vim/bundle/vim-indent-guides
+    repo: "https://github.com/preservim/vim-indent-guides.git"
+    dest: "/home/{{ ansible_ssh_user }}/.vim/bundle/vim-indent-guides"
 - name: Install VIM Xilinx TCL syntax highlighter...
   git:
-    repo: https://github.com/amal-khailtash/vim-xtcl-syntax.git
-    dest: ~/.vim/bundle/vim-xtcl-syntax
+    repo: "https://github.com/amal-khailtash/vim-xtcl-syntax.git"
+    dest: "/home/{{ ansible_ssh_user }}/.vim/bundle/vim-xtcl-syntax"
 - name: Install VIM Xilinx Constraints syntax highlighter...
   git:
-    repo: https://github.com/amal-khailtash/vim-xdc-syntax.git
-    dest: ~/.vim/bundle/vim-xdc-syntax
+    repo: "https://github.com/amal-khailtash/vim-xdc-syntax.git"
+    dest: "/home/{{ ansible_ssh_user }}/.vim/bundle/vim-xdc-syntax"
 - name: Install VIM SystemVerilog syntax highlighter...
   git:
-    repo: https://github.com/vhda/verilog_systemverilog.vim
-    dest: ~/.vim/bundle/verilog_systemverilog
+    repo: "https://github.com/vhda/verilog_systemverilog.vim"
+    dest: "/home/{{ ansible_ssh_user }}/.vim/bundle/verilog_systemverilog"
