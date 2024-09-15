@@ -3,17 +3,66 @@
 #   yaml playbook to setup a raspberry pi with all my stuffs...
 ---
 - hosts: all
-  tasks:
-    - include_tasks: ../base/base_setup.yml
-    ############################################################################
-    # Install Common Packages I use
-    - name: Install needed packages...
-      apt: 
-        update_cache: yes
-        pkg:
-          - stress
-          - lshw
+
+  handlers:
+    - name: Reboot needed...
+      when: docker_exists is failed
+      reboot:
+        msg: "Rebooting machine..."
       become: true
+
+  pre_tasks:
+    - name: Normal Upgrade of packages
+      apt: 
+        upgrade: yes
+        update_cache: yes 
+      become: true
+
+    # changed_when set to false will prevent Ansible from reporting these registers as a change in the final summary
+    - name: Register if fonts are installed...
+      shell: "ls /home/{{ ansible_ssh_user }}/.fonts/Source\\ Code\\ Pro\\ for\\ Powerline.ttf"
+      register: font_exists
+      ignore_errors: yes
+      changed_when: false
+      no_log: true
+
+    - name: Register if docker is installed...
+      shell: "ls /usr/bin/docker"
+      register: docker_exists
+      ignore_errors: yes
+      changed_when: false
+      no_log: true
+
+    - name: Register if VIM NerdTree is already installed...
+      shell: "ls /home/{{ ansible_ssh_user }}/.vim/pack/vendor/start/nerdtree/LICENCE"
+      register: vim_nerdtree_exists
+      ignore_errors: yes
+      changed_when: false
+      no_log: true
+
+    - name: Register if VIM GitGutter is already installed...
+      shell: "ls /home/{{ ansible_ssh_user }}/.vim/pack/airblade/start/LICENCE"
+      register: vim_gitgutter_exists
+      ignore_errors: yes
+      changed_when: false
+      no_log: true
+
+  post_tasks:
+    - name: Cleanup font file...
+      when: font_exists is failed
+      shell:
+        cmd: "rm /home/{{ ansible_ssh_user }}/Source%20Code%20Pro%20for%20Powerline.otf"
+
+    - name: Cleanup docker setup script...
+      when: docker_exists is failed
+      shell:
+        cmd: "rm /home/{{ ansible_ssh_user }}/docker_setup.sh"
+
+  tasks:
+    ############################################################################
+    # Setup the base system
+    - include_tasks: ../base/base_setup.yml
+
     ############################################################################
     # Setup my Python Virtual Environment
     - name: Install venv pip3 packages
@@ -23,45 +72,21 @@
           - psutil
           - stressberry
           - gpiozero
-        virtualenv: ~/python_dev_env
+        # This should create the virtualenv folder if it doesn't already exist
+        virtualenv: "/home/{{ ansible_ssh_user }}/python_dev_env"
         virtualenv_command: "/usr/bin/python3 -m 'venv'"
+
     ############################################################################
     # Setup my Docker Environment
-    - name: Fetch Docker setup script...
-      get_url:
-        url: https://get.docker.com
-        dest: ~/docker_setup.sh
-        mode: '0777'
-    - name: Run Docker setup...
-      shell: 
-        cmd: /home/{{ ansible_ssh_user }}/docker_setup.sh
-      become: true
-    - name: Adding my user to the docker group...
-      user:
-        append: true
-        groups: docker
-        name: "{{ ansible_ssh_user }}"
-      become: true
-    - name: Fetch my docker playbook...
-      get_url:
-        url: https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/docker/docker-compose.yml
-        dest: ~/
+    - include_tasks: ../functions/docker_setup.yml
+
     ############################################################################
     # Create a Cronjob to collect stats about the system
     - name: Install Clustering repo...
       git:
-        repo: https://github.com/rdustinb/Clustering.git
-        dest: ~/python_dev_env/Clustering
+        repo: "https://github.com/rdustinb/Clustering.git"
+        dest: "/home/{{ ansible_ssh_user }}/python_dev_env/Clustering"
     - name: Create a cronjob to collect system stats...
       cron:
         name: "System Stats"
         job: "source /home/$( whoami )/python_dev_env/bin/activate ; python3 /home/$( whoami )/python_dev_env/Clustering/utilities/local_data_collector.py ; deactivate"
-    ############################################################################
-    # Add user to spi and gpio groups so that the user can access the RPi IO
-    # TODO
-    ############################################################################
-    # Reboot after all setup is complete...
-    - name: Reboot to get group settings to take effect...
-      reboot:
-        msg: "Rebooting machine..."
-      become: true
