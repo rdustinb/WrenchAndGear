@@ -3,7 +3,7 @@
 #   Base tasks for setup
 
 ############################################################################
-# Install Common Packages I use
+# Install Common Packages
 - name: Install base packages
   apt: 
     update_cache: yes
@@ -20,7 +20,29 @@
       - python3-venv
       - stress
       - lshw
+      - systemd-timesyncd
   become: true
+
+############################################################################
+# Setup the Time
+- name: Set the local timezone...
+  timezone:
+    name: "{{ this_timezone }}"
+  become: true
+
+- name: Configure NTP syncing...
+  replace:
+    path: "/etc/systemd/timesyncd.conf"
+    after: '[Time]'
+    regexp: '#'
+    replace: ''
+
+- name: Specify the primary NTP sync server...
+  replace:
+    path: "/etc/systemd/timesyncd.conf"
+    after: '[Time]'
+    regexp: '^NTP='
+    replace: 'NTP=pool.ntp.org'
 
 ############################################################################
 - name: Create several folders needed...
