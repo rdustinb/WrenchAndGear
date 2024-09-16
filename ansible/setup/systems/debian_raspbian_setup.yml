@@ -4,6 +4,9 @@
 ---
 - hosts: all
 
+  vars_files:
+    - vars.yml
+
   handlers:
     - name: Reboot needed...
       when: docker_exists is failed
