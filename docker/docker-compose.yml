@@ -209,9 +209,10 @@ services:
       WG_HOST: mydomain.com
       # Optional:
       # Define the Web UI password to use
-      # PASSWORD:
-      # This is a bcrypt hash of the password you want to use. I haven't gotten this to work
-      # correctly...
+      # Calculate the password hash by the following command:
+      # docker run -it ghcr.io/wg-easy/wg-easy wgpw THEPASSWORD
+      #
+      # Remove the single quotes from the output from the above command, and change all $ to $$
       # PASSWORD_HASH:  
       # PORT: 51821
       # WG_PORT: 51820
