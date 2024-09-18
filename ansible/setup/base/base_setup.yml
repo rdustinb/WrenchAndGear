@@ -41,7 +41,7 @@
   replace:
     path: "/etc/systemd/timesyncd.conf"
     after: '[Time]'
-    regexp: '^NTP='
+    regexp: '^NTP=$'
     replace: 'NTP=pool.ntp.org'
 
 ############################################################################
