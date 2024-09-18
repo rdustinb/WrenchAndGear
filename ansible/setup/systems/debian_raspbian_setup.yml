@@ -8,7 +8,7 @@
     - vars.yml
 
   handlers:
-    - name: Reboot needed...
+    - name: reboot handler
       when: docker_exists is failed
       reboot:
         msg: "Rebooting machine..."

@@ -8,18 +8,19 @@
     dest: "/home/{{ ansible_ssh_user }}/docker_setup.sh"
     mode: "0777"
 - name: Run Docker setup...
+  become: true
   when: docker_exists is failed
   shell: 
     cmd: "/home/{{ ansible_ssh_user }}/docker_setup.sh"
     creates: "/usr/bin/docker"
-  become: true
 - name: Adding my user to the docker group...
+  become: true
   when: docker_exists is failed
   user:
     append: true
     groups: docker
     name: "{{ ansible_ssh_user }}"
-  become: true
+  notify: reboot handler
 - name: Fetch my docker playbook...
   when: docker_exists is failed
   get_url:
