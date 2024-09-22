@@ -1,0 +1,25 @@
+# Author: Dustin Brothers
+# Description:
+#   Base tasks for setup
+
+############################################################################
+# Install Common Packages
+- name: Install base packages
+  apt: 
+    update_cache: yes
+    pkg:
+      - net-tools
+      - htop
+      - git
+      - neovim
+      - vim
+      - curl
+      - fontforge
+      - libsdl2-dev
+      - python3-pip
+      - python3-venv
+      - stress
+      - lshw
+      - systemd-timesyncd
+  become: true
+

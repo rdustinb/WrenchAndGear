@@ -50,6 +50,16 @@
       changed_when: false
       no_log: true
 
+    ############################################################################
+    # Setup the base system
+    - include_tasks: base_setup.yml
+
+  roles:
+    - configntp
+    - configterm
+    - configvim
+    - configdocker
+
   post_tasks:
     - name: Cleanup font file...
       when: font_exists is failed
@@ -63,10 +73,6 @@
 
   tasks:
     ############################################################################
-    # Setup the base system
-    - include_tasks: ../base/base_setup.yml
-
-    ############################################################################
     # Setup my Python Virtual Environment
     - name: Install venv pip3 packages
       pip: 
@@ -78,10 +84,6 @@
         # This should create the virtualenv folder if it doesn't already exist
         virtualenv: "/home/{{ ansible_ssh_user }}/python_dev_env"
         virtualenv_command: "/usr/bin/python3 -m 'venv'"
-
-    ############################################################################
-    # Setup my Docker Environment
-    - include_tasks: ../functions/docker_setup.yml
 
     ############################################################################
     # Create a Cronjob to collect stats about the system
