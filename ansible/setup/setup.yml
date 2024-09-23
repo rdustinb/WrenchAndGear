@@ -50,11 +50,8 @@
       changed_when: false
       no_log: true
 
-    ############################################################################
-    # Setup the base system
-    - include_tasks: base_setup.yml
-
   roles:
+    - configpkgs
     - configntp
     - configterm
     - configvim

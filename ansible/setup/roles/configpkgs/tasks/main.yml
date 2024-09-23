@@ -1,11 +1,8 @@
-# Author: Dustin Brothers
-# Description:
-#   Base tasks for setup
-
+---
 ############################################################################
 # Install Common Packages
 - name: Install base packages
-  apt: 
+  package: 
     update_cache: yes
     pkg:
       - net-tools
