@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# I have to keep this somewhere otherwise I'll forget...
+
+# Raspberry Pi Only
+/usr/bin/vcgencmd measure_temp
