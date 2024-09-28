@@ -17,6 +17,7 @@
   loop: 
     - "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/ps1_coloring"
     - "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/list_all.py"
+    - "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/read_temperature"
 - name: Add my listing script to the bashrc...
   lineinfile:
     path: "/home/{{ ansible_ssh_user }}/.bashrc"
@@ -27,4 +28,8 @@
     path: "/home/{{ ansible_ssh_user }}/.bashrc"
     regexp: '^source.*ps1_coloring'
     line: "source ~/bin/ps1_coloring"
-
+- name: Add my CPU temperature reading script to the bashrc...
+  lineinfile:
+    path: "/home/{{ ansible_ssh_user }}/.bashrc"
+    regexp: '^alias readTemp='
+    line: "alias readTemp='~/bin/read_temperature'"
