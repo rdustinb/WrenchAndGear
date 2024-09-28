@@ -3,4 +3,16 @@
 # I have to keep this somewhere otherwise I'll forget...
 
 # Raspberry Pi Only
-/usr/bin/vcgencmd measure_temp
+# If the OS Release file exists
+# (Debian/Raspbian)
+if [ -f /etc/os-release ]; then
+  if grep -q "Raspbian" /etc/os-releasea; then
+    # This is a Raspbian OS system
+    /usr/bin/vcgencmd measure_temp
+  else
+    echo "Debian is not supported."
+  fi
+# All other platforms...
+else
+  echo "This platform is not supported."
+fi
