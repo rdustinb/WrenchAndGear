@@ -12,6 +12,7 @@
     after: '[Time]'
     regexp: '#'
     replace: ''
+  become: true
 
 - name: Specify the primary NTP sync server...
   replace:
@@ -19,4 +20,5 @@
     after: '[Time]'
     regexp: '^NTP=$'
     replace: 'NTP=pool.ntp.org'
+  become: true
 

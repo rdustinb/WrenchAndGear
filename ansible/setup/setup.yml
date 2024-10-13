@@ -50,8 +50,16 @@
       changed_when: false
       no_log: true
 
+    - name: Register if power settings are modified
+      shell: "ls /etc/systemd/system/sleep.target"
+      register: power_management_exists
+      ignore_errors: yes
+      changed_when: false
+      no_log: true
+
   roles:
     - configpkgs
+    - configpowermanagement
     - configntp
     - configterm
     - configvim
@@ -70,6 +78,13 @@
 
   tasks:
     ############################################################################
+    # Create the virtual environment location
+    - name: Manually create the initial virtualenv
+      command:
+        cmd: "python3 -m 'venv' /home/{{ ansible_ssh_user }}/python_dev_env"
+        creates: "/home/{{ ansible_ssh_user }}/python_dev_env"
+
+    ############################################################################
     # Setup my Python Virtual Environment
     - name: Install venv pip3 packages
       pip: 
@@ -78,9 +93,7 @@
           - psutil
           - stressberry
           - gpiozero
-        # This should create the virtualenv folder if it doesn't already exist
         virtualenv: "/home/{{ ansible_ssh_user }}/python_dev_env"
-        virtualenv_command: "/usr/bin/python3 -m 'venv'"
 
     ############################################################################
     # Create a Cronjob to collect stats about the system

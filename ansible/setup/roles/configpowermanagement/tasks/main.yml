@@ -1,0 +1,13 @@
+---
+############################################################################
+# sudo systemctl disable sleep.target suspend.target hibernate.target hybrid-sleep.target
+# sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+- name: Completely disable automatic system suspend...
+  when: power_management_exists is failed
+  become: true
+  command:
+    cmd: "{{ item }}"
+  loop:
+    - systemctl disable sleep.target suspend.target hibernate.target hybrid-sleep.target
+    - systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+
