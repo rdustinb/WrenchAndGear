@@ -1,9 +1,10 @@
 ---
 ############################################################################
 - name: Create several folders needed...
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
+    mode: '740'
   loop:
     - "/home/{{ ansible_ssh_user }}/bin/"
     - "/home/{{ ansible_ssh_user }}/.fonts/"
@@ -11,25 +12,29 @@
 ############################################################################
 # Install custom tools
 - name: Fetch terminal tools and colors
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ item }}"
     dest: "/home/{{ ansible_ssh_user }}/bin/"
-  loop: 
+    mode: '740'
+  loop:
     - "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/ps1_coloring"
     - "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/list_all.py"
     - "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/read_temperature"
+
 - name: Add my listing script to the bashrc...
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/home/{{ ansible_ssh_user }}/.bashrc"
     regexp: '^alias ll='
     line: "alias ll='python3 ~/bin/list_all.py'"
+
 - name: Add my PS1 coloring script to the bashrc...
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/home/{{ ansible_ssh_user }}/.bashrc"
     regexp: '^source.*ps1_coloring'
     line: "source ~/bin/ps1_coloring"
+
 - name: Add my CPU temperature reading script to the bashrc...
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/home/{{ ansible_ssh_user }}/.bashrc"
     regexp: '^alias readTemp='
     line: "alias readTemp='~/bin/read_temperature'"

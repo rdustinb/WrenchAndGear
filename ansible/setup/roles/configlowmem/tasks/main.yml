@@ -3,19 +3,22 @@
 # system to hang when running apt updates.
 - name: Turn off the swapspace while it is changed
   become: true
-  shell:
+  ansible.builtin.command:
     cmd: dphys-swapfile swapoff
+
 - name: Update the swapspace size to 4GB
   become: true
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/dphys-swapfile
     regexp: '^CONF_SWAPSIZE='
     line: CONF_SWAPSIZE=4096
+
 - name: Setup the new swapspace
   become: true
-  shell:
+  ansible.builtin.command:
     cmd: dphys-swapfile setup
+
 - name: Turn on the swapspace while it is changed
   become: true
-  shell:
+  ansible.builtin.command:
     cmd: dphys-swapfile swapon

@@ -2,8 +2,10 @@
 ############################################################################
 # Install Common Packages
 - name: Install base packages
-  package: 
-    update_cache: yes
+  become: true
+  ansible.builtin.package:
+    update_cache: true
+    cache_valid_time: 3600
     pkg:
       - net-tools
       - htop
@@ -18,5 +20,3 @@
       - stress
       - lshw
       - systemd-timesyncd
-  become: true
-
