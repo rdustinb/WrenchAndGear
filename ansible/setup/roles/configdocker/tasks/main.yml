@@ -7,7 +7,7 @@
   ansible.builtin.get_url:
     url: "https://get.docker.com"
     dest: "/home/{{ ansible_ssh_user }}/docker_setup.sh"
-    mode: "0777"
+    mode: "0740"
 
 - name: Run Docker setup...
   become: true
@@ -30,4 +30,4 @@
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/docker/docker-compose.yml"
     dest: "/home/{{ ansible_ssh_user }}/"
-    mode: '740'
+    mode: '0740'

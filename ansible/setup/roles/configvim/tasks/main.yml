@@ -5,14 +5,14 @@
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/utilities/setup/.vimrc"
     dest: "/home/{{ ansible_ssh_user }}/.vimrc"
-    mode: '740'
+    mode: '0740'
 
 - name: Fetch VIM font
   when: font_exists is failed
   ansible.builtin.get_url:
     url: "https://github.com/powerline/fonts/raw/master/SourceCodePro/Source%20Code%20Pro%20for%20Powerline.otf"
     dest: "/home/{{ ansible_ssh_user }}/Source%20Code%20Pro%20for%20Powerline.otf"
-    mode: '740'
+    mode: '0740'
 
 - name: Convert VIM font and update the font cache...
   ansible.builtin.shell:
@@ -32,7 +32,7 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: '740'
+    mode: '0740'
   loop:
     - "/home/{{ ansible_ssh_user }}/.vim/autoload"
     - "/home/{{ ansible_ssh_user }}/.vim/bundle"
@@ -43,7 +43,7 @@
   ansible.builtin.get_url:
     url: "https://tpo.pe/pathogen.vim"
     dest: "/home/{{ ansible_ssh_user }}/.vim/autoload/"
-    mode: '740'
+    mode: '0740'
 
 - name: Download VIM NerdTree...
   ansible.builtin.git:
@@ -69,13 +69,13 @@
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/triglav/vim-visual-increment/master/plugin/visual-increment.vim"
     dest: "/home/{{ ansible_ssh_user }}/.vim/plugin"
-    mode: '740'
+    mode: '0740'
 
 - name: Fetch VIM Visual Increment docs
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/triglav/vim-visual-increment/master/doc/visual-increment.txt"
     dest: "/home/{{ ansible_ssh_user }}/.vim/docs"
-    mode: '740'
+    mode: '0740'
 
 - name: Install VIM Tabular tool...
   ansible.builtin.git:

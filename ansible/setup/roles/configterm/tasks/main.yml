@@ -4,7 +4,7 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: '740'
+    mode: '0740'
   loop:
     - "/home/{{ ansible_ssh_user }}/bin/"
     - "/home/{{ ansible_ssh_user }}/.fonts/"
@@ -15,7 +15,7 @@
   ansible.builtin.get_url:
     url: "{{ item }}"
     dest: "/home/{{ ansible_ssh_user }}/bin/"
-    mode: '740'
+    mode: '0740'
   loop:
     - "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/ps1_coloring"
     - "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/list_all.py"
