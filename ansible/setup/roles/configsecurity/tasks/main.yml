@@ -1,0 +1,59 @@
+---
+# Author: Dustin Brothers
+# Description:
+#   Setup the security hardening of the server
+
+# This loops through several lines to edit in the sshd_config file and also asks Ansible to validate the
+# configuration of the sshd_config file. This will all happen before the restart ssh handler is called just in case
+# there is an error in the file.
+- name: Make SSH More Secure
+  become: true
+  ansible.builtin.lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    validate: 'sshd -T -f %s'
+  with_items:
+    - regexp: "^PasswordAuthentication"
+      line: "PasswordAuthentication no"
+    - regexp: "^PermitRootLogin"
+      line: "PermitRootLogin no"
+  notify: restart ssh
+
+- name: Remove unneeded packages
+  become: true
+  ansible.builtin.package:
+    name:
+      - httpd
+      - nano
+      - mailutils
+    state: absent
+    purge: true
+
+- name: Only allow SSH and NTP initially
+  become: true
+  community.general.ufw:
+    rule: "{{ item.rule }}"
+    port: "{{ item.port }}"
+    proto: "{{ item.proto }}"
+  with_items:
+    - { rule: 'allow', port: 22, proto: 'tcp' }
+    - { rule: 'allow', port: 123, proto: 'udp' }
+
+- name: Deny all other ports
+  become: true
+  community.general.ufw:
+    direction: "{{ item.direction }}"
+    policy: "{{ item.policy }}"
+    state: enabled
+  with_items:
+    - { direction: outgoing, policy: allow }
+    - { direction: incoming, policy: deny }
+
+- name: Enable the firewall
+  become: true
+  ansible.builtin.service:
+    name: ufw
+    state: started
+    enabled: true

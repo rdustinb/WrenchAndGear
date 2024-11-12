@@ -20,3 +20,4 @@
       - stress
       - lshw
       - systemd-timesyncd
+      - ufw

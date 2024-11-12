@@ -10,17 +10,17 @@
   handlers:
     - name: reboot handler
       when: docker_exists is failed
+      become: true
       reboot:
         msg: "Rebooting machine..."
+
+    - name: restart ssh
       become: true
+      service:
+        name: sshd
+        state: restarted
 
   pre_tasks:
-    - name: Normal Upgrade of packages
-      apt:
-        upgrade: true
-        update_cache: true
-      become: true
-
     # changed_when set to false will prevent Ansible from reporting these
     # registers as a change in the final summary
     - name: Register if fonts are installed...
@@ -68,6 +68,7 @@
     - configterm
     - configvim
     - configdocker
+    - configsecurity
 
   post_tasks:
     - name: Cleanup font file...
