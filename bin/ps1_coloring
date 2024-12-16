@@ -16,7 +16,12 @@ function exitstatus {
   GRAYDARK="\[\033[38;5;246m\]"
   TIME="\[\033[38;5;226m\]"
 
-  SHELLNAME="\[\033[38;5;162m\]"
+  if [[ "$(uname -s)" == "Darwin" ]]
+  then
+    SHELLNAME="\[\033[38;5;140m\]"
+  else
+    SHELLNAME="\[\033[38;5;64m\]"
+  fi
 
   COMMONPROMPT1="\n${GRAYDARK}\w${OFF}\n"
   # Highlight if the user is logged in as ROOT
