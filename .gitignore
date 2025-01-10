@@ -13,3 +13,6 @@ vagrant-ssh
 
 # Don't store my ansible config files
 *ansible.cfg
+
+# Don't store variables files
+*vars.yml
