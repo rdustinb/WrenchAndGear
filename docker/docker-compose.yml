@@ -259,6 +259,8 @@ services:
     volumes:
       - '/:/host:ro,rslave'
 
+  #####################################################################
+  # The Browser-based Graphing Tool
   grafana:
     container_name: grafana
     image: grafana/grafana-oss
@@ -270,6 +272,47 @@ services:
       - 'localprom'
     ports:
       - '3000:3000'
+
+  #####################################################################
+  # Radicale CalDav and CardDav Server
+  #
+  # Add the following to a new file: ~/volumes/radicale/config/config:
+  #     [server]
+  #     hosts = 0.0.0.0:5232, [::]:5232
+  #      
+  #     [auth]
+  #     type = htpasswd
+  #     htpasswd_filename = /config/users
+  #     htpasswd_encryption = autodetect
+  #      
+  #     [storage]
+  #     filesystem_folder = /data/collections
+  #
+  # Create a password file with username as input, then enter the password when prompted:
+  #
+  #     htpasswd -5 -c ~/volumes/radicale/config/users <new username>
+  radicale:
+    image: tomsquest/docker-radicale
+    container_name: radicale
+    restart: unless-stopped
+    ports:
+      - '5232:5232'
+    init: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+      - CHOWN
+      - KILL
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          pids: 50
+    volumes:
+      - ~/volumes/radicale/data:/data
+      - ~/volumes/radicale/config:/config
 
 ########################################
 # Define the Networks
