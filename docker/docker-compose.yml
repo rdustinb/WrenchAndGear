@@ -4,38 +4,41 @@ services:
   pihole:
     container_name: pihole
     image: pihole/pihole:latest
+    restart: always
     network_mode: host
     environment:
       TZ: 'America/Denver'
       WEBPASSWORD: 'CHANGEME'
     volumes:
-      - '~/docker_volumes/etc-pihole:/etc/pihole'
-      - '~/docker_volumes/etc-dnsmasq.d:/etc/dnsmasq.d'
+      - '~/volumes/etc-pihole:/etc/pihole'
+      - '~/volumes/etc-dnsmasq.d:/etc/dnsmasq.d'
     cap_add:
       - NET_ADMIN # Required if you are using Pi-hole as your DHCP server, else not needed
-    restart: always
+
   #####################################################################
   # This container runs Homebridge so I can use 'unofficial' devices with Apple's Home app.
   homebridge:
     container_name: homebridge
     image: homebridge/homebridge:latest
+    restart: always
     network_mode: host
     environment:
       TZ: 'America/Denver'
     volumes:
-      - '~/docker_volumes/homebridge:/homebridge'
+      - '~/volumes/homebridge:/homebridge'
     logging:
       driver: json-file
       options:
         max-size: '10mb'
         max-file: '5'
-    restart: always
+
   #####################################################################
   # This container is used to spinup a light-weight RTSP server to allow the RPi Camera Module
   # to be streamed to another network device. The intent is to use this with Homebridge.
   mediamtx:
     container_name: rtsp_camera
     image: bluenviron/mediamtx:latest-rpi
+    restart: always
     privileged: true
     network_mode: host
     # All of the different configuration options contained here:
@@ -54,7 +57,7 @@ services:
       - '/dev/shm:exec'
     volumes:
       - '/run/udev:/run/udev:ro'
-    restart: always
+
   #####################################################################
   # This container spins up a Minecraft server so my kids and I can play on the same worlds
   # This is a Geyser-variant of Minecraft so that iOS devices can join this server (since
@@ -63,6 +66,7 @@ services:
   minecraft-server:
     image: 05jchambers/legendary-minecraft-purpur-geyser:latest
     container_name: minecraft-server
+    restart: always
     tty: true
     stdin_open: true
     ports:
@@ -81,12 +85,12 @@ services:
       RCON_PASSWORD: "CHANGEME"
       RCON_PORT: 28016
     volumes:
-      - '~/docker_volumes/minecraft:/minecraft'
+      - '~/volumes/minecraft:/minecraft'
     logging:
       driver: "json-file"
       options:
         max-size: "1m"
-    restart: always
+
   #####################################################################
   # This container spins up an instance of OctoPrint
   # It requires the ARM v7 processor or greater, meaning it will not 
@@ -96,6 +100,7 @@ services:
   octoprint:
     container_name: octoprint  
     image: octoprint/octoprint 
+    restart: always
     network_mode: host
     devices:
     # use `python -m serial.tools.miniterm` to see what the name is of the printer, this requires pyserial
@@ -106,27 +111,8 @@ services:
       - TZ=America/Denver
       - ENABLE_MJPG_STREAMER=true     
     volumes:
-      - '~/docker_volumes/octoprint:/octoprint'
-    restart: always
-  #####################################################################
-  # This container spins up an instance of HomeAssistant
-  # The instructions for getting this running are here:
-  #   https://www.home-assistant.io/installation/raspberrypi#docker-compose
-  # TODO
-  #   If adons are desired, it is possible to install HACS within the docker
-  # container using the following commands:
-  #   docker exec -it homeassistant bash
-  #   wget -O - https://get.hacs.xyz | bash -
-  homeassistant:
-    container_name: homeassistant
-    image: "ghcr.io/home-assistant/home-assistant:latest"
-    volumes:
-      - '~/docker_volumes/ha-config:/config'
-      - '/etc/localtime:/etc/localtime:ro'
-      - '/run/dbus:/run/dbus:ro'
-    restart: unless-stopped
-    privileged: true
-    network_mode: host
+      - '~/volumets/octoprint:/octoprint'
+
   #####################################################################
   # Homepage is an open source, web-based console to display all of
   # the pertinent information desired.
@@ -135,15 +121,16 @@ services:
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
+    restart: unless-stopped
     ports:
       - 3000:3000
     # The images and icons folders need to be mapped to /app/public/*, 
     # whereas the config needs to be mapped to /app/config
     volumes:
-      - '~/docker_volumes/homepage/config:/app/config'
-      - '~/docker_volumes/homepage/icons:/app/public/icons'
-      - '~/docker_volumes/homepage/images:/app/public/images'
-    restart: unless-stopped
+      - '~/volumes/homepage/config:/app/config'
+      - '~/volumes/homepage/icons:/app/public/icons'
+      - '~/volumes/homepage/images:/app/public/images'
+
   #####################################################################
   # Speedtest Tracker is an open source project which can be configured
   # to periodically test a networks internet bandwidth, complete with a
@@ -154,6 +141,7 @@ services:
   speedtest-tracker:
     image: lscr.io/linuxserver/speedtest-tracker:latest
     container_name: speedtest-tracker
+    restart: unless-stopped
     network_mode: bridge
     ports:
       - 8080:80
@@ -177,9 +165,9 @@ services:
       CHART_DATETIME_FORMAT: "y-m-d H:i"
       DB_CONNECTION: sqlite
     volumes:
-      - '~/docker_volumes/speedtest/config:/config'
-      - '~/docker_volumes/speedtest/keys:/config/keys'
-    restart: unless-stopped
+      - '~/volumes/speedtest/config:/config'
+      - '~/volumes/speedtest/keys:/config/keys'
+
   #####################################################################
   # WireGuard is an easy to configure VPN server that can run in a 
   # docker container. WireGuard provides an iOS app which can be used
@@ -188,8 +176,9 @@ services:
   wg-easy:
     image: ghcr.io/wg-easy/wg-easy:latest
     container_name: wireguard
+    restart: unless-stopped
     volumes:
-      - '~/docker_volumes/wireguard:/etc/wireguard'
+      - '~/volumes/wireguard:/etc/wireguard'
     ports:
       - "51820:51820/udp"
       - "51821:51821/tcp"
@@ -230,16 +219,61 @@ services:
       # UI_TRAFFIC_STATS: true
       # (0 Charts disabled, 1 # Line chart, 2 # Area chart, 3 # Bar chart)
       # UI_CHART_TYPE: 1
+
   #####################################################################
   # Uptime Kuma provides a self-hosted monitoring system for sites and 
   # servers, ports and urls. It can run in Docker and has a great UI
   # for configuration!
   uptime-kuma:
-    image: louislam/uptime-kuma:latest
     container_name: uptime-kuma
+    image: louislam/uptime-kuma:latest
+    restart: unless-stopped
     volumes:
-      - '~/docker_volumes/uptime-kuma:/app/data'
+      - '~/volumes/uptime-kuma:/app/data'
     ports:
       - "3001:3001"
-    restart: always
+
+  #####################################################################
+  # Prometheus Data Aggregator
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    volumes:
+      - '~/volumes/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml'
+    networks:
+      - 'localprom'
+    ports:
+      - '9090:9090'
+
+  #####################################################################
+  # Prometheus Metric Monitor Exporter
+  node_exporter:
+    container_name: node_exporter
+    image: quay.io/prometheus/node-exporter:latest
+    restart: unless-stopped
+    command:
+      - '--path.rootfs=/host'
+    network_mode: host
+    pid: host
+    volumes:
+      - '/:/host:ro,rslave'
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss
+    restart: unless-stopped
+    user: '1000'
+    volumes:
+      - '~/volumes/grafana/storage:/var/lib/grafana'
+    networks:
+      - 'localprom'
+    ports:
+      - '3000:3000'
+
+########################################
+# Define the Networks
+networks:
+  localprom:
+    driver: 'bridge'
 
