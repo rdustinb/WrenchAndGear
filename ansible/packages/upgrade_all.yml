@@ -6,8 +6,8 @@
   become: true
   tasks:
     - name: Normal Upgrade of packages
-      ansible.builtin.package: 
-        upgrade: yes
+      ansible.builtin.apt: 
+        upgrade: full
         update_cache: yes 
         autoremove: yes
         autoclean: yes
