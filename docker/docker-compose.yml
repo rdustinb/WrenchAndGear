@@ -248,14 +248,16 @@ services:
 
   #####################################################################
   # Prometheus Metric Monitor Exporter
+  # Remap another port to the listening port of node_exporter.
+  # I found that it interfers with kube-rbac-prox which uses the same port.
   node_exporter:
     container_name: node_exporter
     image: quay.io/prometheus/node-exporter:latest
     restart: unless-stopped
     command:
       - '--path.rootfs=/host'
-    network_mode: host
-    pid: host
+    ports:
+      - 9091:9100
     volumes:
       - '/:/host:ro,rslave'
 
