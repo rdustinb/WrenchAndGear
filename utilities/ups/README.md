@@ -84,7 +84,7 @@ Further limiting of the response data can be performed by simply specifying the 
 snmpwalk -v2c -c <server community> <server IP> .1.3.6.1.4.1.44738.6
 ```
 
-The response is now limited to only 8 fields, much more manageable!
+The response is now limited to only seven fields, much more manageable!
 
 ```text
 SNMPv2-SMI::enterprises.44738.6.1.1.1.1 = INTEGER: 1
