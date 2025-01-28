@@ -276,43 +276,77 @@ services:
   #####################################################################
   # Radicale CalDav and CardDav Server
   #
-  # Add the following to a new file: ~/volumes/radicale/config/config:
+  # Add the following to a new file: ~/volumes/radicale/etc/default.conf:
   #     [server]
-  #     hosts = 0.0.0.0:5232, [::]:5232
+  #     # Make the server reachable over the network
+  #     hosts = 0.0.0.0:5232, [::]:5232 
+  #     # Limit the number of concurrent connections
+  #     max_connections = 20
+  #     # Limit the maximum data transfer [bytes]
+  #     max_content_length = 100000000
+  #     # Limit the amount of time until the server times out
+  #     timeout = 30
+  #     # Enable SSL
+  #     ssl = True
+  #     # SSL certificate path (path from within the container)
+  #     certificate = /radicale/ssl/radicale.cert.pem
+  #     # SSL private key (path from within the container)
+  #     key = /radicale/ssl/radicale.key.pem
+  #     # Specify the SSL protocol
+  #     #protocol = PROTOCOL_TLS
+  #      
+  #     # Calendar Data path (path from within the container)
+  #     [storage]
+  #     type = multifilesystem_nolock
+  #     filesystem_folder = /radicale/var
   #      
   #     [auth]
   #     type = htpasswd
-  #     htpasswd_filename = /config/users
+  #     htpasswd_filename = /radicale/etc/users
   #     htpasswd_encryption = autodetect
   #      
-  #     [storage]
-  #     filesystem_folder = /data/collections
+  #     [rights]
+  #     type = from_file
+  #     file = /radicale/etc/rights
   #
   # Create a password file with username as input, then enter the password when prompted:
   #
-  #     htpasswd -5 -c ~/volumes/radicale/config/users <new username>
+  #     htpasswd -5 -c ~/volumes/radicale/etc/users <new username>
+  #
+  # Add the following to a new file: ~/volumes/radicale/etc/rights:
+  #     # Allow reading root collection for authenticated users
+  #     [root]
+  #     user: .+
+  #     collection:
+  #     permissions: R
+  #     
+  #     # Allow reading and writing principal collection (same as username)
+  #     [principal]
+  #     user: .+
+  #     collection: {user}
+  #     permissions: RW
+  #     
+  #     # Allow reading and writing calendars and address books that are direct
+  #     # children of the principal collection
+  #     [calendars]
+  #     user: .+
+  #     collection: {user}/[^/]+
+  #     permissions: rw
+  #
+  #####################################################################
+  # Radicale CalDav and CardDav Server
   radicale:
-    image: tomsquest/docker-radicale
+    image: 11notes/radicale:3.1.9
     container_name: radicale
     restart: unless-stopped
     ports:
-      - '5232:5232'
-    init: true
-    cap_drop:
-      - ALL
-    cap_add:
-      - SETUID
-      - SETGID
-      - CHOWN
-      - KILL
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-          pids: 50
+      - "5232:5232/tcp"
+    environment:
+      TZ: "America/Denver"
     volumes:
-      - ~/volumes/radicale/data:/data
-      - ~/volumes/radicale/config:/config
+      - "~/volumes/radicale/etc:/radicale/etc"
+      - "~/volumes/radicale/var:/radicale/var"
+      - "~/volumes/radicale/ssl:/radicale/ssl"
 
 ########################################
 # Define the Networks
