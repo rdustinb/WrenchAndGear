@@ -21,3 +21,4 @@
       - lshw
       - systemd-timesyncd
       - ufw
+      - neofetch
