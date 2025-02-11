@@ -16,7 +16,9 @@ vagrant package --base <name of VB VM>
 
 The final file 'package.box' can be uploaded to the Hashicorp Portal.
 
-## Caveats
+## Issues Encountered
+
+### The UEFI Shell
 It seems the VM on VirtualBox always starts with UEFI shell, so it needs to be bypassed in the VM before the box is
 packaged. The following UEFI shell commands:
 
@@ -32,3 +34,6 @@ Then add the following line to the file:
 ```
 
 Where image name is whatever is found from the UEFI shell \EFI\debian\. The 'ls' command works in this shell.
+
+A nice [StackExchange](https://unix.stackexchange.com/questions/326956/virtualbox-guest-suddenly-boots-only-into-uefi-interactive-shell)
+article about this needed modification can be found.
