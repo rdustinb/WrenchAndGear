@@ -1,19 +1,27 @@
 ---
-# Author: Dustin Brothers
-# Description:
-#   Setup the Docker Environment
+############################################################################
+# Check for the state of things first...
+- name: Register if docker is installed...
+  shell: "ls /usr/bin/docker"
+  register: docker_exists
+  ignore_errors: true
+  changed_when: false
+  no_log: true
+
+############################################################################
+# Setup the Docker Environment
 - name: Fetch Docker setup script...
   when: docker_exists is failed
   ansible.builtin.get_url:
     url: "https://get.docker.com"
-    dest: "/home/{{ ansible_ssh_user }}/docker_setup.sh"
+    dest: "{{ this_home }}/docker_setup.sh"
     mode: "0740"
 
 - name: Run Docker setup...
   become: true
   when: docker_exists is failed
   ansible.builtin.command:
-    cmd: "/home/{{ ansible_ssh_user }}/docker_setup.sh"
+    cmd: "{{ this_home }}/docker_setup.sh"
     creates: "/usr/bin/docker"
 
 - name: Adding my user to the docker group...
@@ -29,5 +37,5 @@
   when: docker_exists is failed
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/docker/docker-compose.yml"
-    dest: "/home/{{ ansible_ssh_user }}/"
+    dest: "{{ this_home }}/"
     mode: '0740'
