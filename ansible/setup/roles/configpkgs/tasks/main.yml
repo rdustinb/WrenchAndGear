@@ -1,8 +1,11 @@
 ---
 ############################################################################
 # Install Common Packages
-- name: Install base packages
+
+# LINUX
+- name: Install packages on Debian
   become: true
+  when: this_distro == "Debian"
   ansible.builtin.package:
     update_cache: true
     cache_valid_time: 3600
@@ -22,3 +25,15 @@
       - systemd-timesyncd
       - ufw
       - neofetch
+
+# MACOS
+- name: Install packages on macOS
+  when: this_distro == "MacOSX"
+  community.general.homebrew:
+    state: present
+    name:
+      - macvim
+      - btop
+      - neofetch
+      - gh
+

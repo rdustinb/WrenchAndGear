@@ -1,0 +1,9 @@
+- hosts: all
+
+  vars:
+    this_home: "{{ ansible_facts['env']['HOME'] }}"
+
+  tasks:
+    - name: What is the HOME folder?
+      debug:
+        msg: "{{ this_home }}"

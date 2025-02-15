@@ -1,0 +1,19 @@
+- hosts: localhost
+
+  vars:
+    this_distro: "{{ ansible_facts['distribution'] }}"
+
+  tasks:
+    - name: What is the OS?
+      debug:
+        msg: "{{ this_distro }}"
+
+    - name: Print stuff (non-macOS)
+      when: this_distro == "Debian"
+      debug:
+        msg: "This is a non-macOS distro!"
+
+    - name: Print stuff (macOS)
+      when: this_distro == "MacOSX"
+      debug:
+        msg: "This is a macOS distro!"

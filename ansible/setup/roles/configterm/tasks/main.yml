@@ -1,40 +1,64 @@
 ---
 ############################################################################
-- name: Create several folders needed...
+# Setup some things first...
+- name: Verify some needed files are present in the HOME directory...
+  ansible.builtin.file:
+    path: "{{ item }}"
+    mode: '0740'
+    state: touch
+    modification_time: preserve
+    access_time: preserve
+  loop:
+    - "{{ this_home }}/.bashrc"
+    - "{{ this_home }}/.alias"
+
+- name: Create the bin folder...
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: '0740'
   loop:
-    - "/home/{{ ansible_ssh_user }}/bin/"
-    - "/home/{{ ansible_ssh_user }}/.fonts/"
+    - "{{ this_home }}/bin/"
+
+- name: Register the shell set...
+  shell: |
+    echo $0
+  register: shell_name
+  ignore_errors: true
+  changed_when: false
+  no_log: true
 
 ############################################################################
-# Install custom tools
+# Dump tools to specific folders...
+- name: Switch to BASH as the shell
+  when: shell_name.stdout != "/bin/sh" and this_distro == "MacOSX"
+  shell:
+    cmd: "chsh -s /bin/bash"
+
 - name: Fetch terminal tools and colors
   ansible.builtin.get_url:
     url: "{{ item }}"
-    dest: "/home/{{ ansible_ssh_user }}/bin/"
+    dest: "{{ this_home }}/bin/"
     mode: '0740'
   loop:
     - "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/ps1_coloring"
     - "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/list_all.py"
     - "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/bin/read_temperature"
 
-- name: Add my listing script to the bashrc...
+- name: Add my PS1 coloring script to the bashrc file...
   ansible.builtin.lineinfile:
-    path: "/home/{{ ansible_ssh_user }}/.bashrc"
+    path: "{{ this_home }}/.bashrc"
+    regexp: '^source ~/bin/ps1_coloring'
+    line: "source ~/bin/ps1_coloring"
+
+- name: Add my listing script to the alias file...
+  ansible.builtin.lineinfile:
+    path: "{{ this_home }}/.alias"
     regexp: '^alias ll='
     line: "alias ll='python3 ~/bin/list_all.py'"
 
-- name: Add my PS1 coloring script to the bashrc...
+- name: Add my CPU temperature reading script to the alias file...
   ansible.builtin.lineinfile:
-    path: "/home/{{ ansible_ssh_user }}/.bashrc"
-    regexp: '^source.*ps1_coloring'
-    line: "source ~/bin/ps1_coloring"
-
-- name: Add my CPU temperature reading script to the bashrc...
-  ansible.builtin.lineinfile:
-    path: "/home/{{ ansible_ssh_user }}/.bashrc"
+    path: "{{ this_home }}/.alias"
     regexp: '^alias readTemp='
     line: "alias readTemp='~/bin/read_temperature'"

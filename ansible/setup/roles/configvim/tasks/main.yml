@@ -1,32 +1,83 @@
 ---
 ############################################################################
+# Check for the state of things first...
+- name: Register if fonts are installed...
+  shell: |
+    ls {{ this_home }}/.fonts/Source\ Code\ Pro\ for\ Powerline.ttf
+  register: font_exists
+  ignore_errors: true
+  changed_when: false
+  no_log: true
+
+- name: Register if fontforge is installed...
+  shell: |
+    fontforge -v
+  register: fontforge_exists
+  ignore_errors: true
+  changed_when: false
+  no_log: true
+
+- name: Register if VIM NerdTree is already installed...
+  shell: |
+    ls {{ this_home }}/.vim/pack/vendor/start/nerdtree/LICENCE
+  register: vim_nerdtree_exists
+  ignore_errors: true
+  changed_when: false
+  no_log: true
+
+- name: Register if VIM GitGutter is already installed...
+  shell: |
+    ls {{ this_home }}/.vim/pack/airblade/start/LICENCE
+  register: vim_gitgutter_exists
+  ignore_errors: true
+  changed_when: false
+  no_log: true
+
+############################################################################
 # Setup my VIM Environment
+- name: Create the .fonts folder...
+  when: not(fontforge_exists is failed) and font_exists is failed
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0740'
+  loop:
+    - "{{ this_home }}/.fonts/"
+
 - name: Fetch VIM .vimrc
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/utilities/setup/.vimrc"
-    dest: "/home/{{ ansible_ssh_user }}/.vimrc"
+    dest: "{{ this_home }}/.vimrc"
     mode: '0740'
 
-- name: Fetch VIM font
-  when: font_exists is failed
+- name: Fetch the VIM font file
+  when: not(fontforge_exists is failed) and font_exists is failed
   ansible.builtin.get_url:
     url: "https://github.com/powerline/fonts/raw/master/SourceCodePro/Source%20Code%20Pro%20for%20Powerline.otf"
-    dest: "/home/{{ ansible_ssh_user }}/Source%20Code%20Pro%20for%20Powerline.otf"
+    dest: "{{ this_home }}/Source%20Code%20Pro%20for%20Powerline.otf"
     mode: '0740'
 
-- name: Convert VIM font and update the font cache...
+- name: Convert VIM font and install to the font cache...
+  when: not(fontforge_exists is failed) and font_exists is failed
   ansible.builtin.shell:
     cmd: >
       fontforge -lang=ff -c 'Open($1); Generate($2);'
-      "/home/{{ ansible_ssh_user }}/Source%20Code%20Pro%20for%20Powerline.otf"
-      "/home/{{ ansible_ssh_user }}/.fonts/Source Code Pro for Powerline.ttf";
+      "{{ this_home }}/Source%20Code%20Pro%20for%20Powerline.otf"
+      "{{ this_home }}/.fonts/Source Code Pro for Powerline.ttf";
       fc-cache
-    creates: "/home/{{ ansible_ssh_user }}/.fonts/Source Code Pro for Powerline.ttf"
+    creates: "{{ this_home }}/.fonts/Source Code Pro for Powerline.ttf"
+
+- name: Remove the VIM font file
+  when: not(fontforge_exists is failed) and font_exists is failed
+  ansible.builtin.file:
+    path: "{{ this_home }}/Source%20Code%20Pro%20for%20Powerline.otf"
+    state: absent
 
 - name: Download VIM Colorschemes which also create the initial .vim folder structure...
   ansible.builtin.git:
     repo: "https://github.com/flazz/vim-colorschemes.git"
-    dest: "/home/{{ ansible_ssh_user }}/.vim"
+    dest: "{{ this_home }}/.vim"
+    force: True
 
 - name: Create several other VIM tool folders needed...
   ansible.builtin.file:
@@ -34,21 +85,21 @@
     state: directory
     mode: '0740'
   loop:
-    - "/home/{{ ansible_ssh_user }}/.vim/autoload"
-    - "/home/{{ ansible_ssh_user }}/.vim/bundle"
-    - "/home/{{ ansible_ssh_user }}/.vim/plugin"
-    - "/home/{{ ansible_ssh_user }}/.vim/pack/airblade/start"
+    - "{{ this_home }}/.vim/autoload"
+    - "{{ this_home }}/.vim/bundle"
+    - "{{ this_home }}/.vim/plugin"
+    - "{{ this_home }}/.vim/pack/airblade/start"
 
 - name: Fetch Pathogen
   ansible.builtin.get_url:
     url: "https://tpo.pe/pathogen.vim"
-    dest: "/home/{{ ansible_ssh_user }}/.vim/autoload/"
+    dest: "{{ this_home }}/.vim/autoload/"
     mode: '0740'
 
 - name: Download VIM NerdTree...
   ansible.builtin.git:
     repo: "https://github.com/preservim/nerdtree.git"
-    dest: "/home/{{ ansible_ssh_user }}/.vim/pack/vendor/start/nerdtree"
+    dest: "{{ this_home }}/.vim/pack/vendor/start/nerdtree"
 
 - name: Install VIM NerdTree...
   when: vim_nerdtree_exists is failed
@@ -58,7 +109,7 @@
 - name: Download VIM Git Gutter tool...
   ansible.builtin.git:
     repo: "https://github.com/airblade/vim-gitgutter.git"
-    dest: "/home/{{ ansible_ssh_user }}/.vim/pack/airblade/start"
+    dest: "{{ this_home }}/.vim/pack/airblade/start"
 
 - name: Install VIM Git Gutter tool...
   when: vim_gitgutter_exists is failed
@@ -68,46 +119,46 @@
 - name: Fetch VIM Visual Increment
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/triglav/vim-visual-increment/master/plugin/visual-increment.vim"
-    dest: "/home/{{ ansible_ssh_user }}/.vim/plugin"
+    dest: "{{ this_home }}/.vim/plugin"
     mode: '0740'
 
 - name: Fetch VIM Visual Increment docs
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/triglav/vim-visual-increment/master/doc/visual-increment.txt"
-    dest: "/home/{{ ansible_ssh_user }}/.vim/docs"
+    dest: "{{ this_home }}/.vim/docs"
     mode: '0740'
 
 - name: Install VIM Tabular tool...
   ansible.builtin.git:
     repo: "https://github.com/godlygeek/tabular.git"
-    dest: "/home/{{ ansible_ssh_user }}/.vim/bundle/tabular"
+    dest: "{{ this_home }}/.vim/bundle/tabular"
 
 - name: Install VIM Airline tool...
   ansible.builtin.git:
     repo: "https://github.com/vim-airline/vim-airline.git"
-    dest: "/home/{{ ansible_ssh_user }}/.vim/bundle/vim-airline"
+    dest: "{{ this_home }}/.vim/bundle/vim-airline"
 
 - name: Install VIM Airline themes...
   ansible.builtin.git:
     repo: "https://github.com/vim-airline/vim-airline-themes.git"
-    dest: "/home/{{ ansible_ssh_user }}/.vim/bundle/vim-airline-themes"
+    dest: "{{ this_home }}/.vim/bundle/vim-airline-themes"
 
 - name: Install VIM Indent guides...
   ansible.builtin.git:
     repo: "https://github.com/preservim/vim-indent-guides.git"
-    dest: "/home/{{ ansible_ssh_user }}/.vim/bundle/vim-indent-guides"
+    dest: "{{ this_home }}/.vim/bundle/vim-indent-guides"
 
 - name: Install VIM Xilinx TCL syntax highlighter...
   ansible.builtin.git:
     repo: "https://github.com/amal-khailtash/vim-xtcl-syntax.git"
-    dest: "/home/{{ ansible_ssh_user }}/.vim/bundle/vim-xtcl-syntax"
+    dest: "{{ this_home }}/.vim/bundle/vim-xtcl-syntax"
 
 - name: Install VIM Xilinx Constraints syntax highlighter...
   ansible.builtin.git:
     repo: "https://github.com/amal-khailtash/vim-xdc-syntax.git"
-    dest: "/home/{{ ansible_ssh_user }}/.vim/bundle/vim-xdc-syntax"
+    dest: "{{ this_home }}/.vim/bundle/vim-xdc-syntax"
 
 - name: Install VIM SystemVerilog syntax highlighter...
   ansible.builtin.git:
     repo: "https://github.com/vhda/verilog_systemverilog.vim"
-    dest: "/home/{{ ansible_ssh_user }}/.vim/bundle/verilog_systemverilog"
+    dest: "{{ this_home }}/.vim/bundle/verilog_systemverilog"

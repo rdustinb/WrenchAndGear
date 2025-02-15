@@ -4,6 +4,10 @@
 ---
 - hosts: all
 
+  vars:
+    this_home: "{{ ansible_facts['env']['HOME'] }}"
+    this_distro: "{{ ansible_facts['distribution'] }}"
+
   vars_files:
     - vars.yml
 
@@ -20,47 +24,6 @@
         name: sshd
         state: restarted
 
-  pre_tasks:
-    # changed_when set to false will prevent Ansible from reporting these
-    # registers as a change in the final summary
-    - name: Register if fonts are installed...
-      shell: |
-        ls /home/{{ ansible_ssh_user }}/.fonts/Source\\ Code\\ Pro\\ for\\ Powerline.ttf
-      register: font_exists
-      ignore_errors: true
-      changed_when: false
-      no_log: true
-
-    - name: Register if docker is installed...
-      shell: "ls /usr/bin/docker"
-      register: docker_exists
-      ignore_errors: true
-      changed_when: false
-      no_log: true
-
-    - name: Register if VIM NerdTree is already installed...
-      shell: |
-        ls /home/{{ ansible_ssh_user }}/.vim/pack/vendor/start/nerdtree/LICENCE
-      register: vim_nerdtree_exists
-      ignore_errors: true
-      changed_when: false
-      no_log: true
-
-    - name: Register if VIM GitGutter is already installed...
-      shell: |
-        ls /home/{{ ansible_ssh_user }}/.vim/pack/airblade/start/LICENCE
-      register: vim_gitgutter_exists
-      ignore_errors: true
-      changed_when: false
-      no_log: true
-
-    - name: Register if power settings are modified
-      shell: "ls /etc/systemd/system/sleep.target"
-      register: power_management_exists
-      ignore_errors: yes
-      changed_when: false
-      no_log: true
-
   roles:
     - configpkgs
     - configpowermanagement
@@ -71,24 +34,18 @@
     - configsecurity
 
   post_tasks:
-    - name: Cleanup font file...
-      when: font_exists is failed
-      shell:
-        cmd: |
-          rm /home/{{ ansible_ssh_user }}/Source%20Code%20Pro%20for%20Powerline.otf
-
     - name: Cleanup docker setup script...
       when: docker_exists is failed
       shell:
-        cmd: "rm /home/{{ ansible_ssh_user }}/docker_setup.sh"
+        cmd: "rm {{ this_home }}/docker_setup.sh"
 
   tasks:
     ############################################################################
     # Create the virtual environment location
     - name: Manually create the initial virtualenv
       command:
-        cmd: "python3 -m 'venv' /home/{{ ansible_ssh_user }}/python_dev_env"
-        creates: "/home/{{ ansible_ssh_user }}/python_dev_env"
+        cmd: "python3 -m 'venv' {{ this_home }}/python_dev_env"
+        creates: "{{ this_home }}/python_dev_env"
 
     ############################################################################
     # Setup my Python Virtual Environment
@@ -99,16 +56,16 @@
           - psutil
           - stressberry
           - gpiozero
-        virtualenv: "/home/{{ ansible_ssh_user }}/python_dev_env"
+        virtualenv: "{{ this_home }}/python_dev_env"
 
     ############################################################################
     # Create a Cronjob to collect stats about the system
     - name: Install Clustering repo...
       git:
         repo: "https://github.com/rdustinb/Clustering.git"
-        dest: "/home/{{ ansible_ssh_user }}/python_dev_env/Clustering"
+        dest: "{{ this_home }}/python_dev_env/Clustering"
+
     - name: Create a cronjob to collect system stats...
       cron:
         name: "System Stats"
-        job: |
-          source /home/$( whoami )/python_dev_env/bin/activate ; python3 /home/$( whoami )/python_dev_env/Clustering/utilities/local_data_collector.py ; deactivate"
+        job: "source {{ this_home }}/python_dev_env/bin/activate ; python3 {{ this_home }}/python_dev_env/Clustering/utilities/local_data_collector.py ; deactivate"
