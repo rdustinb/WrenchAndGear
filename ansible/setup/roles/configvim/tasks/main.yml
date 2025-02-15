@@ -35,20 +35,29 @@
 
 ############################################################################
 # Setup my VIM Environment
+- name: Create the .fonts folder...
+  when: not(fontforge_exists is failed) and font_exists is failed
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0740'
+  loop:
+    - "{{ this_home }}/.fonts/"
+
 - name: Fetch VIM .vimrc
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/utilities/setup/.vimrc"
     dest: "{{ this_home }}/.vimrc"
     mode: '0740'
 
-- name: Fetch VIM font
-  when: font_exists is failed
+- name: Fetch the VIM font file
+  when: not(fontforge_exists is failed) and font_exists is failed
   ansible.builtin.get_url:
     url: "https://github.com/powerline/fonts/raw/master/SourceCodePro/Source%20Code%20Pro%20for%20Powerline.otf"
     dest: "{{ this_home }}/Source%20Code%20Pro%20for%20Powerline.otf"
     mode: '0740'
 
-- name: Convert VIM font and update the font cache...
+- name: Convert VIM font and install to the font cache...
   when: not(fontforge_exists is failed) and font_exists is failed
   ansible.builtin.shell:
     cmd: >
@@ -58,10 +67,17 @@
       fc-cache
     creates: "{{ this_home }}/.fonts/Source Code Pro for Powerline.ttf"
 
+- name: Remove the VIM font file
+  when: not(fontforge_exists is failed) and font_exists is failed
+  ansible.builtin.file:
+    path: "{{ this_home }}/Source%20Code%20Pro%20for%20Powerline.otf"
+    state: absent
+
 - name: Download VIM Colorschemes which also create the initial .vim folder structure...
   ansible.builtin.git:
     repo: "https://github.com/flazz/vim-colorschemes.git"
     dest: "{{ this_home }}/.vim"
+    force: True
 
 - name: Create several other VIM tool folders needed...
   ansible.builtin.file:

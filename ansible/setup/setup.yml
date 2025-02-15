@@ -6,6 +6,7 @@
 
   vars:
     this_home: "{{ ansible_facts['env']['HOME'] }}"
+    this_distro: "{{ ansible_facts['distribution'] }}"
 
   vars_files:
     - vars.yml
@@ -33,12 +34,6 @@
     - configsecurity
 
   post_tasks:
-    - name: Cleanup font file...
-      when: font_exists is failed
-      shell:
-        cmd: |
-          rm {{ this_home }}/Source%20Code%20Pro%20for%20Powerline.otf
-
     - name: Cleanup docker setup script...
       when: docker_exists is failed
       shell:

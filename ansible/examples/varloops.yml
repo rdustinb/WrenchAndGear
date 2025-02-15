@@ -1,0 +1,75 @@
+- hosts: localhost
+
+  vars:
+    this_home: "/Users/{{ ansible_user_id }}"
+
+  pre_tasks:
+    - name: Register if fontforge is installed...
+      shell: |
+        fontforge -v
+      register: fontforge_exists
+      ignore_errors: true
+      changed_when: false
+      no_log: true
+
+    - name: Register if fonts are installed...
+      shell: |
+        ls {{ this_home }}/.fonts/Source\\ Code\\ Pro\\ for\\ Powerline.ttf
+      register: font_exists
+      ignore_errors: true
+      changed_when: false
+      no_log: true
+
+    - name: Register if VIM NerdTree is already installed...
+      shell: |
+        ls {{ this_home }}/.vim/pack/vendor/start/nerdtree/LICENCE
+      register: vim_nerdtree_exists
+      ignore_errors: true
+      changed_when: false
+      no_log: true
+
+    - name: Register if VIM GitGutter is already installed...
+      shell: |
+        ls {{ this_home }}/.vim/pack/airblade/start/LICENCE
+      register: vim_gitgutter_exists
+      ignore_errors: true
+      changed_when: false
+      no_log: true
+
+    - name: Register if Homebrew is already installed
+      shell: |
+        ls /opt/homebrew/bin/brew
+      register: homebrew_exists
+      ignore_errors: true
+      changed_when: false
+      no_log: true
+
+    - name: Register if GitHub Authentication is already present
+      shell: |
+        ls {{ this_home }}/.config/gh/hosts.yml
+      register: gh_auth_exists
+      ignore_errors: true
+      changed_when: false
+      no_log: true
+
+    - name: Register if Wrench And Gear repo is already cloned
+      shell: |
+        ls {{ this_home }}/Developer/WrenchAndGear/.gitignore
+      register: wrenchandgear_exists
+      ignore_errors: true
+      changed_when: false
+      no_log: true
+
+  tasks:
+    - name: Switch to BASH as the shell
+      debug:
+        msg: "{{ item }} is defined!"
+      loop:
+        - fontforge_exists
+        - font_exists
+        - vim_nerdtree_exists
+        - vim_gitgutter_exists
+        - homebrew_exists
+        - gh_auth_exists
+        - wrenchandgear_exists
+      when: item is defined
