@@ -62,3 +62,9 @@
     path: "{{ this_home }}/.alias"
     regexp: '^alias readTemp='
     line: "alias readTemp='~/bin/read_temperature'"
+
+- name: Add the docker cleanup alias...
+  ansible.builtin.lineinfile:
+    path: "{{ this_home }}/.alias"
+    regexp: '^alias docker-clean'
+    line: "alias docker-clean='docker container prune -f ; docker image prune -f ; docker network prune -f ; docker volume prune -f'"
