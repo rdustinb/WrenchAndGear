@@ -8,22 +8,27 @@ SNMPCOMMUNITY=mynasups
 OIDBASE=.1.3.6.1.4.1
 # This will be defined from the SNMP Server's MIB file:
 UPSOFFSET=.44738.6
+# UPS Vendor Name Field
+UPSVENDOROFFSET=2
+# UPS Battery Runtime Field
+UPSRUNTIMEOFFSET=6
 # UPS Battery Level Field
-UPSFIELDOFFSET=7
+UPSLEVELOFFSET=7
 
 # Shutdown Threshold in percentage
 NOTIFICATIONTHRESHOLD=92
 SHUTDOWNTHRESHOLD=60
 
 # Call the SNMP Command
-UPSLEVEL=$(snmpwalk -v2c -c ${SNMPCOMMUNITY} ${SERVERIP} ${OIDBASE}${UPSOFFSET} | head -n${UPSFIELDOFFSET} | tail -n1 | sed -e 's/ /~/g' | sed -e 's/:~/ /g' | awk '{print $2}')
-UPSRUNTIME=$(snmpwalk -v2c -c ${SNMPCOMMUNITY} ${SERVERIP} ${OIDBASE}${UPSOFFSET} | head -n${UPSFIELDOFFSET} | tail -n2 | head -n1 | sed -e 's/ /~/g' | sed -e 's/:~/ /g' | awk '{print $2}')
+UPSVENDOR=$(snmpwalk -v2c -c ${SNMPCOMMUNITY} ${SERVERIP} ${OIDBASE}${UPSOFFSET} | head -n${UPSVENDOROFFSET} | tail -n1 | sed -e 's/ /~/g' | sed -e 's/:~/ /g' | awk '{print $2}' | sed -e 's/~/ /g' | sed -e 's/"//g')
+UPSRUNTIME=$(snmpwalk -v2c -c ${SNMPCOMMUNITY} ${SERVERIP} ${OIDBASE}${UPSOFFSET} | head -n${UPSRUNTIMEOFFSET} | tail -n1 | head -n1 | sed -e 's/ /~/g' | sed -e 's/:~/ /g' | awk '{print $2}')
+UPSLEVEL=$(snmpwalk -v2c -c ${SNMPCOMMUNITY} ${SERVERIP} ${OIDBASE}${UPSOFFSET} | head -n${UPSLEVELOFFSET} | tail -n1 | sed -e 's/ /~/g' | sed -e 's/:~/ /g' | awk '{print $2}')
 
 # Messages
-RUNTIMEMESSAGE="UPS Battery runtime is ${UPSRUNTIME} minutes."
-NOMINALMESSAGE="UPS Battery level is ${UPSLEVEL}%."
-DISCHARGEMESSAGE="UPS Battery level has dropped to ${UPSLEVEL}%..."
-SHUTDOWNMESSAGE="The UPS Battery level of ${UPSLEVEL}% is lower than the defined shutdown threshold of ${SHUTDOWNTHRESHOLD}%."
+RUNTIMEMESSAGE="${UPSVENDOR}UPS Battery runtime is ${UPSRUNTIME} minutes."
+NOMINALMESSAGE="${UPSVENDOR}UPS Battery level is ${UPSLEVEL}%."
+DISCHARGEMESSAGE="${UPSVENDOR}UPS Battery level has dropped to ${UPSLEVEL}%..."
+SHUTDOWNMESSAGE="The ${UPSVENDOR}UPS Battery level of ${UPSLEVEL}% is lower than the defined shutdown threshold of ${SHUTDOWNTHRESHOLD}%."
 
 # Debug
 if [ "${DEBUG}" -eq "1" ]; then
