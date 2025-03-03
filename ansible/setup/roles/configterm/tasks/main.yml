@@ -58,6 +58,7 @@
     line: "alias ll='python3 ~/bin/list_all.py'"
 
 - name: Add my CPU temperature reading script to the alias file...
+  when: this_distro != "MacOSX"
   ansible.builtin.lineinfile:
     path: "{{ this_home }}/.alias"
     regexp: '^alias readTemp='
@@ -68,3 +69,10 @@
     path: "{{ this_home }}/.alias"
     regexp: '^alias docker-clean'
     line: "alias docker-clean='docker container prune -f ; docker image prune -f ; docker network prune -f ; docker volume prune -f'"
+
+- name: Reset the DNS Cache command for macOS
+  when: this_distro == "MacOSX"
+  ansible.builtin.lineinfile:
+    path: "{{ this_home }}/.alias"
+    regexp: '^alias dnsCacheReset='
+    line: "alias dnsCacheReset='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'"

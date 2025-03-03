@@ -65,3 +65,13 @@
     - configterm
     - configpkgs
     - configvim
+
+  tasks:
+    - name: Setup authentication so sudo commands only need a fingerprint (this must be added at the beginning of the file)
+      become: true
+      ansible.builtin.lineinfile:
+        path: "/etc/pam.d/sudo"
+        regexp: '^auto sufficient pam_tid.so'
+        insertbefore: BOF
+        line: "auto sufficient pam_tid.so"
+
