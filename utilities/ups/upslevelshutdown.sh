@@ -3,10 +3,12 @@ DEBUG=1
 # This is the IP Address the SNMP Server daemon is running on:
 SERVERIP=192.168.85.100
 # SNMP Community
-SNMPCOMMUNITY=mynasups
+SNMPCOMMUNITY=public
 # This shouldn't ever change:
 OIDBASE=.1.3.6.1.4.1
 # This will be defined from the SNMP Server's MIB file:
+# INFOOFFSET=.44738.1
+# DISKOFFSET=.44738.4
 UPSOFFSET=.44738.6
 # UPS Vendor Name Field
 UPSVENDOROFFSET=2
