@@ -1,7 +1,7 @@
 #!/bin/bash
 DEBUG=1
 # This is the IP Address the SNMP Server daemon is running on:
-SERVERIP=192.168.85.100
+SERVERIP=192.168.85.101
 # SNMP Community
 SNMPCOMMUNITY=public
 # This shouldn't ever change:
@@ -43,11 +43,14 @@ if [ "${DEBUG}" -eq "1" ]; then
     echo "${NOMINALMESSAGE}"
   fi
 else
+  echo "${RUNTIMEMESSAGE}" | tee /dev/kmsg
   # Determine if the UPS Battery Level is under the threshold
   if [ "${UPSLEVEL}" -lt "${SHUTDOWNTHRESHOLD}" ]; then
     echo "${SHUTDOWNMESSAGE}" | tee /dev/kmsg
     shutdown now "${SHUTDOWNMESSAGE}"
   elif [ "${UPSLEVEL}" -lt "${NOTIFICATIONTHRESHOLD}" ]; then
     echo "${DISCHARGEMESSAGE}" | tee /dev/kmsg
+  else
+    echo "${NOMINALMESSAGE}" | tee /dev/kmsg
   fi
 fi
