@@ -7,17 +7,19 @@
   tasks:
     - name: Normal Upgrade of packages
       ansible.builtin.apt: 
-        upgrade: full
-        update_cache: yes 
-        autoremove: yes
-        autoclean: yes
+        update_cache: true 
+        upgrade: dist
 
     - name: Check if a reboot is required.
       ansible.builtin.stat:
         path: /var/run/reboot-required
-        get_checksum: no
+        get_checksum: false
       register: reboot_required_file
 
     - name: Reboot the server (if required).
       ansible.builtin.reboot:
       when: reboot_required_file.stat.exists == true
+
+    - name: Remove uneeded dependencies
+      ansible.builtin.apt:
+        autoremove: true
