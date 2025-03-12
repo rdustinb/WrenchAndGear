@@ -76,3 +76,24 @@
     path: "{{ this_home }}/.alias"
     regexp: '^alias dnsCacheReset='
     line: "alias dnsCacheReset='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'"
+
+- name: Recapture disk space for macOS
+  when: this_distro == "MacOSX"
+  ansible.builtin.lineinfile:
+    path: "{{ this_home }}/.alias"
+    regexp: '^alias diskSpaceClean='
+    line: "alias diskSpaceClean='echo -e \"\nRunning docker system prune...\"; docker system prune -a; echo -e \"\nRunning timemachine local snapshot prune...\"; sudo tmutil deletelocalsnapshots /;'"
+
+- name: Alias iCloud Drive as a shortcut for macOS
+  when: this_distro == "MacOSX"
+  ansible.builtin.lineinfile:
+    path: "{{ this_home }}/.alias"
+    regexp: '^alias cd_icloudDrive='
+    line: "alias cd_icloudDrive='cd ~/Library/Mobile Documents/com~apple~CloudDocs/'"
+
+- name: Prune downloaded files within iCloud Drive for macOS
+  when: this_distro == "MacOSX"
+  ansible.builtin.lineinfile:
+    path: "{{ this_home }}/.alias"
+    regexp: '^alias pruneIcloudDownloads='
+    line: "alias pruneIcloudDownloads='find . -type f -exec brctl evict {} \;'"

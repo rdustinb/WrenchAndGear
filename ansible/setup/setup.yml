@@ -33,6 +33,13 @@
     - configdocker
     - configsecurity
 
+  pre_tasks:
+    - name: Source the .alias file
+      ansible.builtin.lineinfile:
+        path: "{{ this_home }}/.bashrc"
+        regexp: '^source ~/.alias'
+        line: "source ~/.alias"
+
   post_tasks:
     - name: Cleanup docker setup script...
       when: docker_exists is failed
