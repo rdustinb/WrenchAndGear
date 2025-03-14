@@ -1,0 +1,18 @@
+services:
+  #####################################################################
+  # Homepage is an open source, web-based console to display all of
+  # the pertinent information desired.
+  #
+  # https://gethomepage.dev/latest/
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    # The images and icons folders need to be mapped to /app/public/*, 
+    # whereas the config needs to be mapped to /app/config
+    volumes:
+      - '~/volumes/homepage/config:/app/config'
+      - '~/volumes/homepage/icons:/app/public/icons'
+      - '~/volumes/homepage/images:/app/public/images'

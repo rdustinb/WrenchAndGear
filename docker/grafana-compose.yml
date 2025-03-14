@@ -1,0 +1,21 @@
+services:
+  #####################################################################
+  # The Browser-based Graphing Tool
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss
+    restart: unless-stopped
+    user: '1000'
+    volumes:
+      - '~/volumes/grafana/storage:/var/lib/grafana'
+    networks:
+      - 'localprom'
+    ports:
+      - '3000:3000'
+
+########################################
+# Define the Networks
+networks:
+  localprom:
+    driver: 'bridge'
+

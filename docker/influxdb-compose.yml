@@ -1,0 +1,17 @@
+services:
+  ######################################################################################################################
+  # This is a basic InfluxDB container. There are ways to setup some of the initial configuration from this container
+  # descriptor which can be found here:
+  #     https://hub.docker.com/_/influxdb/
+  #
+  # Once the container is running, the UI to setup the DB can be accessed through:
+  #     http://localhost:8086
+  influxdb:
+    container_name: influxdb
+    image: influxdb:2
+    restart: always
+    ports:
+      - '8086:8086'
+    volumes:
+      - "~/volumes/influxdb/data:/var/lib/influxdb2"
+      - "~/volumes/influxdb/config:/etc/influxdb2"

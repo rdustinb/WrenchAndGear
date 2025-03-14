@@ -1,0 +1,13 @@
+services:
+  #####################################################################
+  # Prometheus Data Aggregator
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    volumes:
+      - '~/volumes/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml'
+    networks:
+      - 'localprom'
+    ports:
+      - '9090:9090'
