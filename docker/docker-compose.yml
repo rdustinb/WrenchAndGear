@@ -53,8 +53,8 @@ services:
   #####################################################################
   # This container is used to spinup a light-weight RTSP server to allow the RPi Camera Module
   # to be streamed to another network device. The intent is to use this with Homebridge.
-  mediamtx:
-    container_name: rtsp_camera
+  rtsp:
+    container_name: rtsp
     image: bluenviron/mediamtx:latest-rpi
     restart: always
     privileged: true
@@ -191,7 +191,7 @@ services:
   # docker container. WireGuard provides an iOS app which can be used
   # to connect to the VPN server if a URL is put into the configuration
   # below.
-  wg-easy:
+  wireguard:
     image: ghcr.io/wg-easy/wg-easy:latest
     container_name: wireguard
     restart: unless-stopped
