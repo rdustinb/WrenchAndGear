@@ -6,17 +6,19 @@ services:
   #
   # https://hub.docker.com/r/octoprint/octoprint
   octoprint:
-    container_name: octoprint  
-    image: octoprint/octoprint 
-    restart: always
-    network_mode: host
+    container_name: octoprint
+    image: octoprint/octoprint:latest
+    restart: unless-stopped
+    ports:
+      - '80:80'
     devices:
-    # use `python -m serial.tools.miniterm` to see what the name is of the printer, this requires pyserial
-      - /dev/ttyAMA0:/dev/ttyAMA0     
-      - /dev/ttyUSB0:/dev/ttyUSB0     
-      - /dev/video0:/dev/video0
-    environment:
-      - TZ=America/Denver
-      - ENABLE_MJPG_STREAMER=true     
+      - '/dev/ttyUSB0:/dev/ttyUSB0'
+      - '/dev/media3:/dev/media3'
+      - '/dev/media0:/dev/media0'
     volumes:
-      - '~/volumets/octoprint:/octoprint'
+     - '~/volumes/octoprint:/octoprint'
+    environment:
+      - 'TZ=America/Denver'
+      - 'ENABLE_MJPG_STREAMER=true'
+      - 'CAMERA_DEV=/dev/media3,/dev/media0'
+      - 'MJPG_STREAMER_INPUT=-r 1536x864'
