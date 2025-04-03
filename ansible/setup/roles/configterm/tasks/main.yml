@@ -96,4 +96,4 @@
   ansible.builtin.lineinfile:
     path: "{{ this_home }}/.alias"
     regexp: '^alias pruneIcloudDownloads='
-    line: "alias pruneIcloudDownloads='find . -type f -exec brctl evict {} \;'"
+    line: "alias pruneIcloudDownloads='find . -type f -exec brctl evict {} \\;'"
