@@ -2,24 +2,26 @@ services:
   #####################################################################
   # This container is used to spinup a light-weight RTSP server to allow the RPi Camera Module
   # to be streamed to another network device. The intent is to use this with Homebridge.
-  mediamtx:
-    container_name: rtsp_camera
-    image: bluenviron/mediamtx:latest-rpi
-    restart: always
+  rtspcamera:
+    container_name: rtspcamera
+    image: bluenviron/mediamtx:latest-ffmpeg-rpi
+    restart: unless-stopped
     privileged: true
-    network_mode: host
-    # All of the different configuration options contained here:
-    #   https://github.com/bluenviron/mediamtx/blob/main/mediamtx.yml
-    # That are under paths: all: and start with rpiCameraXXX can be
-    # configured in the Compose Environment whose variable names start
-    # with MTX_PATHS_CAM_yyy. Therefore the variable rpiCameraWidth
-    # variable in the mediamtx.yml configuration would be
-    # MTX_PATHS_CAM_RPICAMERAWIDTH in this Docker Compose file.
+    ports:
+      - '8554:8554'
+      - '1935:1935'
+      - '8888:8888'
+      - '8889:8889'
+      - '8890:8890/udp'
+      - '8189:8189/udp'
     environment:
-      MTX_PATHS_CAM_SOURCE: rpiCamera
-      MTX_PATHS_CAM_RPICAMERAWIDTH: 1200
-      MTX_PATHS_CAM_RPICAMERAHEIGHT: 800
-      MTX_PATHS_CAM_RPICAMERAAFMODE: continuous # auto, manual, continuous; Only continuous seems to work as intended
+      - 'TZ=America/Pasadena'
+      - 'MTX_RTSPTRANSPORTS=tcp'
+      - 'MTX_WEBRTCADDITIONALHOSTS= IP of host device'
+      - 'MTX_PATHS_CAM_SOURCE=rpiCamera'
+      # Don't specify the dimensions, otherwise it will just crop the sensor or fail to launch the stream
+      # This container will figure out what the sensor dimensions are automatically.
+      - 'MTX_PATHS_CAM_RPICAMERAAFMODE=continuous'
     tmpfs:
       - '/dev/shm:exec'
     volumes:
