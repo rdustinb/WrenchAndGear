@@ -1,0 +1,63 @@
+services:
+  ##############################################################################
+  # Homeassistant Client
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    restart: unless-stopped
+    environment:
+      - 'TZ=America/Pasadena'
+    ports:
+      - '8123:8123'
+    volumes:
+      - '~/volumes/homeassistant/config:/config'
+    healthcheck:
+      test: 'curl -m 90 -sLf http://localhost:8123 || date >> /config/healthcheck'
+      interval: 90s
+      timeout: 60s
+      retries: 2
+
+  ##############################################################################
+  # MQTT "Mosquito" Add-Ons Broker
+  #
+  # mosquitto.conf must be created in the folder:
+  #   ~/volumes/ha-mosquitto/config/mosquitto.conf
+  #
+  # Without authentication:
+  #   persistence true
+  #   persistence_location /mosquitto/data/
+  #   log_dest file /mosquitto/log/mosquitto.log
+  #   listener 1883
+  #    
+  #   # No Authentication
+  #   allow_anonymous true
+  #
+  # With authentication:
+  #   persistence true
+  #   persistence_location /mosquitto/data/
+  #   log_dest file /mosquitto/log/mosquitto.log
+  #   listener 1883
+  #    
+  #   # With Authentication
+  #   allow_anonymous false
+  #   password_file /mosquitto/config/passwords
+  #
+  # Creating a hashed password file for mosquitto:
+  #   mosquitto_passwd -c /mosquitto/config/password.txt <username>
+  #
+  # It may be possible to generate a hash of a users password, it looks like Mosquitto
+  # uses the sha512-pbkdf2 hashing algorithm by default:
+  #
+  #   https://mosquitto.org/man/mosquitto_passwd-1.html
+  #
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: ha-mosquitto
+    restart: unless-stopped
+    ports:
+      - '1883:1883'
+      - '9001:9001'  
+    volumes:
+      - '~/volumes/ha-mosquitto:/mosquitto'
+      - '~/volumes/ha-mosquitto/data:/mosquitto/data'
+      - '~/volumes/ha-mosquitto/log:/mosquitto/log'
