@@ -7,19 +7,32 @@
   tasks:
     - name: Get the Docker container NAMES fields for running containers...
       command: docker ps --format '{{ '{{' }} .Names {{ '}}' }}'
-      register: docker_names
+      register: docker_container_names
 
     - name: Get the Docker container IMAGES fields for all running containers...
       command: docker ps --format '{{ '{{' }} .Image {{ '}}' }}'
-      register: docker_images
+      register: docker_container_images
+
+    # TODO this needs to be in a loop
+    - name: Get the latest available image for all running Docker containers...
+      command: docker image inspect --format '{{ '{{' }} .Id {{ '}}' }}' {{ this_docker_container_image }}
+      register: docker_latest_image_hash
+
+    # TODO this needs to be in a loop
+    - name: Get the Docker container image hash (TODO how to store this to compare later?)...
+      command: docker container inspect --format '{{ '{{' }} .Image {{ '}}' }}' {{ this_docker_container_name }}
+      register: docker_container_hash
+
+    # TODO this is where the latest available image has can be compared with the current container hash.
+    # If they match, the next two steps can be skipped
 
     - name: Pull all new Docker images...
       command: docker pull {{ item }}
-      loop: "{{ docker_images.stdout_lines }}"
+      loop: "{{ docker_container_images.stdout_lines }}"
 
     - name: Rebuild the Docker containers based on their NAMES...
       command: docker compose up --force-recreate --build -d {{ item }}
-      loop: "{{ docker_names.stdout_lines }}"
+      loop: "{{ docker_container_names.stdout_lines }}"
 
     - name: Remove dangling images that are no longer used...
       command: docker system prune -f
