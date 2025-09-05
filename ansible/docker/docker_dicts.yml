@@ -1,0 +1,15 @@
+# Author: Dustin Brothers
+# Description:
+#   yaml playbook that works with dictionaries
+---
+- hosts: all
+
+  tasks:
+    - name: NAMES
+      command: docker ps --format '{{ '{{' }} .Names {{ '}}' }}'
+      register: docker_container_names
+
+    - name: IMAGES
+      command: docker ps --format '{{ '{{' }} .Image {{ '}}' }}'
+      register: docker_container_images
+
