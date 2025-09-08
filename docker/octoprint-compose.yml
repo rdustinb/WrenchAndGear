@@ -1,0 +1,24 @@
+services:
+  #####################################################################
+  # This container spins up an instance of OctoPrint
+  # It requires the ARM v7 processor or greater, meaning it will not 
+  # launch on the Raspberry Pi Zero W (1st gen)
+  #
+  # https://hub.docker.com/r/octoprint/octoprint
+  octoprint:
+    container_name: octoprint
+    image: octoprint/octoprint:latest
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    devices:
+      - '/dev/ttyUSB0:/dev/ttyUSB0'
+      - '/dev/media3:/dev/media3'
+      - '/dev/media0:/dev/media0'
+    volumes:
+     - '~/volumes/octoprint:/octoprint'
+    environment:
+      - 'TZ=America/Denver'
+      - 'ENABLE_MJPG_STREAMER=true'
+      - 'CAMERA_DEV=/dev/media3,/dev/media0'
+      - 'MJPG_STREAMER_INPUT=-r 1536x864'

@@ -1,0 +1,77 @@
+# Author: Dustin Brothers
+# Description:
+#   yaml playbook to setup a new Mac with all my stuffs...
+---
+- hosts: all
+
+  vars:
+    this_home: "{{ ansible_facts['env']['HOME'] }}"
+    this_distro: "{{ ansible_facts['distribution'] }}"
+
+  vars_files:
+    - vars.yml
+
+  pre_tasks:
+    # These need some more planning on how to run them as the environment needs to be mostly setup for use with Ansible
+    # before this playbook can be run which indicates these first few tasks have already been performed...
+
+    #- name: Update software
+    #  shell:
+    #    cmd: "softwareupdate -i --os-only --verbose"
+
+    # - name: Register if GitHub Authentication is already present
+    #   shell: |
+    #     ls {{ this_home }}/.config/gh/hosts.yml
+    #   register: gh_auth_exists
+    #   ignore_errors: true
+    #   changed_when: false
+    #   no_log: true
+
+    #- name: Authenticate the GH CLI with Github.com
+    #  when: gh_auth_exists is failed
+    #  shell:
+    #    cmd: gh auth login
+
+    #- name: Clone the WrenchAndGear Repo
+    #  when: wrenchandgear_exists is failed
+    #  shell:
+    #    cmd: "mkdir ~/Developer ; cd ~/Developer ; gh repo clone rdustinb/WrenchAndGear"
+    - name: Verify some needed files are present in the HOME directory...
+      ansible.builtin.file:
+        path: "{{ item }}"
+        mode: '0740'
+        state: touch
+        modification_time: preserve
+        access_time: preserve
+      loop:
+        - "{{ this_home }}/.bash_profile"
+        - "{{ this_home }}/.bashrc"
+        - "{{ this_home }}/.alias"
+
+    - name: Source the .bashrc file since macOS by default sources .bash_profile
+      ansible.builtin.lineinfile:
+        path: "{{ this_home }}/.bash_profile"
+        regexp: '^source'
+        line: "source ~/.bashrc"
+
+    - name: Source the .alias file
+      ansible.builtin.lineinfile:
+        path: "{{ this_home }}/.bashrc"
+        regexp: '^source ~/.alias'
+        line: "source ~/.alias"
+
+  roles:
+    - confighomebrew
+    - configterm
+    - configpkgs
+    - configvim
+
+  tasks:
+    - name: Setup authentication so sudo commands only need a fingerprint (this must be added at the beginning of the file)
+      become: true
+      ansible.builtin.lineinfile:
+        path: "/etc/pam.d/sudo"
+        regexp: '^auto sufficient pam_tid.so'
+        insertbefore: BOF
+        line: "auto sufficient pam_tid.so"
+

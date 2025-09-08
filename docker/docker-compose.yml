@@ -1,41 +1,92 @@
 services:
   #####################################################################
+  # PiHole Configuration Synchronizer
+  nebula-sync:
+    image: ghcr.io/lovelaze/nebula-sync:latest
+    container_name: nebula-sync
+    environment:
+      # Use the IPs here, not the domain names...
+      - PRIMARY=http://PiholePrimaryIpAddress:port|password
+      - REPLICAS=http://PiholeSecondaryIpAddress:port|password,http://PiholeTertiaryIpAddress:port|password
+      - CRON=0 * * * *
+      - TX=America/Pasadena
+      - RUN_GRAVITY=true
+      - FULL_SYNC=false
+      # When FULL_SYNC is false, the following are the fine-grain options
+      - SYNC_CONFIG_DNS=true # Synchronize DNS settings
+      - SYNC_CONFIG_DHCP=false # Synchronize DHCP settings
+      - SYNC_CONFIG_NTP=false # Synchronize NTP settings
+      - SYNC_CONFIG_RESOLVER=false # Synchronize resolver settings
+      - SYNC_CONFIG_DATABASE=false # Synchronize database settings
+      - SYNC_CONFIG_MISC=false # Synchronize miscellaneous settings
+      - SYNC_CONFIG_DEBUG=false # Synchronize debug settings
+      - SYNC_GRAVITY_DHCP_LEASES=false # Synchronize DHCP leases
+      - SYNC_GRAVITY_GROUP=true # Synchronize groups
+      - SYNC_GRAVITY_AD_LIST=true # Synchronize ad lists
+      - SYNC_GRAVITY_AD_LIST_BY_GROUP=true # Synchronize ad lists by group
+      - SYNC_GRAVITY_DOMAIN_LIST=true # Synchronize domain lists
+      - SYNC_GRAVITY_DOMAIN_LIST_BY_GROUP=true # Synchronize domain lists by group
+      - SYNC_GRAVITY_CLIENT=true # Synchronize clients
+      - SYNC_GRAVITY_CLIENT_BY_GROUP=true # Synchronize clients by group
+
+  #####################################################################
   # This container blocks all the ads of the internets.
   pihole:
     container_name: pihole
     image: pihole/pihole:latest
-    network_mode: host
+    restart: unless-stopped
+    #network_mode: host
+    ports:
+      # DNS Ports
+      - '53:53/tcp'
+      - '53:53/udp'
+      # Default HTTP Port
+      - '1080:80/tcp'
+      # Default HTTPs Port. FTL will generate a self-signed certificate
+      - '10443:443/tcp'
+      # Uncomment the line below if you are using Pi-hole as your DHCP server
+      #- '67:67/udp'
+      # Uncomment the line below if you are using Pi-hole as your NTP server
+      #- '123:123/udp'
     environment:
       TZ: 'America/Denver'
-      WEBPASSWORD: 'CHANGEME'
+      # Pre v6 variables
+      WEBPASSWORD: ''
+      # Post v6 variables
+      # Set a password to access the web interface. Not setting one will result in a random password being assigned
+      FTLCONF_webserver_api_password: ''
+      # If using Docker's default `bridge` network setting the dns listening mode should be set to 'all'
+      FTLCONF_dns_listeningMode: 'all'
     volumes:
-      - '~/etc-pihole:/etc/pihole'
-      - '~/etc-dnsmasq.d:/etc/dnsmasq.d'
+      - '~/volumes/etc-pihole:/etc/pihole'
+      - '~/volumes/etc-dnsmasq.d:/etc/dnsmasq.d'
     cap_add:
       - NET_ADMIN # Required if you are using Pi-hole as your DHCP server, else not needed
-    restart: always
+
   #####################################################################
   # This container runs Homebridge so I can use 'unofficial' devices with Apple's Home app.
   homebridge:
     container_name: homebridge
     image: homebridge/homebridge:latest
+    restart: always
     network_mode: host
     environment:
       TZ: 'America/Denver'
     volumes:
-      - '~/homebridge:/homebridge'
+      - '~/volumes/homebridge:/homebridge'
     logging:
       driver: json-file
       options:
         max-size: '10mb'
         max-file: '5'
-    restart: always
+
   #####################################################################
   # This container is used to spinup a light-weight RTSP server to allow the RPi Camera Module
   # to be streamed to another network device. The intent is to use this with Homebridge.
-  mediamtx:
-    container_name: rtsp_camera
+  rtsp:
+    container_name: rtsp
     image: bluenviron/mediamtx:latest-rpi
+    restart: always
     privileged: true
     network_mode: host
     # All of the different configuration options contained here:
@@ -54,7 +105,7 @@ services:
       - '/dev/shm:exec'
     volumes:
       - '/run/udev:/run/udev:ro'
-    restart: always
+
   #####################################################################
   # This container spins up a Minecraft server so my kids and I can play on the same worlds
   # This is a Geyser-variant of Minecraft so that iOS devices can join this server (since
@@ -63,12 +114,13 @@ services:
   minecraft-server:
     image: 05jchambers/legendary-minecraft-purpur-geyser:latest
     container_name: minecraft-server
+    restart: always
     tty: true
     stdin_open: true
     ports:
-      - "25565:25565"
-      - "19132:19132/udp"
-      - "19132:19132"
+      - '25565:25565'
+      - '19132:19132/udp'
+      - '19132:19132'
     environment:
       SERVER_NAME: "Dockerized-Minecraft-Server"
       MOTD: "Minecraft Server"
@@ -81,12 +133,12 @@ services:
       RCON_PASSWORD: "CHANGEME"
       RCON_PORT: 28016
     volumes:
-      - '~/minecraft:/minecraft'
+      - '~/volumes/minecraft:/minecraft'
     logging:
       driver: "json-file"
       options:
         max-size: "1m"
-    restart: always
+
   #####################################################################
   # This container spins up an instance of OctoPrint
   # It requires the ARM v7 processor or greater, meaning it will not 
@@ -96,34 +148,286 @@ services:
   octoprint:
     container_name: octoprint  
     image: octoprint/octoprint 
+    restart: always
     network_mode: host
     devices:
     # use `python -m serial.tools.miniterm` to see what the name is of the printer, this requires pyserial
-      - /dev/ttyAMA0:/dev/ttyAMA0     
-      - /dev/ttyUSB0:/dev/ttyUSB0     
-      - /dev/video0:/dev/video0
+      - '/dev/ttyAMA0:/dev/ttyAMA0'
+      - '/dev/ttyUSB0:/dev/ttyUSB0'
+      - '/dev/video0:/dev/video0'
     environment:
-      - TZ=America/Denver
-      - ENABLE_MJPG_STREAMER=true     
+      TZ: 'America/Denver'
+      ENABLE_MJPG_STREAMER: true     
     volumes:
-      - '~/octoprint:/octoprint'
-    restart: always
+      - '~/volumets/octoprint:/octoprint'
+
   #####################################################################
-  # This container spins up an instance of HomeAssistant
-  # The instructions for getting this running are here:
-  #   https://www.home-assistant.io/installation/raspberrypi#docker-compose
-  # TODO
-  #   If adons are desired, it is possible to install HACS within the docker
-  # container using the following commands:
-  #   docker exec -it homeassistant bash
-  #   wget -O - https://get.hacs.xyz | bash -
-  homeassistant:
-    container_name: homeassistant
-    image: "ghcr.io/home-assistant/home-assistant:latest"
-    volumes:
-      - ~/ha-config:/config
-      - /etc/localtime:/etc/localtime:ro
-      - /run/dbus:/run/dbus:ro
+  # Homepage is an open source, web-based console to display all of
+  # the pertinent information desired.
+  #
+  # https://gethomepage.dev/latest/
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
     restart: unless-stopped
-    privileged: true
-    network_mode: host
+    ports:
+      - '3000:3000'
+    # The images and icons folders need to be mapped to /app/public/*, 
+    # whereas the config needs to be mapped to /app/config
+    volumes:
+      - '~/volumes/homepage/config:/app/config'
+      - '~/volumes/homepage/icons:/app/public/icons'
+      - '~/volumes/homepage/images:/app/public/images'
+
+  #####################################################################
+  # Speedtest Tracker is an open source project which can be configured
+  # to periodically test a networks internet bandwidth, complete with a
+  # web interface and graphs and charts.
+  #
+  # This container provides functionality for one of the Homepage
+  # widgets.
+  speedtest-tracker:
+    image: lscr.io/linuxserver/speedtest-tracker:latest
+    container_name: speedtest-tracker
+    restart: unless-stopped
+    network_mode: bridge
+    ports:
+      - '2080:80'
+      - '20443:443'
+    environment:
+      PUID: 1000
+      PGID: 1000
+      # This key can be obtained by going to: 
+      #   https://speedtest-tracker.dev
+      APP_KEY: 
+      APP_URL: http://localhost
+      # This uses a cronjob time format for how often to run the speedtest
+      SPEEDTEST_SCHEDULE: "*/5 * * * *"
+      # All of the timezone formats are similar to:
+      #   "Country/City"
+      APP_TIMEZONE: "America/New York"
+      DISPLAY_TIMEZONE: "America/New York"
+      # All of the formats are similar to:
+      #   "y-m-d H:i"
+      DATETIME_FORMAT: "y-m-d H:i" 
+      CHART_DATETIME_FORMAT: "y-m-d H:i"
+      DB_CONNECTION: sqlite
+    volumes:
+      - '~/volumes/speedtest/config:/config'
+      - '~/volumes/speedtest/keys:/config/keys'
+
+  #####################################################################
+  # WireGuard is an easy to configure VPN server that can run in a 
+  # docker container. WireGuard provides an iOS app which can be used
+  # to connect to the VPN server if a URL is put into the configuration
+  # below.
+  wireguard:
+    image: ghcr.io/wg-easy/wg-easy:latest
+    container_name: wireguard
+    restart: unless-stopped
+    volumes:
+      - '~/volumes/wireguard:/etc/wireguard'
+    ports:
+      - '51820:51820/udp'
+      - '51821:51821/tcp'
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+      # - NET_RAW # ⚠️ Uncomment if using Podman 
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+    environment:
+      # Change Language:
+      # (Supports: en, ua, ru, tr, no, pl, fr, de, ca, es, ko, vi, nl, is, pt, chs, cht, it, th, hi)
+      LANG: en
+      # ⚠️ Required:
+      # Change this to your host's public address
+      WG_HOST: mydomain.com
+      # Optional:
+      # Define the Web UI password to use
+      # Calculate the password hash by the following command:
+      # docker run -it ghcr.io/wg-easy/wg-easy wgpw THEPASSWORD
+      #
+      # Remove the single quotes from the output from the above command, and change all $ to $$
+      # PASSWORD_HASH:  
+      # PORT: 51821
+      # WG_PORT: 51820
+      # WG_CONFIG_PORT: 92820
+      # WG_DEFAULT_ADDRESS: 10.8.0.x
+      # WG_DEFAULT_DNS: 
+      # Default is 1420:
+      WG_MTU: 1414
+      # WG_ALLOWED_IPS: 192.168.15.0/24, 10.0.1.0/24
+      WG_PERSISTENT_KEEPALIVE: 25
+      # WG_PRE_UP: echo "Pre Up" > /etc/wireguard/pre-up.txt
+      # WG_POST_UP: echo "Post Up" > /etc/wireguard/post-up.txt
+      # WG_PRE_DOWN: echo "Pre Down" > /etc/wireguard/pre-down.txt
+      # WG_POST_DOWN: echo "Post Down" > /etc/wireguard/post-down.txt
+      # UI_TRAFFIC_STATS: true
+      # (0 Charts disabled, 1 # Line chart, 2 # Area chart, 3 # Bar chart)
+      # UI_CHART_TYPE: 1
+
+  #####################################################################
+  # Uptime Kuma provides a self-hosted monitoring system for sites and 
+  # servers, ports and urls. It can run in Docker and has a great UI
+  # for configuration!
+  uptime-kuma:
+    container_name: uptime-kuma
+    image: louislam/uptime-kuma:latest
+    restart: unless-stopped
+    volumes:
+      - '~/volumes/uptime-kuma:/app/data'
+    ports:
+      - '3001:3001'
+
+  #####################################################################
+  # Prometheus Data Aggregator
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    volumes:
+      - '~/volumes/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml'
+    networks:
+      - 'localprom'
+    ports:
+      - '9090:9090'
+
+  #####################################################################
+  # Prometheus Metric Monitor Exporter
+  node_exporter:
+    container_name: node_exporter
+    image: quay.io/prometheus/node-exporter:latest
+    restart: unless-stopped
+    pid: host
+    ports:
+      - '9100:9100'
+    command:
+      - '--path.rootfs=/host'
+    volumes:
+      - '/:/host:ro,rslave'
+
+  #####################################################################
+  # The Browser-based Graphing Tool
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss
+    restart: unless-stopped
+    user: '1000'
+    volumes:
+      - '~/volumes/grafana/storage:/var/lib/grafana'
+    networks:
+      - 'localprom'
+    ports:
+      - '3000:3000'
+
+  #####################################################################
+  # Radicale CalDav and CardDav Server
+  #
+  # Add the following to a new file: ~/volumes/radicale/etc/default.conf:
+  #     [server]
+  #     # Make the server reachable over the network
+  #     hosts = 0.0.0.0:5232, [::]:5232 
+  #     # Limit the number of concurrent connections
+  #     max_connections = 20
+  #     # Limit the maximum data transfer [bytes]
+  #     max_content_length = 100000000
+  #     # Limit the amount of time until the server times out
+  #     timeout = 30
+  #     # Enable SSL
+  #     ssl = True
+  #     # SSL certificate path (path from within the container)
+  #     certificate = /radicale/ssl/radicale.cert.pem
+  #     # SSL private key (path from within the container)
+  #     key = /radicale/ssl/radicale.key.pem
+  #     # Specify the SSL protocol
+  #     #protocol = PROTOCOL_TLS
+  #      
+  #     # Calendar Data path (path from within the container)
+  #     [storage]
+  #     type = multifilesystem_nolock
+  #     filesystem_folder = /radicale/var
+  #      
+  #     [auth]
+  #     type = htpasswd
+  #     htpasswd_filename = /radicale/etc/users
+  #     htpasswd_encryption = autodetect
+  #      
+  #     [rights]
+  #     type = from_file
+  #     file = /radicale/etc/rights
+  #
+  # Create a password file with username as input, then enter the password when prompted:
+  #
+  #     htpasswd -5 -c ~/volumes/radicale/etc/users <new username>
+  #
+  # Add the following to a new file: ~/volumes/radicale/etc/rights:
+  #     # Allow reading root collection for authenticated users
+  #     [root]
+  #     user: .+
+  #     collection:
+  #     permissions: R
+  #     
+  #     # Allow reading and writing principal collection (same as username)
+  #     [principal]
+  #     user: .+
+  #     collection: {user}
+  #     permissions: RW
+  #     
+  #     # Allow reading and writing calendars and address books that are direct
+  #     # children of the principal collection
+  #     [calendars]
+  #     user: .+
+  #     collection: {user}/[^/]+
+  #     permissions: rw
+  #
+  #####################################################################
+  # Radicale CalDav and CardDav Server
+  radicale:
+    image: 11notes/radicale:3.1.9
+    container_name: radicale
+    restart: unless-stopped
+    ports:
+      - '5232:5232/tcp'
+    environment:
+      TZ: "America/Denver"
+    volumes:
+      - "~/volumes/radicale/etc:/radicale/etc"
+      - "~/volumes/radicale/var:/radicale/var"
+      - "~/volumes/radicale/ssl:/radicale/ssl"
+
+  #####################################################################
+  # This container runs the NOAA Space Weather Flask app under a
+  # gunicorn framework.
+  noaa:
+    container_name: noaa
+    platform: linux/arm64
+    image: digitalkrampus/noaasolarweather:latest
+    restart: always
+    environment:
+      TZ: 'America/Denver'
+    ports:
+      - '8000:8000'
+
+  #####################################################################
+  # An Nginx Web Server (with other functions)
+  #   Reverse Proxy
+  #   Load Balancer
+  #   Web Page Server
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    volumes:
+      - ~/volumes/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ~/volumes/nginx/conf.d:/etc/nginx/conf.d:ro
+    ports:
+      - '80:80'
+
+########################################
+# Define the Networks
+networks:
+  localprom:
+    driver: 'bridge'
+

@@ -1,0 +1,28 @@
+services:
+  #####################################################################
+  # This container is used to spinup a light-weight RTSP server to allow the RPi Camera Module
+  # to be streamed to another network device. The intent is to use this with Homebridge.
+  rtspcamera:
+    container_name: rtspcamera
+    image: bluenviron/mediamtx:latest-ffmpeg-rpi
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - '8554:8554'
+      - '1935:1935'
+      - '8888:8888'
+      - '8889:8889'
+      - '8890:8890/udp'
+      - '8189:8189/udp'
+    environment:
+      - 'TZ=America/Pasadena'
+      - 'MTX_RTSPTRANSPORTS=tcp'
+      - 'MTX_WEBRTCADDITIONALHOSTS= IP of host device'
+      - 'MTX_PATHS_CAM_SOURCE=rpiCamera'
+      # Don't specify the dimensions, otherwise it will just crop the sensor or fail to launch the stream
+      # This container will figure out what the sensor dimensions are automatically.
+      - 'MTX_PATHS_CAM_RPICAMERAAFMODE=continuous'
+    tmpfs:
+      - '/dev/shm:exec'
+    volumes:
+      - '/run/udev:/run/udev:ro'

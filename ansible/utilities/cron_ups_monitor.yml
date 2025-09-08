@@ -1,0 +1,20 @@
+# Author: Dustin Brothers
+# Description:
+#   Reboot all nodes...
+---
+- hosts: all
+  tasks:
+    - name: Copy the UPS-monitoring script to the host
+      ansible.builtin.get_url:
+        url: "{{ item }}"
+        dest: "/home/{{ ansible_ssh_user }}/bin/"
+        mode: '0777'
+      loop:
+        - "https://raw.githubusercontent.com/rdustinb/WrenchAndGear/master/utilities/ups/upslevelshutdown.sh"
+
+    - name: Setup the root crontab to monitor the UPS state every minute
+      ansible.builtin.cron:
+        name: "UPS Monitoring Script"
+        minute: "*/5"
+        user: root
+        job: "/home/{{ ansible_ssh_user }}/bin/upslevelshutdown.sh"

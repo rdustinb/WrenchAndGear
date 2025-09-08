@@ -1,0 +1,33 @@
+# Author: Dustin Brothers
+# Description:
+#   yaml playbook to get all NAMES and IMAGES of Docker containers on every host
+---
+- hosts: all
+
+  tasks:
+    - name: Get the Docker container NAMES fields for running containers...
+      command: docker ps --format '{{ '{{' }} .Names {{ '}}' }}'
+      register: docker_names
+
+    - name: Get the Docker container IMAGES fields for running containers...
+      command: docker ps --format '{{ '{{' }} .Image {{ '}}' }}'
+      register: docker_images
+
+    - name: Print the Docker container NAMES header
+      ansible.builtin.debug:
+        msg: "Docker container NAMES:"
+
+    - name: Print the Docker container NAMES fields
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      loop: "{{ docker_names.stdout_lines }}"
+
+    - name: Print the Docker container IMAGES header
+      ansible.builtin.debug:
+        msg: "Docker container IMAGES:"
+
+    - name: Print the Docker container IMAGES fields
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      loop: "{{ docker_images.stdout_lines }}"
+

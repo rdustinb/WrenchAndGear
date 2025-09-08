@@ -7,27 +7,61 @@ function exitstatus {
   BOLD="\[\033[1m\]"
   OFF="\[\033[m\]"
 
-  GOOD="${BOLD}\[\033[38;5;19m\]"
+  GOOD="${BOLD}\[\033[38;5;25m\]"
   BAD="${BOLD}\[\033[38;5;52m\]"
 
+  RED="${BOLD}\[\033[1;31m\]"
   GRAYMED="\[\033[38;5;252m\]"
-  AMPERSAND="\[\033[38;5;172m\]"
+  AMPERSAND_COLOR="\[\033[38;5;172m\]"
   GRAYDARK="\[\033[38;5;246m\]"
-  TIME="\[\033[38;5;226m\]"
+  TIME_COLOR="\[\033[1m\]\[\033[38;5;227m\]"
+  DATE_COLOR="\[\033[1m\]\[\033[38;5;229m\]"
 
-  SHELLNAME="\[\033[38;5;162m\]"
+  # Branch the user color...
+  if [[ "$(whoami)" == "root" ]]
+  then
+    USER_COLOR="${RED}"
+  else
+    USER_COLOR="${BOLD}"
+  fi
 
-  COMMONPROMPT1="\n${GRAYDARK}\w${OFF}\n"
-  COMMONPROMPT2=" [${BOLD}\u${OFF}${AMPERSAND}@${OFF}${GRAYMED}\h${OFF}, ${SHELLNAME}BASH${OFF}] ${TIME}\t${OFF}$ "
+  # Branch the shell color...
+  if [[ "$(uname -s)" == "Darwin" ]]
+  then
+    SHELL_COLOR="\[\033[38;5;140m\]"
+  else
+    SHELL_COLOR="\[\033[38;5;64m\]"
+  fi
 
+  # Create the path part...
+  PS1PART_PATH="\n${GRAYDARK}\w${OFF}"
+
+  # Create the time and date part...
+  PS1PART_TIME="${DATE_COLOR}\D{%b %d}${OFF} ${TIME_COLOR}\D{%R}${OFF}"
+
+  # Create the user part...
+  PS1PART_USER="${USER_COLOR}\u${OFF}"
+
+  # Create the system part
+  PS1PART_SYSTEM="${AMPERSAND_COLOR}@${OFF}${GRAYMED}\h${OFF}"
+
+  # Create the shell name part...
+  PS1PART_SHELL="${SHELL_COLOR}BASH${OFF}"
+
+  # Create the shell exit status from the last command part...
   if [ "${EXITSTATUS}" -eq 0 ]
   then
     # Good Last Command
-    PS1="${COMMONPROMPT1}${GOOD}:)${OFF}${COMMONPROMPT2}"
+    PS1PART_EXITSTATUS="${GOOD}:)${OFF}"
   else
     # Bad Last Command
-    PS1="${COMMONPROMPT1}${BAD}:X${OFF}${COMMONPROMPT2}"
+    PS1PART_EXITSTATUS="${BAD}:(${OFF}"
   fi
+
+  # Newline
+  # \D{%n}
+  # Assemble the full shell prompt...
+  PS1="${PS1PART_PATH}\n${PS1PART_EXITSTATUS} [${PS1PART_USER}${PS1PART_SYSTEM}, ${PS1PART_SHELL}] ${PS1PART_TIME} $ "
 }
 
 PROMPT_COMMAND=exitstatus

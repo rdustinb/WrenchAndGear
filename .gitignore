@@ -1,4 +1,6 @@
+# Don't store specific Vagrant stuffs
 vagrant-ssh
+.vagrant
 
 # Don't store OS or other ISOs
 *.iso
@@ -13,3 +15,9 @@ vagrant-ssh
 
 # Don't store my ansible config files
 *ansible.cfg
+
+# Don't store variables files
+*vars.yml
+
+# Don't store logfiles
+*.log

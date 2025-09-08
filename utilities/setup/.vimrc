@@ -1,5 +1,6 @@
 set nocompatible
-filetype plugin indent on
+" This seems to slow down some systems quite significantly, disabled by default.
+"filetype plugin indent on
 syntax on
 
 execute pathogen#infect()
@@ -35,7 +36,7 @@ if os == "Linux"
   set guifont=Source\ Code\ Pro\ for\ Powerline\ 10
 elseif os == "Darwin"
   " macOS Variant:
-  set guifont=SourceCodeProForPowerline-Regular:h10
+  set guifont=SourceCodeProForPowerline-Regular:h12
 endif
 
 " Whitespace

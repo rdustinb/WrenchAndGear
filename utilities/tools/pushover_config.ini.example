@@ -1,0 +1,4 @@
+[config]
+myApiKey = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+myUserKey = yyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+messageFile = filename.log

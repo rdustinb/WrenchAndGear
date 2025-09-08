@@ -1,0 +1,39 @@
+---
+############################################################################
+# Install Common Packages
+
+# LINUX
+- name: Install packages on Debian
+  become: true
+  when: this_distro == "Debian"
+  ansible.builtin.package:
+    update_cache: true
+    cache_valid_time: 3600
+    pkg:
+      - net-tools
+      - btop
+      - git
+      - neovim
+      - vim
+      - curl
+      - fontforge
+      - libsdl2-dev
+      - python3-pip
+      - python3-venv
+      - stress
+      - lshw
+      - systemd-timesyncd
+      - ufw
+      - neofetch
+
+# MACOS
+- name: Install packages on macOS
+  when: this_distro == "MacOSX"
+  community.general.homebrew:
+    state: present
+    name:
+      - macvim
+      - btop
+      - neofetch
+      - gh
+

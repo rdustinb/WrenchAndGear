@@ -1,0 +1,65 @@
+# Author: Dustin Brothers
+# Description:
+#   yaml playbook to pull new IMAGES of Docker containers on every host
+---
+- hosts: all
+
+  tasks:
+    - name: Get the Docker container NAMES fields for running containers...
+      command: docker ps --format '{{ '{{' }} .Names {{ '}}' }}'
+      register: docker_container_names
+
+    - name: Get the Docker container IMAGES fields for all running containers...
+      command: docker ps --format '{{ '{{' }} .Image {{ '}}' }}'
+      register: docker_container_images
+
+    # DEBUG
+    - name: Print all the running Docker containers...
+      ansible.builtin.debug:
+        msg: "{{ docker_container_images }}"
+
+    - name: Print out the Docker inspect command...
+      ansible.builtin.debug:
+        msg: "docker image inspect --format '{{ '{{' }} .Id {{ '}}' }}' {{ docker_container_images.stdout | regex_replace('\\n', ' ') }}"
+    # /DEBUG
+
+    - name: Get the latest Docker container image hash...
+      command: docker image inspect --format '{{ '{{' }} .Id {{ '}}' }}' {{ docker_container_images.stdout | regex_replace('\\n', ' ') }}
+      register: docker_latest_image_hash
+
+    # DEBUG
+    - name: Print all the hashes...
+      ansible.builtin.debug:
+        msg: "{{ docker_latest_image_hash.stdout }}"
+
+    - name: Print out the Docker inspect command...
+      ansible.builtin.debug:
+        msg: "docker container inspect --format '{{ '{{' }} .Image {{ '}}' }}' {{ docker_container_names.stdout | regex_replace('\\n', ' ') }}"
+    # /DEBUG
+
+    - name: Get the current Docker container image hash...
+      command: docker container inspect --format '{{ '{{' }} .Image {{ '}}' }}' {{ docker_container_names.stdout | regex_replace('\\n', ' ') }}
+      register: docker_container_hash
+
+    # DEBUG
+    - name: Print all the hashes...
+      ansible.builtin.debug:
+        msg: "{{ docker_container_hash.stdout }}"
+    # /DEBUG
+
+    ## TODO this is where the latest available image hash can be compared with the current container hash.
+    ## If they match, the next two steps can be skipped
+
+    - name: Pull all new Docker images...
+      command: docker pull {{ docker_container_images.stdout | regex_replace('\\n', ' ') }}
+
+    - name: Rebuild the Docker containers based on their NAMES...
+      command: docker compose up --force-recreate --build -d {{ docker_container_names.stdout | regex_replace('\\n', ' ') }}
+
+    - name: Remove dangling images that are no longer used...
+      command: docker system prune -f
+      register: docker_pruned
+
+    - name: Print the results of the prune command...
+      ansible.builtin.debug:
+        msg: "{{ docker_pruned.stdout | regex_replace('.*\\n\\n', '') }}"

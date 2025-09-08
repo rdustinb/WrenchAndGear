@@ -1,0 +1,27 @@
+services:
+  ######################################################################################################################
+  # This is a basic InfluxDB container. There are ways to setup some of the initial configuration from this container
+  # descriptor which can be found here:
+  #     https://hub.docker.com/_/influxdb/
+  #
+  # Once the container is running, the UI to setup the DB can be accessed through:
+  #     http://localhost:8086
+  influxdb:
+    container_name: influxdb
+    image: influxdb:2
+    restart: unless-stopped
+    ports:
+      - '8086:8086'
+    volumes:
+      - '~/volumes/influxdb/data:/var/lib/influxdb2'
+      - '~/volumes/influxdb/config:/etc/influxdb2'
+    environment:
+      # What are these to setup the database? Look here:
+      # https://docs.influxdata.com/influxdb/v2/install/use-docker-compose/#set-up-using-docker-compose-secrets
+      - 'DOCKER_INFLUXDB_INIT_MODE=setup'
+      - 'DOCKER_INFLUXDB_INIT_ORG=BrothersHome'
+      - 'DOCKER_INFLUXDB_INIT_BUCKET=WeatherStation'
+      - 'DOCKER_INFLUXDB_INIT_USERNAME=sudood'
+      - 'DOCKER_INFLUXDB_INIT_PASSWORD=password'
+    networks:
+      - 'monitoring'

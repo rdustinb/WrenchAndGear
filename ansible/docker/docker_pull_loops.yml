@@ -1,0 +1,16 @@
+# Author: Dustin Brothers
+# Description:
+#   yaml playbook to pull new IMAGES of Docker containers on every host
+---
+- hosts: all
+
+  tasks:
+    - name: Get the Docker container IMAGES fields for all running containers...
+      command: docker ps --format '{{ '{{' }} .Image {{ '}}' }}'
+      register: docker_images
+
+    - name: Pull all new Docker images...
+      community.docker.docker_image:
+        name: "{{ item }}"
+        source: pull
+      loop: "{{ docker_images.stdout_lines }}"

@@ -1,0 +1,78 @@
+# Author: Dustin Brothers
+# Description:
+#   yaml playbook to setup a raspberry pi with all my stuffs...
+---
+- hosts: all
+
+  vars:
+    this_home: "{{ ansible_facts['env']['HOME'] }}"
+    this_distro: "{{ ansible_facts['distribution'] }}"
+
+  vars_files:
+    - vars.yml
+
+  handlers:
+    - name: reboot handler
+      when: docker_exists is failed
+      become: true
+      reboot:
+        msg: "Rebooting machine..."
+
+    - name: restart ssh
+      become: true
+      service:
+        name: sshd
+        state: restarted
+
+  roles:
+    - configpkgs
+    - configpowermanagement
+    - configntp
+    - configterm
+    - configvim
+    - configdocker
+    - configsecurity
+
+  pre_tasks:
+    - name: Source the .alias file
+      ansible.builtin.lineinfile:
+        path: "{{ this_home }}/.bashrc"
+        regexp: '^source ~/.alias'
+        line: "source ~/.alias"
+
+  post_tasks:
+    - name: Cleanup docker setup script...
+      when: docker_exists is failed
+      shell:
+        cmd: "rm {{ this_home }}/docker_setup.sh"
+
+  tasks:
+    ############################################################################
+    # Create the virtual environment location
+    - name: Manually create the initial virtualenv
+      command:
+        cmd: "python3 -m 'venv' {{ this_home }}/python_dev_env"
+        creates: "{{ this_home }}/python_dev_env"
+
+    ############################################################################
+    # Setup my Python Virtual Environment
+    - name: Install venv pip3 packages
+      pip:
+        name:
+          - pyserial
+          - psutil
+          - stressberry
+          - gpiozero
+        virtualenv: "{{ this_home }}/python_dev_env"
+
+    ############################################################################
+    # Create a Cronjob to collect stats about the system
+    - name: Install Clustering repo...
+      git:
+        repo: "https://github.com/rdustinb/Clustering.git"
+        dest: "{{ this_home }}/python_dev_env/Clustering"
+
+    - name: Create a cronjob to collect system stats...
+      cron:
+        name: "System Stats"
+        job: "source {{ this_home }}/python_dev_env/bin/activate ; python3 {{ this_home }}/python_dev_env/Clustering/utilities/local_data_collector.py ; deactivate"

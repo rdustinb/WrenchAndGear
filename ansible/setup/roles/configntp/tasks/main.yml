@@ -1,0 +1,23 @@
+---
+############################################################################
+# Setup the Time
+- name: Set the local timezone...
+  become: true
+  community.general.timezone:
+    name: "{{ this_timezone }}"
+
+- name: Configure NTP syncing...
+  become: true
+  ansible.builtin.replace:
+    path: "/etc/systemd/timesyncd.conf"
+    after: '[Time]'
+    regexp: '#'
+    replace: ''
+
+- name: Specify the primary NTP sync server...
+  become: true
+  ansible.builtin.replace:
+    path: "/etc/systemd/timesyncd.conf"
+    after: '[Time]'
+    regexp: '^NTP=$'
+    replace: 'NTP=pool.ntp.org'

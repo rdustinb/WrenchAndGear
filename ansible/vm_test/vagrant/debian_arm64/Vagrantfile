@@ -1,0 +1,47 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  # Used for AMD/Intel64 Hosts:
+  #config.vm.box = "generic/debian12"
+
+  # My Box created for ARM64 on Apple Silicon
+  config.vm.box = "KrampusBoxes/debian12"
+
+  config.ssh.insert_key = false
+
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  # How VirtualBox should setup every VM
+  config.vm.provider :virtualbox do |v|
+    # If the memory is set too low, the machine will get stuck
+    # booting up, careful!
+    v.memory = 1024
+    v.cpus = 1
+    v.linked_clone = true
+  end
+
+  # Define the different servers
+  # TODO Don't forget to edit the hosts.ini file!
+  config.vm.define "node0" do |node0|
+    node0.vm.hostname = "node0.test"
+    node0.vm.network :private_network, ip: "192.168.17.10"
+  end
+
+  #config.vm.define "node1" do |node1|
+  #  node1.vm.hostname = "node1.test"
+  #  node1.vm.network :private_network, ip: "192.168.17.11"
+  #end
+
+  #config.vm.define "node2" do |node2|
+  #  node2.vm.hostname = "node2.test"
+  #  node2.vm.network :private_network, ip: "192.168.17.12"
+  #end
+
+  #config.vm.define "node3" do |node3|
+  #  node3.vm.hostname = "node3.test"
+  #  node3.vm.network :private_network, ip: "192.168.17.13"
+  #end
+
+end

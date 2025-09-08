@@ -1,0 +1,13 @@
+services:
+  #####################################################################
+  # Uptime Kuma provides a self-hosted monitoring system for sites and 
+  # servers, ports and urls. It can run in Docker and has a great UI
+  # for configuration!
+  uptimekuma:
+    container_name: uptimekuma
+    image: louislam/uptime-kuma:latest
+    restart: unless-stopped
+    volumes:
+      - '~/volumes/uptimekuma:/app/data'
+    ports:
+      - "3001:3001"

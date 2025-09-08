@@ -1,0 +1,37 @@
+services:
+  #####################################################################
+  # Speedtest Tracker is an open source project which can be configured
+  # to periodically test a networks internet bandwidth, complete with a
+  # web interface and graphs and charts.
+  #
+  # This container provides functionality for one of the Homepage
+  # widgets.
+  speedtest-tracker:
+    image: lscr.io/linuxserver/speedtest-tracker:latest
+    container_name: speedtest-tracker
+    restart: unless-stopped
+    network_mode: bridge
+    ports:
+      - 8080:80
+      - 8443:443
+    environment:
+      PUID: 1000
+      PGID: 1000
+      # This key can be obtained by going to: 
+      #   https://speedtest-tracker.dev
+      APP_KEY: 
+      APP_URL: http://localhost
+      # This uses a cronjob time format for how often to run the speedtest
+      SPEEDTEST_SCHEDULE: "*/5 * * * *"
+      # All of the timezone formats are similar to:
+      #   "Country/City"
+      APP_TIMEZONE: "America/New York"
+      DISPLAY_TIMEZONE: "America/New York"
+      # All of the formats are similar to:
+      #   "y-m-d H:i"
+      DATETIME_FORMAT: "y-m-d H:i" 
+      CHART_DATETIME_FORMAT: "y-m-d H:i"
+      DB_CONNECTION: sqlite
+    volumes:
+      - '~/volumes/speedtest/config:/config'
+      - '~/volumes/speedtest/keys:/config/keys'

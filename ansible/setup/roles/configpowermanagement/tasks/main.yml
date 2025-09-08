@@ -1,0 +1,22 @@
+---
+############################################################################
+# Check for the state of things first...
+- name: Register if power settings are modified
+  shell: "ls /etc/systemd/system/sleep.target"
+  register: power_management_exists
+  ignore_errors: yes
+  changed_when: false
+  no_log: true
+
+############################################################################
+# sudo systemctl disable sleep.target suspend.target hibernate.target hybrid-sleep.target
+# sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+- name: Completely disable automatic system suspend...
+  when: power_management_exists is failed
+  become: true
+  command:
+    cmd: "{{ item }}"
+  loop:
+    - systemctl disable sleep.target suspend.target hibernate.target hybrid-sleep.target
+    - systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+
