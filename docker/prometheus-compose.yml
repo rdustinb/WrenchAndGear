@@ -5,7 +5,12 @@ services:
     container_name: prometheus
     image: prom/prometheus:latest
     restart: unless-stopped
+    command:
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=90d'
+      - '--config.file=/etc/prometheus/prometheus.yml'
     volumes:
+      - '~/volumes/prometheus/data:/prometheus'
       - '~/volumes/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml'
     networks:
       - 'localprom'
