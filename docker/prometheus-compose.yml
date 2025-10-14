@@ -1,5 +1,23 @@
 services:
   #####################################################################
+  # Prometheus Volume Permissions Initializer
+  #
+  #   https://stackoverflow.com/questions/74810089/err-open-prometheus-queries-active-permission-denied
+  #
+  # This initializer fixes permissions issues that occur when the container is first created. The permission issues will
+  # cause the regular Prometheus container to constantly restart.
+  prometheusInit:                                                                        
+    image: prom/prometheus:latest
+    user: root                                                    
+    entrypoint:
+      - /bin/sh                                                    
+      - -c                                                     
+      - |     
+        chown -R 65534:65534 /prometheus
+    volumes:       
+      - '~/volumes/prometheus/data:/prometheus'
+
+  #####################################################################
   # Prometheus Data Aggregator
   prometheus:
     container_name: prometheus
@@ -16,3 +34,5 @@ services:
       - 'localprom'
     ports:
       - '9090:9090'
+    depends_on:
+      - prometheusInit
