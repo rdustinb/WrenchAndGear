@@ -21,3 +21,9 @@ services:
       - '~/volumes/homepage/config:/app/config'
       - '~/volumes/homepage/icons:/app/public/icons'
       - '~/volumes/homepage/images:/app/public/images'
+      # Specify the disk to monitor in the Homepage widgets at the top, mount as readonly.
+      - '/home:/mnt/rohome:ro'
+      # Then inside the widgets.yml file, put this:
+      #   - resources:
+      #     label: Storage
+      #     disk: /mnt/rohome
