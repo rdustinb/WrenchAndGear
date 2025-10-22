@@ -11,3 +11,12 @@ services:
       - '--path.rootfs=/host'
     volumes:
       - '/:/host:ro,rslave'
+    # Only needed if prometheus and node exporter are on the same device...
+    network:
+      - 'localprom'
+
+########################################
+# Define a local network between Prometheus and Node Exporter on the same bare metal device...
+networks:
+  localprom:
+    driver: 'bridge'
